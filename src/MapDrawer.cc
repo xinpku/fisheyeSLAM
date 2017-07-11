@@ -86,6 +86,7 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph)
     const float h = w*0.75;
     const float z = w*0.6;
 
+
     const vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
 
     if(bDrawKF)
@@ -99,29 +100,44 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph)
 
             glMultMatrixf(Twc.ptr<GLfloat>(0));
 
+            float scale = 5;
             glLineWidth(mKeyFrameLineWidth);
+            glColor3f(1.0f,0.0f,0.0f);
+            glBegin(GL_LINES);
+            glVertex3f(0,0,0);
+            glVertex3f(w*3,0,0);
+
+            glColor3f(0.0f,1.0f,0.0f);
+            glBegin(GL_LINES);
+            glVertex3f(0,0,0);
+            glVertex3f(0,h*3,0);
+
             glColor3f(0.0f,0.0f,1.0f);
             glBegin(GL_LINES);
             glVertex3f(0,0,0);
-            glVertex3f(w,h,z);
+            glVertex3f(0,0,z*3);
+
+            glColor3f(1.0f,0.0f,1.0f);
             glVertex3f(0,0,0);
-            glVertex3f(w,-h,z);
+            glVertex3f(w/scale,h/scale,z/scale);
             glVertex3f(0,0,0);
-            glVertex3f(-w,-h,z);
+            glVertex3f(w/scale,-h/scale,z/scale);
             glVertex3f(0,0,0);
-            glVertex3f(-w,h,z);
+            glVertex3f(-w/scale,-h/scale,z/scale);
+            glVertex3f(0,0,0);
+            glVertex3f(-w/scale,h/scale,z/scale);
 
-            glVertex3f(w,h,z);
-            glVertex3f(w,-h,z);
+            glVertex3f(w/scale,h/scale,z/scale);
+            glVertex3f(w/scale,-h/scale,z/scale);
 
-            glVertex3f(-w,h,z);
-            glVertex3f(-w,-h,z);
+            glVertex3f(-w/scale,h/scale,z/scale);
+            glVertex3f(-w/scale,-h/scale,z/scale);
 
-            glVertex3f(-w,h,z);
-            glVertex3f(w,h,z);
+            glVertex3f(-w/scale,h/scale,z/scale);
+            glVertex3f(w/scale,h/scale,z/scale);
 
-            glVertex3f(-w,-h,z);
-            glVertex3f(w,-h,z);
+            glVertex3f(-w/scale,-h/scale,z/scale);
+            glVertex3f(w/scale,-h/scale,z/scale);
             glEnd();
 
             glPopMatrix();
