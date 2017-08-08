@@ -28,13 +28,12 @@
 #include <mutex>
 
 
-
 namespace ORB_SLAM2
 {
 
 class MapPoint;
 class KeyFrame;
-
+class SemanticMap;
 class Map
 {
 public:
@@ -66,6 +65,7 @@ public:
     // This avoid that two points are created simultaneously in separate threads (id conflict)
     std::mutex mMutexPointCreation;
 
+    SemanticMap* mSemanticMap;
 protected:
     std::set<MapPoint*> mspMapPoints;
     std::set<KeyFrame*> mspKeyFrames;

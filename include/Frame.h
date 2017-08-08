@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include <opencv2/opencv.hpp>
 #include <fisheye_corrector/fisheye_corrector.h>
+#include "SemanticClassMap/SemanticClass.h"
 namespace ORB_SLAM2
 {
 #define FRAME_GRID_ROWS 48
@@ -57,10 +58,10 @@ public:
     // Constructor for Monocular cameras.
     Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor,ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
 	
-	Frame(const std::vector<cv::Mat> &imGray, const double &timeStamp, std::vector<FisheyeCorrector> &correctors, std::vector<ORBextractor*>& extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
+	Frame(const std::vector<cv::Mat> &imGray,const cv::Mat& road_notation ,const double &timeStamp, std::vector<FisheyeCorrector> &correctors, std::vector<ORBextractor*>& extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
     // Extract ORB on the image. 0 for left image and 1 for right image.
     void ExtractORB(int flag, const cv::Mat &im);
-	void ExtractORBFisheye(const std::vector<cv::Mat> &ims, std::vector<FisheyeCorrector> &correctors, std::vector<ORBextractor*>& ORBextractor);
+	void ExtractORBFisheye(const std::vector<cv::Mat> &ims,const cv::Mat& road_notation ,std::vector<FisheyeCorrector> &correctors, std::vector<ORBextractor*>& ORBextractor);
     // Compute Bag of Words representation.
     void ComputeBoW();
 
@@ -137,7 +138,7 @@ public:
     // In the RGB-D case, RGB images can be distorted.
     std::vector<cv::KeyPoint> mvKeys, mvKeysRight;
     std::vector<cv::KeyPoint> mvKeysUn;
-
+    std::vector<SemanticClass> mvSemanticClass;
     // Corresponding stereo coordinate and depth for each keypoint.
     // "Monocular" keypoints have a negative value.
     std::vector<float> mvuRight;

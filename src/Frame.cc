@@ -22,6 +22,7 @@
 #include "Converter.h"
 #include "ORBmatcher.h"
 #include <thread>
+#include <opencv2/imgproc/imgproc.hpp>
 
 namespace ORB_SLAM2
 {
@@ -47,7 +48,7 @@ Frame::Frame(const Frame &frame)
      mpReferenceKF(frame.mpReferenceKF), mnScaleLevels(frame.mnScaleLevels),
      mfScaleFactor(frame.mfScaleFactor), mfLogScaleFactor(frame.mfLogScaleFactor),
      mvScaleFactors(frame.mvScaleFactors), mvInvScaleFactors(frame.mvInvScaleFactors),
-     mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2)
+     mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2),mvSemanticClass(frame.mvSemanticClass)
 {
     for(int i=0;i<FRAME_GRID_COLS;i++)
         for(int j=0; j<FRAME_GRID_ROWS; j++)
@@ -227,12 +228,12 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
     AssignFeaturesToGrid();
 }
 
-Frame::Frame(const std::vector<cv::Mat> &imGray, const double &timeStamp, std::vector<FisheyeCorrector> &correctors, std::vector<ORBextractor*>& extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
+Frame::Frame(const std::vector<cv::Mat> &imGray,const cv::Mat& object_class, const double &timeStamp, std::vector<FisheyeCorrector> &correctors, std::vector<ORBextractor*>& extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
 	:mpORBvocabulary(voc), mpORBextractorLeft(extractor[0]), mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
 	mTimeStamp(timeStamp), mK(K.clone()), mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth)
 {
 
-
+    //std::cout<<"Frame "<<std::endl;
 	// This is done only for the first Frame (or after a change in the calibration)
 	if (mbInitialComputations)
 	{
@@ -274,7 +275,7 @@ Frame::Frame(const std::vector<cv::Mat> &imGray, const double &timeStamp, std::v
 
 
 	// ORB extraction
-	ExtractORBFisheye(imGray, correctors, extractor);
+	ExtractORBFisheye(imGray,object_class, correctors, extractor);
 
 	N = mvKeys.size();
 
@@ -321,41 +322,50 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
         (*mpORBextractorRight)(im,cv::Mat(),mvKeysRight,mDescriptorsRight);
 }
 
-void Frame::ExtractORBFisheye(const std::vector<cv::Mat> &ims, std::vector<FisheyeCorrector> &correctors, std::vector<ORBextractor*>& ORBextractor)
+void Frame::ExtractORBFisheye(const std::vector<cv::Mat> &ims,const cv::Mat& object_class ,std::vector<FisheyeCorrector> &correctors, std::vector<ORBextractor*>& ORBextractor)
 {
+    //std::cout<<"ExtractORBFisheye "<<std::endl;
 	std::vector<cv::KeyPoint> mvKeys_current,mvfisheye_keys_current,mvundist_keys_current;
 	cv::Mat mDescriptors_current;
-	
+	std::vector<cv::Mat> object_channel;
+    cv::split(object_class,object_channel);
+    cv::Mat object_classID = object_channel[2];
 	
 	for (int i = 0; i < ims.size(); i++)
 	{
 		(*ORBextractor[i])(ims[i], cv::Mat(), mvKeys_current, mDescriptors_current);
 		correctors[i].mapToOriginalImage(mvKeys_current, mvfisheye_keys_current);
 		std::vector<bool> points_validate;
-		correctors[i].mapFromCorrectedImageToCenterImagePlane(mvKeys_current, mvundist_keys_current, points_validate, cx, cy, fx);
+		correctors[i].mapFromCorrectedImageToCenterImagePlane(mvKeys_current, mvundist_keys_current, cx, cy, fx);
 		mvKeys.reserve(mvKeys.size()+mvKeys_current.size());
+        mvSemanticClass.reserve(mvKeys.size()+mvKeys_current.size());
+
 		if (mDescriptors.empty())
 		{
 			mDescriptors.create(0, 32, CV_8U);
 		}
-		
+
 		mDescriptors.reserve(mDescriptors.rows+mDescriptors_current.rows);
 		mvKeysUn.reserve(mvKeysUn.size() + mvKeys_current.size());
+        //std::cout<<"object_classId.size()  "<<object_classID.size()<<"   "<<object_classID.type()<<std::endl;
+        //std::cout<<mvKeys_current.size()<<"   "<<mvfisheye_keys_current.size()<<std::endl;
 		for (int j = 0; j < mvKeys_current.size(); j++)
 		{
-			if (points_validate[j])
-			{
+                //std::cout<<j<<"    ";
 				mvKeys.push_back(mvfisheye_keys_current[j]);
-				mvKeysUn.push_back(mvundist_keys_current[j]);
+                //std::cout<<mvfisheye_keys_current[j].pt<<std::endl;
+                mvSemanticClass.push_back((SemanticClass)object_classID.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x));
+				//std::cout<<"object_image  "<<(int)object_classID.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x)<<std::endl;
+                mvKeysUn.push_back(mvundist_keys_current[j]);
 				mDescriptors.push_back(mDescriptors_current.row(j));
-			}
 		}
-		/*cv::Mat part;
+        //std::cout<<"make frame"<<std::endl;
+		cv::Mat part;
 		cv::drawKeypoints(ims[i], mvKeys_current, part);
 		std::stringstream sst;
 		sst << "part" << i;
 		cv::namedWindow(sst.str(), 0);
-		cv::imshow(sst.str(),part);*/
+		cv::imshow(sst.str(),part);
 	}
 	//cv::waitKey(10);
 }

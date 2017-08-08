@@ -96,7 +96,8 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     //(it will live in the main thread of execution, the one that called this constructor)
     mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer, mpMapDrawer,
                              mpMap, mpKeyFrameDatabase, strSettingsFile, mSensor);
-
+    mpSemanticMap = new SemanticMap();
+    mpMap->mSemanticMap = mpSemanticMap;
     //Initialize the Local Mapping thread and launch
     mpLocalMapper = new LocalMapping(mpMap, mSensor==MONOCULAR);
     mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run,mpLocalMapper);
@@ -176,7 +177,8 @@ cv::Mat System::TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const
 }
 
 
-cv::Mat System::TrackFisheye(const cv::Mat& imFisheyeGray, const std::vector<cv::Mat> &imList, const double &timestamp, std::vector<FisheyeCorrector> &correctors)
+cv::Mat System::TrackFisheye(const cv::Mat &imFisheyeGray, const cv::Mat &object_class,
+                             const double &timestamp, std::vector<FisheyeCorrector> &correctors)
 {
 	if (mSensor != FISHEYE)
 	{
@@ -218,7 +220,19 @@ cv::Mat System::TrackFisheye(const cv::Mat& imFisheyeGray, const std::vector<cv:
 		}
 	}
 
-	cv::Mat Tcw = mpTracker->GrabImageFisheye(imFisheyeGray, imList, timestamp, correctors);
+    std::vector<cv::Mat> imgs;
+    for (int view = 0; view < correctors.size(); view++)
+    {
+        cv::Mat current_view;
+        correctors[view].correct(imFisheyeGray,current_view);
+        imgs.push_back(current_view);
+        //std::stringstream sst;
+        //sst << "view" << view;
+        //cv::imshow(sst.str(), current_view);
+    }
+
+
+	cv::Mat Tcw = mpTracker->GrabImageFisheye(imFisheyeGray, imgs, object_class, timestamp, correctors);
 
 	unique_lock<mutex> lock2(mMutexState);
 	mTrackingState = mpTracker->mState;

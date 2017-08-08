@@ -431,6 +431,8 @@ void LocalMapping::CreateNewMapPoints()
 
             // Triangulation is succesfull
             MapPoint* pMP = new MapPoint(x3D,mpCurrentKeyFrame,mpMap);
+            //wx-debug we simply set the semantic class of the map point the same as current keyframe. But it should be a fusion processing according the probability of every class type.
+            pMP->mSemanticClass = mpCurrentKeyFrame->mvSemanticClass[idx1];
 
             pMP->AddObservation(mpCurrentKeyFrame,idx1);            
             pMP->AddObservation(pKF2,idx2);

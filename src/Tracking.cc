@@ -276,14 +276,30 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
     return mCurrentFrame.mTcw.clone();
 }
 
-cv::Mat Tracking::GrabImageFisheye(const cv::Mat &fisheyeIm, const std::vector<cv::Mat> &im, const double &timestamp, std::vector<FisheyeCorrector> &correctors)
+cv::Mat Tracking::GrabImageFisheye(const cv::Mat &fisheyeIm, const std::vector<cv::Mat> &im, const cv::Mat &object_class,
+                                   const double &timestamp, std::vector<FisheyeCorrector> &correctors)
 {
-	mImGray = fisheyeIm;
+    cv::Mat fisheyeBGR;
+    //std::cout<<"grab Image "<<std::endl;
+    cv::cvtColor(fisheyeIm,fisheyeBGR,cv::COLOR_GRAY2BGR);
+    cv::Vec3b* fisheyeBGR_data = (cv::Vec3b*)fisheyeBGR.data;
+    cv::Vec3b* object_class_data = (cv::Vec3b*)object_class.data;
+    int height  = fisheyeBGR.rows;
+    int width = fisheyeBGR.cols;
+
+    for(int i = 0;i<height;i++)
+        for(int j = 0;j<width;j++)
+        {
+            int idx = i*width+j;
+            if(object_class_data[idx](2) == 1)
+                fisheyeBGR_data[idx](1) = 255;
+        }
+    mImGray = fisheyeBGR;
 
 	if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET)
-		mCurrentFrame = Frame(im, timestamp, correctors, mpFisheyeORBextractor, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth);
+		mCurrentFrame = Frame(im,object_class, timestamp, correctors, mpFisheyeORBextractor, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth);
 	else
-		mCurrentFrame = Frame(im, timestamp, correctors, mpFisheyeORBextractor, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth);
+		mCurrentFrame = Frame(im,object_class ,timestamp, correctors, mpFisheyeORBextractor, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth);
 
 	Track();
 
@@ -371,8 +387,11 @@ void Tracking::Track()
                        
                     }
 					if (!bOK)
-						std::cout << "trackWithMotionModel fail" << std::endl;
-					bOK |= TrackReferenceKeyFrame();
+                    {
+                        std::cout << "trackWithMotionModel fail" << std::endl;
+                        bOK |= TrackReferenceKeyFrame();
+                    }
+
                 }
                 else
                 {
@@ -429,16 +448,17 @@ void Tracking::Track()
         if(!mbOnlyTracking)
         {
 			//std::cout << "tracking statue reference frame: " << bOK << std::endl;
-			if (!bOK)
-				std::cout << "trackWithReference fail" << std::endl;
-           //if(bOK)
+			/*if (!bOK)
+            {
+                std::cout << "trackWithReference fail" << std::endl;
+                std::cout<<mCurrentFrame.mTcw<<std::endl;
+            }*/
+
+           if(mState==OK)
                 bOK |= TrackLocalMap();
 
 				if (!bOK)
 					std::cout << "trackWithLocalMap fail" << std::endl;
-			//std::cout << "tracking statue local map: " << bOK << std::endl;
-			if (!bOK)
-				system("pause");
         }
         else
         {
@@ -452,7 +472,12 @@ void Tracking::Track()
         if(bOK)
             mState = OK;
         else
+        {
             mState=LOST;
+            std::cout<<"lost"<<std::endl;
+        }
+
+
 
         // Update drawer
         mpFrameDrawer->Update(this);
@@ -567,6 +592,7 @@ void Tracking::StereoInitialization()
             {
                 cv::Mat x3D = mCurrentFrame.UnprojectStereo(i);
                 MapPoint* pNewMP = new MapPoint(x3D,pKFini,mpMap);
+                pNewMP->mSemanticClass = pKFini->mvSemanticClass[i];
                 pNewMP->AddObservation(pKFini,i);
                 pKFini->AddMapPoint(pNewMP,i);
                 pNewMP->ComputeDistinctiveDescriptors();
@@ -684,15 +710,17 @@ void Tracking::CreateInitialMapMonocular()
     KeyFrame* pKFini = new KeyFrame(mInitialFrame,mpMap,mpKeyFrameDB);
     KeyFrame* pKFcur = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
 
-
+    //unique_lock<mutex> lock(mpMap->mMutexPointCreation);
     pKFini->ComputeBoW();
     pKFcur->ComputeBoW();
 
     // Insert KFs in the map
     mpMap->AddKeyFrame(pKFini);
     mpMap->AddKeyFrame(pKFcur);
-
+    std::cout<<"CreateInitialMapMonocular"<<std::endl;
     // Create MapPoints and asscoiate to keyframes
+    std::cout<<"pKFini->road_state.size()"<<pKFini->mvSemanticClass.size()<<std::endl;
+    std::cout<<"pKFcur->road_state.size()"<<pKFcur->mvSemanticClass.size()<<std::endl;
     for(size_t i=0; i<mvIniMatches.size();i++)
     {
         if(mvIniMatches[i]<0)
@@ -702,9 +730,13 @@ void Tracking::CreateInitialMapMonocular()
         cv::Mat worldPos(mvIniP3D[i]);
 
         MapPoint* pMP = new MapPoint(worldPos,pKFcur,mpMap);
+        //std::cout<<"i "<<i<<" match i "<<mvIniMatches[i]<<std::endl;
+
+        pMP->mSemanticClass = pKFini->mvSemanticClass[i];
 
         pKFini->AddMapPoint(pMP,i);
         pKFcur->AddMapPoint(pMP,mvIniMatches[i]);
+
 
         pMP->AddObservation(pKFini,i);
         pMP->AddObservation(pKFcur,mvIniMatches[i]);
@@ -813,11 +845,12 @@ bool Tracking::TrackReferenceKeyFrame()
 	//std::cout << "TrackReferenceKeyFrame SearchByBoW nmatches: " << nmatches << std::endl;
 	//mCurrentFrame.SetPose(mLastFrame.mTcw);//edit-by-wx 2016-12-09 If tracking on reference frame is lost, we still want to try to track on local map. Then the pose must be set.
 
+    mCurrentFrame.SetPose(mLastFrame.mTcw);
     if(nmatches<15)//wx-2016-12-09 original value is 15
         return false;
 
     mCurrentFrame.mvpMapPoints = vpMapPointMatches;
-    mCurrentFrame.SetPose(mLastFrame.mTcw);
+
 
     Optimizer::PoseOptimization(&mCurrentFrame);
 
@@ -1015,7 +1048,7 @@ bool Tracking::TrackLocalMap()
     if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && mnMatchesInliers<50)//original value is 50
         return false;
 
-    if(mnMatchesInliers<30)//wx-parameter-adjust 2016-12-31 original value is 30
+    if(mnMatchesInliers<15)//wx-parameter-adjust 2016-12-31 original value is 30
         return false;
     else
         return true;
@@ -1160,6 +1193,7 @@ void Tracking::CreateNewKeyFrame()
                 {
                     cv::Mat x3D = mCurrentFrame.UnprojectStereo(i);
                     MapPoint* pNewMP = new MapPoint(x3D,pKF,mpMap);
+                    pNewMP->mSemanticClass = mCurrentFrame.mvSemanticClass[i];
                     pNewMP->AddObservation(pKF,i);
                     pKF->AddMapPoint(pNewMP,i);
                     pNewMP->ComputeDistinctiveDescriptors();

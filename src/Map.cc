@@ -19,7 +19,7 @@
 */
 
 #include "Map.h"
-
+#include "src/SemanticClassMap/SemanticClassMap.h"
 #include<mutex>
 
 namespace ORB_SLAM2
@@ -41,13 +41,20 @@ void Map::AddMapPoint(MapPoint *pMP)
 {
     unique_lock<mutex> lock(mMutexMap);
     mspMapPoints.insert(pMP);
+/*    if(pMP->mSemanticClass!=SemanticClass::nBackground)
+    {
+        mSemanticMap->addMapPoint(pMP);
+    }*/
 }
 
 void Map::EraseMapPoint(MapPoint *pMP)
 {
     unique_lock<mutex> lock(mMutexMap);
     mspMapPoints.erase(pMP);
-
+/*    if(pMP->mSemanticClass!=SemanticClass::nBackground)
+    {
+        mSemanticMap->roadMap.erase(pMP);
+    }*/
     // TODO: This only erase the pointer.
     // Delete the MapPoint
 }

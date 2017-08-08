@@ -27,6 +27,7 @@
 
 #include<opencv2/core/core.hpp>
 #include<mutex>
+#include "SemanticClassMap/SemanticClass.h"
 
 namespace ORB_SLAM2
 {
@@ -112,6 +113,7 @@ public:
 
     static std::mutex mGlobalMutex;
 
+    SemanticClass mSemanticClass;
 protected:    
 
      // Position in absolute coordinates

@@ -23,6 +23,7 @@
 #include "KeyFrame.h"
 #include <pangolin/pangolin.h>
 #include <mutex>
+#include <src/SemanticClassMap/SemanticClassMap.h>
 
 namespace ORB_SLAM2
 {
@@ -48,6 +49,7 @@ void MapDrawer::DrawMapPoints()
 
     set<MapPoint*> spRefMPs(vpRefMPs.begin(), vpRefMPs.end());
 
+    set<MapPoint*>& vpRoadMap = mpMap->mSemanticMap->roadMap;
     if(vpMPs.empty())
         return;
 
@@ -78,6 +80,23 @@ void MapDrawer::DrawMapPoints()
     }
 
     glEnd();
+
+   /* glPointSize(mPointSize*2);
+    glBegin(GL_POINTS);
+    glColor3f(1.0,0.0,0.0);
+    //std::cout<<"viewer  "<<vpRoadMap.size()<<std::endl;
+    for(set<MapPoint*>::iterator sit=vpRoadMap.begin(), send=vpRoadMap.end(); sit!=send; sit++)
+    {
+        if((*sit)->isBad())
+            continue;
+
+        cv::Mat pos = (*sit)->GetWorldPos();
+
+        glVertex3f(pos.at<float>(0), pos.at<float>(1) , pos.at<float>(2) );
+    }
+    //std::cout<<"viewer OK"<<std::endl;
+    glEnd();*/
+
 }
 
 void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph)
