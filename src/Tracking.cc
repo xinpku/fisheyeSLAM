@@ -41,7 +41,6 @@ using namespace std;
 
 namespace ORB_SLAM2
 {
-
 Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Map *pMap, KeyFrameDatabase* pKFDB, const string &strSettingPath, const int sensor):
     mState(NO_IMAGES_YET), mSensor(sensor), mbOnlyTracking(false), mbVO(false), mpORBVocabulary(pVoc),
     mpKeyFrameDB(pKFDB), mpInitializer(static_cast<Initializer*>(NULL)), mpSystem(pSys), mpViewer(NULL),
@@ -279,22 +278,59 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
 cv::Mat Tracking::GrabImageFisheye(const cv::Mat &fisheyeIm, const std::vector<cv::Mat> &im, const cv::Mat &object_class,
                                    const double &timestamp, std::vector<FisheyeCorrector> &correctors)
 {
-    cv::Mat fisheyeBGR;
+    cv::Mat fisheyeBGR,fisheyeHSV;
     //std::cout<<"grab Image "<<std::endl;
     cv::cvtColor(fisheyeIm,fisheyeBGR,cv::COLOR_GRAY2BGR);
+    cv::cvtColor(fisheyeBGR,fisheyeHSV,cv::COLOR_BGR2HSV);
     cv::Vec3b* fisheyeBGR_data = (cv::Vec3b*)fisheyeBGR.data;
     cv::Vec3b* object_class_data = (cv::Vec3b*)object_class.data;
+    cv::Vec3b* fisheyeHSV_data = (cv::Vec3b*)fisheyeHSV.data;
     int height  = fisheyeBGR.rows;
     int width = fisheyeBGR.cols;
 
+    unsigned long long average_intensity_of_road = 0;
+    long road_count = 0;
     for(int i = 0;i<height;i++)
         for(int j = 0;j<width;j++)
         {
             int idx = i*width+j;
-            if(object_class_data[idx](2) == 1)
-                fisheyeBGR_data[idx](1) = 255;
+            int class_id = object_class_data[idx](2);
+            if(class_id == SemanticClass::nRoad)
+            {
+                average_intensity_of_road+=fisheyeHSV_data[idx](2);
+                road_count++;
+            }
+
         }
+    average_intensity_of_road/=road_count;
+    int reflection_threshold = (255-average_intensity_of_road)/5+average_intensity_of_road;
+    for(int i = 0;i<height;i++)
+        for(int j = 0;j<width;j++)
+        {
+            int idx = i*width+j;
+            int class_id = object_class_data[idx](2);
+            if(class_id == SemanticClass::nRoad&&fisheyeHSV_data[idx](2)>reflection_threshold)
+            {
+                object_class_data[idx](2) = 6;
+                class_id = 6;
+                object_class_data[idx](1) = 99;
+            }
+
+            if(sematic_color_b[class_id]>=0)
+                fisheyeBGR_data[idx](0) = sematic_color_b[class_id];
+            if(sematic_color_g[class_id]>=0)
+                fisheyeBGR_data[idx](1) = sematic_color_g[class_id];
+            if(sematic_color_r[class_id]>=0)
+                fisheyeBGR_data[idx](2) = sematic_color_r[class_id];
+        }
+
     mImGray = fisheyeBGR;
+
+    if(mpFisheyeORBextractor.size()!=correctors.size())
+    {
+        std::cout<<"You use "<<correctors.size()<<" fisheye correctors, but the camera number is set to "<<mpFisheyeORBextractor.size()<<". Please set the parameter Camera.n_camera in the config file."<<std::endl;
+        exit(-15);
+    }
 
 	if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET)
 		mCurrentFrame = Frame(im,object_class, timestamp, correctors, mpFisheyeORBextractor, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth);

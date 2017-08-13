@@ -8,8 +8,13 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include "MapPoint.h"
+#include "SemanticClass.h"
+#include <mutex>
+#include "ObjectMap.h"
+
 namespace ORB_SLAM2
 {
+    class ObjectMap;
     class SemanticMap
     {
 
@@ -17,9 +22,14 @@ namespace ORB_SLAM2
     public:
         void addMapPoint(MapPoint* mp);
         void eraseMapPoint(MapPoint* mp);
-
-        std::set<MapPoint*> roadMap;
+        void clear();
+        ObjectMap roadMap;
+        ObjectMap carMap;
+        ObjectMap personMap;
+        ObjectMap obstacleMap;
+        ObjectMap parkinglotMap;
     };
+
 
 }
 

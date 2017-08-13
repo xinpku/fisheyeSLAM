@@ -40,21 +40,20 @@ void Map::AddKeyFrame(KeyFrame *pKF)
 void Map::AddMapPoint(MapPoint *pMP)
 {
     unique_lock<mutex> lock(mMutexMap);
-    mspMapPoints.insert(pMP);
-/*    if(pMP->mSemanticClass!=SemanticClass::nBackground)
-    {
-        mSemanticMap->addMapPoint(pMP);
-    }*/
+    if(pMP->mSemanticClass!=SemanticClass::nRejection)
+        mspMapPoints.insert(pMP);
+
+    mSemanticMap->addMapPoint(pMP);
 }
 
 void Map::EraseMapPoint(MapPoint *pMP)
 {
     unique_lock<mutex> lock(mMutexMap);
-    mspMapPoints.erase(pMP);
-/*    if(pMP->mSemanticClass!=SemanticClass::nBackground)
-    {
-        mSemanticMap->roadMap.erase(pMP);
-    }*/
+    if(pMP->mSemanticClass!=SemanticClass::nRejection)
+        mspMapPoints.erase(pMP);
+
+    mSemanticMap->eraseMapPoint(pMP);
+
     // TODO: This only erase the pointer.
     // Delete the MapPoint
 }
@@ -129,6 +128,8 @@ void Map::clear()
 
     for(set<KeyFrame*>::iterator sit=mspKeyFrames.begin(), send=mspKeyFrames.end(); sit!=send; sit++)
         delete *sit;
+
+    mSemanticMap->clear();
 
     mspMapPoints.clear();
     mspKeyFrames.clear();

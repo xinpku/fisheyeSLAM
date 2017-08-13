@@ -250,45 +250,69 @@ public:
 template<class pointType>
 void FisheyeCorrector::mapToOriginalImage(const std::vector<pointType>& points, std::vector<pointType>& points_in_fisheye)
 {
-    points_in_fisheye.resize(points.size());
+    std::vector<pointType> points_in_fisheye_temp;
+    points_in_fisheye_temp.resize(points.size());
+    int width = original_map_.cols;
+    int height = original_map_.rows;
     for (int i = 0; i < points.size(); i++)
     {
         float h = points[i].y / size_scale_ + clip_region_.tl().y;
         float w = points[i].x / size_scale_ + clip_region_.tl().x;
         //Transform the points in the corrected image to it's correct position
 
+        if (h >= height || w >= width||h<0||w<0)
+        {
+            points_in_fisheye_temp[i] = points[i];
+            points_in_fisheye_temp[i].x = -1;
+            points_in_fisheye_temp[i].y = -1;
+            continue;
+        }
+
         float x = original_map_.at<cv::Vec2f>(h, w)(0);
         float y = original_map_.at<cv::Vec2f>(h, w)(1);
         //std::cout << "x " << x << "   y " << y << std::endl;
         //Add the map relationship of Point(h,w)
-        points_in_fisheye[i] = points[i];
-        points_in_fisheye[i].x = x;
-        points_in_fisheye[i].y = y;
+        points_in_fisheye_temp[i] = points[i];
+        points_in_fisheye_temp[i].x = x;
+        points_in_fisheye_temp[i].y = y;
     }
+    points_in_fisheye.clear();
+    points_in_fisheye.insert(points_in_fisheye.end(), points_in_fisheye_temp.begin(), points_in_fisheye_temp.end());
 }
 
 
 template<class pointType>
 void FisheyeCorrector::mapFromCorrectedImageToCenterImagePlane(const std::vector<pointType>& points, std::vector<pointType>& points_in_pinhole, float cx, float cy, float f_center_image)
 {
-    points_in_pinhole.resize(points.size());
-    points_in_pinhole.resize(points.size());
+    std::vector<pointType> points_in_pinhole_temp;
+    points_in_pinhole_temp.resize(points.size());
     double ratio = f_center_image / f_camera_;
+    int width = map_to_original_plane.cols;
+    int height = map_to_original_plane.rows;
     //std::cout << "f_center_image " << f_center_image << " f_camera " << f_camera_ << std::endl;
     //std::cout << "ratio " << ratio << std::endl;
     for (int i = 0; i < points.size(); i++)
     {
         float h = points[i].y / size_scale_ + clip_region_.tl().y;
         float w = points[i].x / size_scale_ + clip_region_.tl().x;
+        if (h >= height || w >= width || h<0 || w<0)
+        {
+            points_in_pinhole_temp[i] = points[i];
+            points_in_pinhole_temp[i].x = -1;
+            points_in_pinhole_temp[i].y = -1;
+            continue;
+        }
         //Transform the points in the corrected image to it's correct position
         float x = map_to_original_plane.at<cv::Vec2f>(h, w)(0);
         float y = map_to_original_plane.at<cv::Vec2f>(h, w)(1);
         //std::cout << "xo " << x << "   y " << y << std::endl;
         //Add the map relationship of Point(h,w)
-        points_in_pinhole[i] = points[i];
-        points_in_pinhole[i].x = x*ratio + cx;
-        points_in_pinhole[i].y = -y*ratio + cy;
+        points_in_pinhole_temp[i] = points[i];
+        points_in_pinhole_temp[i].x = x*ratio + cx;
+        points_in_pinhole_temp[i].y = -y*ratio + cy;
     }
+    points_in_pinhole.clear();
+    points_in_pinhole.insert(points_in_pinhole.end(), points_in_pinhole_temp.begin(), points_in_pinhole_temp.end());
 
 }
 

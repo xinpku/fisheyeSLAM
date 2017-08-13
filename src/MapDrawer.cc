@@ -47,9 +47,9 @@ void MapDrawer::DrawMapPoints()
     const vector<MapPoint*> &vpMPs = mpMap->GetAllMapPoints();
     const vector<MapPoint*> &vpRefMPs = mpMap->GetReferenceMapPoints();
 
-    set<MapPoint*> spRefMPs(vpRefMPs.begin(), vpRefMPs.end());
+    std::set<MapPoint*> spRefMPs(vpRefMPs.begin(), vpRefMPs.end());
 
-    set<MapPoint*>& vpRoadMap = mpMap->mSemanticMap->roadMap;
+
     if(vpMPs.empty())
         return;
 
@@ -81,21 +81,109 @@ void MapDrawer::DrawMapPoints()
 
     glEnd();
 
-   /* glPointSize(mPointSize*2);
+//************************road
+    glPointSize(mPointSize*2);
     glBegin(GL_POINTS);
-    glColor3f(1.0,0.0,0.0);
+
+    float r,g,b;
+    r = sematic_color_r[SemanticClass::nRoad]>0?(float)sematic_color_r[SemanticClass::nRoad]/255:0;
+    g = sematic_color_g[SemanticClass::nRoad]>0?(float)sematic_color_g[SemanticClass::nRoad]/255:0;
+    b = sematic_color_b[SemanticClass::nRoad]>0?(float)sematic_color_b[SemanticClass::nRoad]/255:0;
+    glColor3f(r,g,b);
     //std::cout<<"viewer  "<<vpRoadMap.size()<<std::endl;
+    ObjectMap& vpRoadMap = mpMap->mSemanticMap->roadMap;
+    vpRoadMap.lock();
+    //std::cout<<"road  "<<vpRoadMap.size()<<std::endl;
     for(set<MapPoint*>::iterator sit=vpRoadMap.begin(), send=vpRoadMap.end(); sit!=send; sit++)
     {
         if((*sit)->isBad())
             continue;
-
+        cv::Mat pos = (*sit)->GetWorldPos();
+        glVertex3f(pos.at<float>(0), pos.at<float>(1) , pos.at<float>(2) );
+    }
+    vpRoadMap.unlock();
+    glEnd();
+//**********************car
+    glPointSize(mPointSize*2);
+    glBegin(GL_POINTS);
+    r = sematic_color_r[SemanticClass::nCar]>0?(float)sematic_color_r[SemanticClass::nCar]/255:0;
+    g = sematic_color_g[SemanticClass::nCar]>0?(float)sematic_color_g[SemanticClass::nCar]/255:0;
+    b = sematic_color_b[SemanticClass::nCar]>0?(float)sematic_color_b[SemanticClass::nCar]/255:0;
+    glColor3f(r,g,b);
+    ObjectMap& vpCarMap = mpMap->mSemanticMap->carMap;
+    vpCarMap.lock();
+    //std::cout<<"car  "<<vpCarMap.size()<<std::endl;
+    for(set<MapPoint*>::iterator sit=vpCarMap.begin(), send=vpCarMap.end(); sit!=send; sit++)
+    {
+        if((*sit)->isBad())
+            continue;
         cv::Mat pos = (*sit)->GetWorldPos();
 
         glVertex3f(pos.at<float>(0), pos.at<float>(1) , pos.at<float>(2) );
     }
+    vpCarMap.unlock();
+    glEnd();
+//****************************person
+    glPointSize(mPointSize*2);
+    glBegin(GL_POINTS);
+    r = sematic_color_r[SemanticClass::nPerson]>0?(float)sematic_color_r[SemanticClass::nPerson]/255:0;
+    g = sematic_color_g[SemanticClass::nPerson]>0?(float)sematic_color_g[SemanticClass::nPerson]/255:0;
+    b = sematic_color_b[SemanticClass::nPerson]>0?(float)sematic_color_b[SemanticClass::nPerson]/255:0;
+    glColor3f(r,g,b);
+    ObjectMap& vpPersonMap = mpMap->mSemanticMap->personMap;
+    vpPersonMap.lock();
+    //std::cout<<"person  "<<vpPersonMap.size()<<std::endl;
+    for(set<MapPoint*>::iterator sit=vpPersonMap.begin(), send=vpPersonMap.end(); sit!=send; sit++)
+    {
+        if((*sit)->isBad())
+            continue;
+        cv::Mat pos = (*sit)->GetWorldPos();
+
+        glVertex3f(pos.at<float>(0), pos.at<float>(1) , pos.at<float>(2) );
+    }
+    vpPersonMap.unlock();
+    glEnd();
+//****************************obstacle
+    glPointSize(mPointSize*2);
+    glBegin(GL_POINTS);
+    r = sematic_color_r[SemanticClass::nObstacle]>0?(float)sematic_color_r[SemanticClass::nObstacle]/255:0;
+    g = sematic_color_g[SemanticClass::nObstacle]>0?(float)sematic_color_g[SemanticClass::nObstacle]/255:0;
+    b = sematic_color_b[SemanticClass::nObstacle]>0?(float)sematic_color_b[SemanticClass::nObstacle]/255:0;
+    glColor3f(r,g,b);
+    ObjectMap& vpObstacleMap = mpMap->mSemanticMap->obstacleMap;
+    vpObstacleMap.lock();
+    //std::cout<<"obstacle  "<<vpObstacleMap.size()<<std::endl;
+    for(set<MapPoint*>::iterator sit=vpObstacleMap.begin(), send=vpObstacleMap.end(); sit!=send; sit++)
+    {
+        if((*sit)->isBad())
+            continue;
+        cv::Mat pos = (*sit)->GetWorldPos();
+
+        glVertex3f(pos.at<float>(0), pos.at<float>(1) , pos.at<float>(2) );
+    }
+    vpObstacleMap.unlock();
+    glEnd();
+//****************************parkinglots
+    glPointSize(mPointSize*2);
+    glBegin(GL_POINTS);
+    r = sematic_color_r[SemanticClass::nParkinglots]>0?(float)sematic_color_r[SemanticClass::nParkinglots]/255:0;
+    g = sematic_color_g[SemanticClass::nParkinglots]>0?(float)sematic_color_g[SemanticClass::nParkinglots]/255:0;
+    b = sematic_color_b[SemanticClass::nParkinglots]>0?(float)sematic_color_b[SemanticClass::nParkinglots]/255:0;
+    glColor3f(r,g,b);
+    ObjectMap& vpParkinglotMap = mpMap->mSemanticMap->parkinglotMap;
+    vpParkinglotMap.lock();
+    //std::cout<<"parkinglot  "<<vpParkinglotMap.size()<<std::endl;
+    for(set<MapPoint*>::iterator sit=vpParkinglotMap.begin(), send=vpParkinglotMap.end(); sit!=send; sit++)
+    {
+        if((*sit)->isBad())
+            continue;
+        cv::Mat pos = (*sit)->GetWorldPos();
+
+        glVertex3f(pos.at<float>(0), pos.at<float>(1) , pos.at<float>(2) );
+    }
+    vpParkinglotMap.unlock();
     //std::cout<<"viewer OK"<<std::endl;
-    glEnd();*/
+    glEnd();
 
 }
 

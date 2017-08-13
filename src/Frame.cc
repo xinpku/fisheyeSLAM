@@ -330,7 +330,7 @@ void Frame::ExtractORBFisheye(const std::vector<cv::Mat> &ims,const cv::Mat& obj
 	std::vector<cv::Mat> object_channel;
     cv::split(object_class,object_channel);
     cv::Mat object_classID = object_channel[2];
-	
+
 	for (int i = 0; i < ims.size(); i++)
 	{
 		(*ORBextractor[i])(ims[i], cv::Mat(), mvKeys_current, mDescriptors_current);
@@ -367,7 +367,7 @@ void Frame::ExtractORBFisheye(const std::vector<cv::Mat> &ims,const cv::Mat& obj
 		cv::namedWindow(sst.str(), 0);
 		cv::imshow(sst.str(),part);
 	}
-	//cv::waitKey(10);
+	//cv::waitKey(0);
 }
 
 void Frame::SetPose(cv::Mat Tcw)

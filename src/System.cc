@@ -226,9 +226,9 @@ cv::Mat System::TrackFisheye(const cv::Mat &imFisheyeGray, const cv::Mat &object
         cv::Mat current_view;
         correctors[view].correct(imFisheyeGray,current_view);
         imgs.push_back(current_view);
-        //std::stringstream sst;
-        //sst << "view" << view;
-        //cv::imshow(sst.str(), current_view);
+        /*std::stringstream sst;
+        sst << "view" << view;
+        cv::imshow(sst.str(), current_view);*/
     }
 
 
