@@ -53,6 +53,7 @@ public:
     int Observations();
 
     void AddObservation(KeyFrame* pKF,size_t idx);
+    void UpdateSemanticInfo(SemanticClass semanticClass, unsigned char semanticProb);
     void EraseObservation(KeyFrame* pKF);
 
     int GetIndexInKeyFrame(KeyFrame* pKF);
@@ -114,6 +115,7 @@ public:
     static std::mutex mGlobalMutex;
 
     SemanticClass mSemanticClass;
+    uchar mSemanticProb;
 protected:    
 
      // Position in absolute coordinates

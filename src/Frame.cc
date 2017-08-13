@@ -48,7 +48,7 @@ Frame::Frame(const Frame &frame)
      mpReferenceKF(frame.mpReferenceKF), mnScaleLevels(frame.mnScaleLevels),
      mfScaleFactor(frame.mfScaleFactor), mfLogScaleFactor(frame.mfLogScaleFactor),
      mvScaleFactors(frame.mvScaleFactors), mvInvScaleFactors(frame.mvInvScaleFactors),
-     mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2),mvSemanticClass(frame.mvSemanticClass)
+     mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2),mvSemanticClass(frame.mvSemanticClass),mvSemanticProbability(frame.mvSemanticProbability)
 {
     for(int i=0;i<FRAME_GRID_COLS;i++)
         for(int j=0; j<FRAME_GRID_ROWS; j++)
@@ -330,6 +330,7 @@ void Frame::ExtractORBFisheye(const std::vector<cv::Mat> &ims,const cv::Mat& obj
 	std::vector<cv::Mat> object_channel;
     cv::split(object_class,object_channel);
     cv::Mat object_classID = object_channel[2];
+    cv::Mat object_prob = object_channel[1];
 
 	for (int i = 0; i < ims.size(); i++)
 	{
@@ -351,13 +352,18 @@ void Frame::ExtractORBFisheye(const std::vector<cv::Mat> &ims,const cv::Mat& obj
         //std::cout<<mvKeys_current.size()<<"   "<<mvfisheye_keys_current.size()<<std::endl;
 		for (int j = 0; j < mvKeys_current.size(); j++)
 		{
-                //std::cout<<j<<"    ";
-				mvKeys.push_back(mvfisheye_keys_current[j]);
-                //std::cout<<mvfisheye_keys_current[j].pt<<std::endl;
-                mvSemanticClass.push_back((SemanticClass)object_classID.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x));
-				//std::cout<<"object_image  "<<(int)object_classID.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x)<<std::endl;
-                mvKeysUn.push_back(mvundist_keys_current[j]);
-				mDescriptors.push_back(mDescriptors_current.row(j));
+            if((SemanticClass)object_classID.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x)
+                    == SemanticClass::nRejection)
+                continue;
+            //std::cout<<j<<"    ";
+            mvKeys.push_back(mvfisheye_keys_current[j]);
+            //std::cout<<mvfisheye_keys_current[j].pt<<std::endl;
+            mvSemanticClass.push_back((SemanticClass)object_classID.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x));
+            mvSemanticProbability.push_back(object_prob.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x));
+            //std::cout<<"object_image  "<<(int)object_classID.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x)<<std::endl;
+
+            mvKeysUn.push_back(mvundist_keys_current[j]);
+            mDescriptors.push_back(mDescriptors_current.row(j));
 		}
         //std::cout<<"make frame"<<std::endl;
 		cv::Mat part;

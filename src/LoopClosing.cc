@@ -541,6 +541,7 @@ void LoopClosing::CorrectLoop()
                 {
                     mpCurrentKF->AddMapPoint(pLoopMP,i);
                     pLoopMP->AddObservation(mpCurrentKF,i);
+                    pLoopMP->UpdateSemanticInfo(mpCurrentKF->mvSemanticClass[i],mpCurrentKF->mvSemanticProbability[i]);
                     pLoopMP->ComputeDistinctiveDescriptors();
                 }
             }

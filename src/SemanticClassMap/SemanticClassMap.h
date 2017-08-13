@@ -20,6 +20,7 @@ namespace ORB_SLAM2
 
 
     public:
+        SemanticMap();
         void addMapPoint(MapPoint* mp);
         void eraseMapPoint(MapPoint* mp);
         void clear();
@@ -28,6 +29,8 @@ namespace ORB_SLAM2
         ObjectMap personMap;
         ObjectMap obstacleMap;
         ObjectMap parkinglotMap;
+
+        std::vector<ObjectMap*> objectMapAccessById;
     };
 
 

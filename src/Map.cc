@@ -40,8 +40,8 @@ void Map::AddKeyFrame(KeyFrame *pKF)
 void Map::AddMapPoint(MapPoint *pMP)
 {
     unique_lock<mutex> lock(mMutexMap);
-    if(pMP->mSemanticClass!=SemanticClass::nRejection)
-        mspMapPoints.insert(pMP);
+    //if(pMP->mSemanticClass!=SemanticClass::nRejection)
+    mspMapPoints.insert(pMP);
 
     mSemanticMap->addMapPoint(pMP);
 }
@@ -49,8 +49,8 @@ void Map::AddMapPoint(MapPoint *pMP)
 void Map::EraseMapPoint(MapPoint *pMP)
 {
     unique_lock<mutex> lock(mMutexMap);
-    if(pMP->mSemanticClass!=SemanticClass::nRejection)
-        mspMapPoints.erase(pMP);
+    //if(pMP->mSemanticClass!=SemanticClass::nRejection)
+    mspMapPoints.erase(pMP);
 
     mSemanticMap->eraseMapPoint(pMP);
 

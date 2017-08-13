@@ -139,6 +139,7 @@ public:
     std::vector<cv::KeyPoint> mvKeys, mvKeysRight;
     std::vector<cv::KeyPoint> mvKeysUn;
     std::vector<SemanticClass> mvSemanticClass;
+    std::vector<uchar> mvSemanticProbability;
     // Corresponding stereo coordinate and depth for each keypoint.
     // "Monocular" keypoints have a negative value.
     std::vector<float> mvuRight;

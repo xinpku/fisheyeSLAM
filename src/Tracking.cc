@@ -755,8 +755,7 @@ void Tracking::CreateInitialMapMonocular()
     mpMap->AddKeyFrame(pKFcur);
     std::cout<<"CreateInitialMapMonocular"<<std::endl;
     // Create MapPoints and asscoiate to keyframes
-    std::cout<<"pKFini->road_state.size()"<<pKFini->mvSemanticClass.size()<<std::endl;
-    std::cout<<"pKFcur->road_state.size()"<<pKFcur->mvSemanticClass.size()<<std::endl;
+
     for(size_t i=0; i<mvIniMatches.size();i++)
     {
         if(mvIniMatches[i]<0)
@@ -764,11 +763,24 @@ void Tracking::CreateInitialMapMonocular()
 
         //Create MapPoint.
         cv::Mat worldPos(mvIniP3D[i]);
-
         MapPoint* pMP = new MapPoint(worldPos,pKFcur,mpMap);
-        //std::cout<<"i "<<i<<" match i "<<mvIniMatches[i]<<std::endl;
 
-        pMP->mSemanticClass = pKFini->mvSemanticClass[i];
+        //****initialize semantic information
+        KeyFrame* semantic_source;
+        int semantic_idx;
+        if(pKFini->mvSemanticProbability[i]>pKFcur->mvSemanticProbability[mvIniMatches[i]])
+        {
+            semantic_source = pKFini;
+            semantic_idx = i;
+        }
+        else
+        {
+            semantic_source = pKFcur;
+            semantic_idx = mvIniMatches[i];
+        }
+
+        pMP->mSemanticClass = semantic_source->mvSemanticClass[semantic_idx];
+        pMP->mSemanticProb = semantic_source->mvSemanticProbability[semantic_idx];
 
         pKFini->AddMapPoint(pMP,i);
         pKFcur->AddMapPoint(pMP,mvIniMatches[i]);

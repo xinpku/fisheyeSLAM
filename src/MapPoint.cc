@@ -22,6 +22,7 @@
 #include "ORBmatcher.h"
 
 #include<mutex>
+#include <src/SemanticClassMap/SemanticClassMap.h>
 
 namespace ORB_SLAM2
 {
@@ -108,6 +109,25 @@ void MapPoint::AddObservation(KeyFrame* pKF, size_t idx)
         nObs++;
 }
 
+void MapPoint::UpdateSemanticInfo(SemanticClass semanticClass, unsigned char semanticProb)
+{
+    if(mSemanticProb<semanticProb)
+    {
+        if(mSemanticClass!=semanticClass)
+        {
+            //std::cout<<"objectMapAccessById  "<<mpMap->mSemanticMap->objectMapAccessById.size()<<std::endl;
+            if(mSemanticClass!=SemanticClass::nBackground)
+            {
+                mpMap->mSemanticMap->objectMapAccessById[mSemanticClass]->erase(this);
+            }
+            //std::cout<<"semanticClass "<<semanticClass<<std::endl;
+            mSemanticClass = semanticClass;
+            mSemanticProb = semanticProb;
+            if(semanticClass!=SemanticClass::nBackground&&semanticClass!=SemanticClass::nRejection)
+                mpMap->mSemanticMap->objectMapAccessById[semanticClass]->insert(this);
+        }
+    }
+}
 void MapPoint::EraseObservation(KeyFrame* pKF)
 {
     bool bBad=false;
@@ -201,6 +221,7 @@ void MapPoint::Replace(MapPoint* pMP)
         {
             pKF->ReplaceMapPointMatch(mit->second, pMP);
             pMP->AddObservation(pKF,mit->second);
+            pMP->UpdateSemanticInfo(pKF->mvSemanticClass[mit->second],pKF->mvSemanticProbability[mit->second]);
         }
         else
         {
@@ -363,7 +384,7 @@ void MapPoint::UpdateNormalAndDepth()
         cv::Mat normali = mWorldPos - Owi;
         normal = normal + normali/cv::norm(normali);
         n++;
-    } 
+    }
 
     cv::Mat PC = Pos - pRefKF->GetCameraCenter();
     const float dist = cv::norm(PC);

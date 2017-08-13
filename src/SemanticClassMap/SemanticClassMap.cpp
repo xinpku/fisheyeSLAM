@@ -56,7 +56,16 @@ void ORB_SLAM2::SemanticMap::eraseMapPoint(ORB_SLAM2::MapPoint* mp)
     }
 }
 
+ORB_SLAM2::SemanticMap::SemanticMap()
+{
+    objectMapAccessById.resize(6);
 
+    objectMapAccessById[1] = &roadMap;
+    objectMapAccessById[2] = &carMap;
+    objectMapAccessById[3] = &personMap;
+    objectMapAccessById[4] = &obstacleMap;
+    objectMapAccessById[5] = &parkinglotMap;
+}
 
 void ORB_SLAM2::SemanticMap::clear()
 {

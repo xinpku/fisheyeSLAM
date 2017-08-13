@@ -148,6 +148,7 @@ void LocalMapping::ProcessNewKeyFrame()
                 if(!pMP->IsInKeyFrame(mpCurrentKeyFrame))
                 {
                     pMP->AddObservation(mpCurrentKeyFrame, i);
+                    pMP->UpdateSemanticInfo(mpCurrentKeyFrame->mvSemanticClass[i],mpCurrentKeyFrame->mvSemanticProbability[i]);
                     pMP->UpdateNormalAndDepth();
                     pMP->ComputeDistinctiveDescriptors();
                 }
@@ -206,7 +207,7 @@ void LocalMapping::MapPointCulling()
 void LocalMapping::CreateNewMapPoints()
 {
     // Retrieve neighbor keyframes in covisibility graph
-    std::cout<<"Mapping CreateNewMapPoints "<<std::endl;
+    //std::cout<<"Mapping CreateNewMapPoints "<<std::endl;
     int nn = 10;
     if(mbMonocular)
         nn=20;
@@ -433,7 +434,21 @@ void LocalMapping::CreateNewMapPoints()
             // Triangulation is succesfull
             MapPoint* pMP = new MapPoint(x3D,mpCurrentKeyFrame,mpMap);
             //wx-debug we simply set the semantic class of the map point the same as current keyframe. But it should be a fusion processing according the probability of every class type.
-            pMP->mSemanticClass = mpCurrentKeyFrame->mvSemanticClass[idx1];
+            KeyFrame* semantic_source;
+            int semantic_idx;
+            if(mpCurrentKeyFrame->mvSemanticProbability[idx1]>pKF2->mvSemanticProbability[idx2])
+            {
+                semantic_source = mpCurrentKeyFrame;
+                semantic_idx = idx1;
+            }
+            else
+            {
+                semantic_source = pKF2;
+                semantic_idx = idx2;
+            }
+
+            pMP->mSemanticClass = semantic_source->mvSemanticClass[semantic_idx];
+            pMP->mSemanticProb = semantic_source->mvSemanticProbability[semantic_idx];
 
             pMP->AddObservation(mpCurrentKeyFrame,idx1);            
             pMP->AddObservation(pKF2,idx2);
