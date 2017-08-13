@@ -316,12 +316,12 @@ cv::Mat Tracking::GrabImageFisheye(const cv::Mat &fisheyeIm, const std::vector<c
                 object_class_data[idx](1) = 99;
             }
 
-            if(sematic_color_b[class_id]>=0)
-                fisheyeBGR_data[idx](0) = sematic_color_b[class_id];
-            if(sematic_color_g[class_id]>=0)
-                fisheyeBGR_data[idx](1) = sematic_color_g[class_id];
-            if(sematic_color_r[class_id]>=0)
-                fisheyeBGR_data[idx](2) = sematic_color_r[class_id];
+            if(semantic_color_b[class_id]>=0)
+                fisheyeBGR_data[idx](0) = semantic_color_b[class_id];
+            if(semantic_color_g[class_id]>=0)
+                fisheyeBGR_data[idx](1) = semantic_color_g[class_id];
+            if(semantic_color_r[class_id]>=0)
+                fisheyeBGR_data[idx](2) = semantic_color_r[class_id];
         }
 
     mImGray = fisheyeBGR;

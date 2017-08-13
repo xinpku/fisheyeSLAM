@@ -11,6 +11,6 @@ enum SemanticClass
 };
 
 //                                    back road  car   per   obst   park   rejection
-const static int sematic_color_r[] = {-1,  -1,   255,   -1,   255,  255,   0};
-const static int sematic_color_g[] = {-1,  -1,   255,   255,  -1,    -1,   0};
-const static int sematic_color_b[] = {-1,  255,  -1,    -1,   -1,   255,   0};
+const static int semantic_color_r[] = {-1,  -1,   255,   -1,   255,  255,   0};
+const static int semantic_color_g[] = {-1,  -1,   255,   255,  -1,    -1,   0};
+const static int semantic_color_b[] = {-1,  255,  -1,    -1,   -1,   255,   0};

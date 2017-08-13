@@ -86,9 +86,9 @@ void MapDrawer::DrawMapPoints()
     glBegin(GL_POINTS);
 
     float r,g,b;
-    r = sematic_color_r[SemanticClass::nRoad]>0?(float)sematic_color_r[SemanticClass::nRoad]/255:0;
-    g = sematic_color_g[SemanticClass::nRoad]>0?(float)sematic_color_g[SemanticClass::nRoad]/255:0;
-    b = sematic_color_b[SemanticClass::nRoad]>0?(float)sematic_color_b[SemanticClass::nRoad]/255:0;
+    r = semantic_color_r[SemanticClass::nRoad]>0?(float)semantic_color_r[SemanticClass::nRoad]/255:0;
+    g = semantic_color_g[SemanticClass::nRoad]>0?(float)semantic_color_g[SemanticClass::nRoad]/255:0;
+    b = semantic_color_b[SemanticClass::nRoad]>0?(float)semantic_color_b[SemanticClass::nRoad]/255:0;
     glColor3f(r,g,b);
     //std::cout<<"viewer  "<<vpRoadMap.size()<<std::endl;
     ObjectMap& vpRoadMap = mpMap->mSemanticMap->roadMap;
@@ -106,9 +106,9 @@ void MapDrawer::DrawMapPoints()
 //**********************car
     glPointSize(mPointSize*2);
     glBegin(GL_POINTS);
-    r = sematic_color_r[SemanticClass::nCar]>0?(float)sematic_color_r[SemanticClass::nCar]/255:0;
-    g = sematic_color_g[SemanticClass::nCar]>0?(float)sematic_color_g[SemanticClass::nCar]/255:0;
-    b = sematic_color_b[SemanticClass::nCar]>0?(float)sematic_color_b[SemanticClass::nCar]/255:0;
+    r = semantic_color_r[SemanticClass::nCar]>0?(float)semantic_color_r[SemanticClass::nCar]/255:0;
+    g = semantic_color_g[SemanticClass::nCar]>0?(float)semantic_color_g[SemanticClass::nCar]/255:0;
+    b = semantic_color_b[SemanticClass::nCar]>0?(float)semantic_color_b[SemanticClass::nCar]/255:0;
     glColor3f(r,g,b);
     ObjectMap& vpCarMap = mpMap->mSemanticMap->carMap;
     vpCarMap.lock();
@@ -126,9 +126,9 @@ void MapDrawer::DrawMapPoints()
 //****************************person
     glPointSize(mPointSize*2);
     glBegin(GL_POINTS);
-    r = sematic_color_r[SemanticClass::nPerson]>0?(float)sematic_color_r[SemanticClass::nPerson]/255:0;
-    g = sematic_color_g[SemanticClass::nPerson]>0?(float)sematic_color_g[SemanticClass::nPerson]/255:0;
-    b = sematic_color_b[SemanticClass::nPerson]>0?(float)sematic_color_b[SemanticClass::nPerson]/255:0;
+    r = semantic_color_r[SemanticClass::nPerson]>0?(float)semantic_color_r[SemanticClass::nPerson]/255:0;
+    g = semantic_color_g[SemanticClass::nPerson]>0?(float)semantic_color_g[SemanticClass::nPerson]/255:0;
+    b = semantic_color_b[SemanticClass::nPerson]>0?(float)semantic_color_b[SemanticClass::nPerson]/255:0;
     glColor3f(r,g,b);
     ObjectMap& vpPersonMap = mpMap->mSemanticMap->personMap;
     vpPersonMap.lock();
@@ -146,9 +146,9 @@ void MapDrawer::DrawMapPoints()
 //****************************obstacle
     glPointSize(mPointSize*2);
     glBegin(GL_POINTS);
-    r = sematic_color_r[SemanticClass::nObstacle]>0?(float)sematic_color_r[SemanticClass::nObstacle]/255:0;
-    g = sematic_color_g[SemanticClass::nObstacle]>0?(float)sematic_color_g[SemanticClass::nObstacle]/255:0;
-    b = sematic_color_b[SemanticClass::nObstacle]>0?(float)sematic_color_b[SemanticClass::nObstacle]/255:0;
+    r = semantic_color_r[SemanticClass::nObstacle]>0?(float)semantic_color_r[SemanticClass::nObstacle]/255:0;
+    g = semantic_color_g[SemanticClass::nObstacle]>0?(float)semantic_color_g[SemanticClass::nObstacle]/255:0;
+    b = semantic_color_b[SemanticClass::nObstacle]>0?(float)semantic_color_b[SemanticClass::nObstacle]/255:0;
     glColor3f(r,g,b);
     ObjectMap& vpObstacleMap = mpMap->mSemanticMap->obstacleMap;
     vpObstacleMap.lock();
@@ -166,9 +166,9 @@ void MapDrawer::DrawMapPoints()
 //****************************parkinglots
     glPointSize(mPointSize*2);
     glBegin(GL_POINTS);
-    r = sematic_color_r[SemanticClass::nParkinglots]>0?(float)sematic_color_r[SemanticClass::nParkinglots]/255:0;
-    g = sematic_color_g[SemanticClass::nParkinglots]>0?(float)sematic_color_g[SemanticClass::nParkinglots]/255:0;
-    b = sematic_color_b[SemanticClass::nParkinglots]>0?(float)sematic_color_b[SemanticClass::nParkinglots]/255:0;
+    r = semantic_color_r[SemanticClass::nParkinglots]>0?(float)semantic_color_r[SemanticClass::nParkinglots]/255:0;
+    g = semantic_color_g[SemanticClass::nParkinglots]>0?(float)semantic_color_g[SemanticClass::nParkinglots]/255:0;
+    b = semantic_color_b[SemanticClass::nParkinglots]>0?(float)semantic_color_b[SemanticClass::nParkinglots]/255:0;
     glColor3f(r,g,b);
     ObjectMap& vpParkinglotMap = mpMap->mSemanticMap->parkinglotMap;
     vpParkinglotMap.lock();
