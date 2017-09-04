@@ -297,7 +297,81 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph)
 
         glEnd();
     }
+    if(vpKFs.size()>0)
+    {
+        cv::Mat Ow = vpKFs[0]->GetCameraCenter();
+        std::cout<<vpKFs[0]->GetPoseInverse()<<std::endl;
+        Eigen::Vector4d coeff(0, 1, 0, 0);
+        Eigen::Vector3d center(Ow.at<float>(0), Ow.at<float>(1), Ow.at<float>(2));
+        DrawPlane(coeff, center);
+    }
+
 }
+
+
+void MapDrawer::DrawPlane(Eigen::Vector4d& plane_coeff,Eigen::Vector3d& draw_center)
+{
+    Eigen::Vector3d plane_normal = plane_coeff.block(0,0,3,1).normalized();
+
+    Eigen::Vector3d point_init;
+    if(plane_coeff(2)!=0)
+        point_init = Eigen::Vector3d(0,0,-plane_coeff(3)/plane_coeff(2));
+    else if(plane_coeff(1)!=0)
+        point_init = Eigen::Vector3d(0,0,-plane_coeff(3)/plane_coeff(1));
+    else if(plane_coeff(0)!=0)
+        point_init = Eigen::Vector3d(0,0,-plane_coeff(3)/plane_coeff(0));
+
+
+    Eigen::Vector3d point_center =draw_center+ (draw_center-point_init).transpose()*plane_normal*plane_normal;
+    Eigen::Vector3d axies1 = (point_init-point_center).normalized();
+    Eigen::Vector3d axies2 = plane_normal.cross(axies1);
+
+    float scale = 2;
+    Eigen::Vector3d point1 = point_center+axies1;
+    Eigen::Vector3d point2 = point_center+axies2;
+    Eigen::Vector3d point3 = point_center-axies1;
+    Eigen::Vector3d point4 = point_center-axies2;
+
+    glPushMatrix();
+
+    glLineWidth(mKeyFrameLineWidth);
+    glColor3f(1.0f,0.0f,0.0f);
+    glBegin(GL_LINES);
+    glVertex3f(point1(0),point1(1),point1(2));
+    glVertex3f(point2(0),point2(1),point2(2));
+
+    glColor3f(0.0f,1.0f,0.0f);
+    glBegin(GL_LINES);
+    glVertex3f(point2(0),point2(1),point2(2));
+    glVertex3f(point3(0),point3(1),point3(2));
+
+    glColor3f(0.0f,0.0f,1.0f);
+    glBegin(GL_LINES);
+    glVertex3f(point3(0),point3(1),point3(2));
+    glVertex3f(point4(0),point4(1),point4(2));
+
+    glColor3f(0.0f,0.0f,1.0f);
+    glBegin(GL_LINES);
+    glVertex3f(point4(0),point4(1),point4(2));
+    glVertex3f(point1(0),point1(1),point1(2));
+
+    glColor3f(0.0f,0.0f,1.0f);
+    glBegin(GL_LINES);
+    glVertex3f(point1(0),point1(1),point1(2));
+    glVertex3f(point3(0),point3(1),point3(2));
+
+    glColor3f(0.0f,0.0f,1.0f);
+    glBegin(GL_LINES);
+    glVertex3f(point2(0),point2(1),point2(2));
+    glVertex3f(point4(0),point4(1),point4(2));
+
+
+    glEnd();
+
+    glPopMatrix();
+
+}
+
 
 void MapDrawer::DrawCurrentCamera(pangolin::OpenGlMatrix &Twc)
 {

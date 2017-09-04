@@ -31,6 +31,8 @@ namespace ORB_SLAM2
         ObjectMap parkinglotMap;
 
         std::vector<ObjectMap*> objectMapAccessById;
+
+        Eigen::Vector4d current_road_plane;
     };
 
 

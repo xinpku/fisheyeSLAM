@@ -65,6 +65,11 @@ ORB_SLAM2::SemanticMap::SemanticMap()
     objectMapAccessById[3] = &personMap;
     objectMapAccessById[4] = &obstacleMap;
     objectMapAccessById[5] = &parkinglotMap;
+
+
+
+
+
 }
 
 void ORB_SLAM2::SemanticMap::clear()
