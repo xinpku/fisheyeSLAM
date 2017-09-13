@@ -327,10 +327,16 @@ void Frame::ExtractORBFisheye(const std::vector<cv::Mat> &ims,const cv::Mat& obj
     //std::cout<<"ExtractORBFisheye "<<std::endl;
 	std::vector<cv::KeyPoint> mvKeys_current,mvfisheye_keys_current,mvundist_keys_current;
 	cv::Mat mDescriptors_current;
-	std::vector<cv::Mat> object_channel;
-    cv::split(object_class,object_channel);
-    cv::Mat object_classID = object_channel[2];
-    cv::Mat object_prob = object_channel[1];
+    bool have_semantic = !object_class.empty();
+    cv::Mat object_classID;
+    cv::Mat object_prob;
+    if(have_semantic)
+    {
+        std::vector<cv::Mat> object_channel;
+        cv::split(object_class, object_channel);
+        object_classID = object_channel[2];
+        object_prob = object_channel[1];
+    }
 
 	for (int i = 0; i < ims.size(); i++)
 	{
@@ -352,16 +358,23 @@ void Frame::ExtractORBFisheye(const std::vector<cv::Mat> &ims,const cv::Mat& obj
         //std::cout<<mvKeys_current.size()<<"   "<<mvfisheye_keys_current.size()<<std::endl;
 		for (int j = 0; j < mvKeys_current.size(); j++)
 		{
-            if((SemanticClass)object_classID.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x)
+            if(have_semantic&&(SemanticClass)object_classID.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x)
                     == SemanticClass::nRejection)
                 continue;
             //std::cout<<j<<"    ";
             mvKeys.push_back(mvfisheye_keys_current[j]);
             //std::cout<<mvfisheye_keys_current[j].pt<<std::endl;
-            mvSemanticClass.push_back((SemanticClass)object_classID.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x));
-            mvSemanticProbability.push_back(object_prob.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x));
-            //std::cout<<"object_image  "<<(int)object_classID.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x)<<std::endl;
-
+            if(have_semantic)
+            {
+                mvSemanticClass.push_back((SemanticClass)object_classID.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x));
+                mvSemanticProbability.push_back(object_prob.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x));
+                //std::cout<<"object_image  "<<(int)object_classID.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x)<<std::endl;
+            }
+            else
+            {
+                mvSemanticClass.push_back(SemanticClass::nBackground);
+                mvSemanticProbability.push_back(100);
+            }
             mvKeysUn.push_back(mvundist_keys_current[j]);
             mDescriptors.push_back(mDescriptors_current.row(j));
 		}

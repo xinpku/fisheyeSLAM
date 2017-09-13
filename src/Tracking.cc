@@ -278,53 +278,52 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
 cv::Mat Tracking::GrabImageFisheye(const cv::Mat &fisheyeIm, const std::vector<cv::Mat> &im, const cv::Mat &object_class,
                                    const double &timestamp, std::vector<FisheyeCorrector> &correctors)
 {
-    cv::Mat fisheyeBGR,fisheyeHSV;
-    //std::cout<<"grab Image "<<std::endl;
-    cv::cvtColor(fisheyeIm,fisheyeBGR,cv::COLOR_GRAY2BGR);
-    cv::cvtColor(fisheyeBGR,fisheyeHSV,cv::COLOR_BGR2HSV);
-    cv::Vec3b* fisheyeBGR_data = (cv::Vec3b*)fisheyeBGR.data;
-    cv::Vec3b* object_class_data = (cv::Vec3b*)object_class.data;
-    cv::Vec3b* fisheyeHSV_data = (cv::Vec3b*)fisheyeHSV.data;
-    int height  = fisheyeBGR.rows;
-    int width = fisheyeBGR.cols;
+    if(!object_class.empty()) {
+        cv::Mat fisheyeBGR, fisheyeHSV;
+        //std::cout<<"grab Image "<<std::endl;
+        cv::cvtColor(fisheyeIm, fisheyeBGR, cv::COLOR_GRAY2BGR);
+        cv::cvtColor(fisheyeBGR, fisheyeHSV, cv::COLOR_BGR2HSV);
+        cv::Vec3b *fisheyeBGR_data = (cv::Vec3b *) fisheyeBGR.data;
+        cv::Vec3b *object_class_data = (cv::Vec3b *) object_class.data;
+        cv::Vec3b *fisheyeHSV_data = (cv::Vec3b *) fisheyeHSV.data;
+        int height = fisheyeBGR.rows;
+        int width = fisheyeBGR.cols;
 
-    unsigned long long average_intensity_of_road = 0;
-    long road_count = 0;
-    for(int i = 0;i<height;i++)
-        for(int j = 0;j<width;j++)
-        {
-            int idx = i*width+j;
-            int class_id = object_class_data[idx](2);
-            if(class_id == SemanticClass::nRoad)
-            {
-                average_intensity_of_road+=fisheyeHSV_data[idx](2);
-                road_count++;
+        unsigned long long average_intensity_of_road = 0;
+        long road_count = 0;
+        for (int i = 0; i < height; i++)
+            for (int j = 0; j < width; j++) {
+                int idx = i * width + j;
+                int class_id = object_class_data[idx](2);
+                if (class_id == SemanticClass::nRoad) {
+                    average_intensity_of_road += fisheyeHSV_data[idx](2);
+                    road_count++;
+                }
+
+            }
+        average_intensity_of_road /= road_count;
+        int reflection_threshold = (255 - average_intensity_of_road) / 5 + average_intensity_of_road;
+        for (int i = 0; i < height; i++)
+            for (int j = 0; j < width; j++) {
+                int idx = i * width + j;
+                int class_id = object_class_data[idx](2);
+                if (class_id == SemanticClass::nRoad && fisheyeHSV_data[idx](2) > reflection_threshold) {
+                    object_class_data[idx](2) = 6;
+                    class_id = 6;
+                    object_class_data[idx](1) = 99;
+                }
+
+                if (semantic_color_b[class_id] >= 0)
+                    fisheyeBGR_data[idx](0) = semantic_color_b[class_id];
+                if (semantic_color_g[class_id] >= 0)
+                    fisheyeBGR_data[idx](1) = semantic_color_g[class_id];
+                if (semantic_color_r[class_id] >= 0)
+                    fisheyeBGR_data[idx](2) = semantic_color_r[class_id];
             }
 
-        }
-    average_intensity_of_road/=road_count;
-    int reflection_threshold = (255-average_intensity_of_road)/5+average_intensity_of_road;
-    for(int i = 0;i<height;i++)
-        for(int j = 0;j<width;j++)
-        {
-            int idx = i*width+j;
-            int class_id = object_class_data[idx](2);
-            if(class_id == SemanticClass::nRoad&&fisheyeHSV_data[idx](2)>reflection_threshold)
-            {
-                object_class_data[idx](2) = 6;
-                class_id = 6;
-                object_class_data[idx](1) = 99;
-            }
-
-            if(semantic_color_b[class_id]>=0)
-                fisheyeBGR_data[idx](0) = semantic_color_b[class_id];
-            if(semantic_color_g[class_id]>=0)
-                fisheyeBGR_data[idx](1) = semantic_color_g[class_id];
-            if(semantic_color_r[class_id]>=0)
-                fisheyeBGR_data[idx](2) = semantic_color_r[class_id];
-        }
-
-    mImGray = fisheyeBGR;
+        mImGray = fisheyeBGR;
+    } else
+        mImGray = fisheyeIm;
 
     if(mpFisheyeORBextractor.size()!=correctors.size())
     {

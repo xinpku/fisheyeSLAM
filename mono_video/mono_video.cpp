@@ -22,6 +22,9 @@ int main(int argc, char **argv)
 	// Retrieve paths to images
 	std::string video_path = argv[3];
 	std::string object_class_image_path = argv[5];
+	bool using_sematic = true;
+	if(object_class_image_path=="None")
+		using_sematic = false;
 	cv::VideoCapture video(video_path);
 	int nImages = video.get(CV_CAP_PROP_FRAME_COUNT);
 	double fps = video.get(CV_CAP_PROP_FPS);
@@ -110,11 +113,16 @@ int main(int argc, char **argv)
 			cerr << endl << "Failed to load image at: " << vTimeCount << endl;
 			return 1;
 		}
-		sst.clear();sst.str("");
-		sst<<object_class_image_path<<"/"<<setfill('0') << setw(5)<<ni<<".png";
-		//std::cout<<sst.str()<<std::endl;
-		cv::Mat object_class = cv::imread(sst.str(),-1);
-		cv::resize(object_class,object_class,cv::Size(1280,720),0,0,cv::INTER_NEAREST);
+		cv::Mat object_class;
+		if(using_sematic)
+		{
+			sst.clear();
+			sst.str("");
+			sst << object_class_image_path << "/" << setfill('0') << setw(5) << ni << ".png";
+			//std::cout<<sst.str()<<std::endl;
+			object_class = cv::imread(sst.str(), -1);
+			cv::resize(object_class, object_class, cv::Size(1280, 720), 0, 0, cv::INTER_NEAREST);
+		}
 #ifdef COMPILEDWITHC11
 		std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 #else
