@@ -1,15 +1,51 @@
-mono_video.cpp
-103 - 113
+                //**************************** Plane fitting to find the scale
+                /*std::vector<KeyFrame*> lLocalKeyFrames = mpMap->GetAllKeyFrames();
+                std::cout<<"-------Local Bundle Adjustment: lLocalKeyFrames.size() "<<lLocalKeyFrames.size()<<std::endl;
+                if(lLocalKeyFrames.size()>=30)
+                {
+                    Eigen::MatrixXd point_cloud(lLocalKeyFrames.size(), 3);
+                    int count_frame = 0;
+                    for (std::vector<KeyFrame *>::iterator lit = lLocalKeyFrames.begin(), lend = lLocalKeyFrames.end();
+                         lit != lend; lit++) {
+                        KeyFrame *pKF = *lit;
+                        cv::Mat camO = pKF->GetCameraCenter();
+                        point_cloud(count_frame, 0) = camO.at<float>(0, 3);
+                        point_cloud(count_frame, 1) = camO.at<float>(1, 3);
+                        point_cloud(count_frame, 2) = camO.at<float>(2, 3);
+                        count_frame++;
+                    }
+                    Eigen::Vector4d plane = planeFit(point_cloud);
+                    Eigen::Vector3d plane_normal = plane.block(0, 0, 3, 1);
+                    plane_normal.normalize();
+
+                    Eigen::Vector3d y_axis(1, 0, 0);
+                    Eigen::Quaterniond rot;
+                    rot.setFromTwoVectors(plane_normal, y_axis);
+                    cv::Mat road_R_world = Converter::toCvMat(rot.toRotationMatrix());
+                    cv::Mat road_T_world = (cv::Mat_<float>(4, 4) <<
+                                                                  road_R_world.at<float>(0, 0), road_R_world.at<float>(0,
+                                                                                                                       1), road_R_world.at<float>(
+                            0, 2), 0,
+                            road_R_world.at<float>(1, 0), road_R_world.at<float>(1, 1), road_R_world.at<float>(1, 2), 0,
+                            road_R_world.at<float>(2, 0), road_R_world.at<float>(2, 1), road_R_world.at<float>(2, 2), 0,
+                            0, 0, 0, 1);
+
+                    for (std::vector<KeyFrame *>::iterator lit = lLocalKeyFrames.begin(), lend = lLocalKeyFrames.end();
+                         lit != lend; lit++)
+                    {
+                        KeyFrame *pKF = *lit;
+                        cv::Mat cam_T_world = pKF->GetPose();
+                        cv::Mat cam_T_road = cam_T_world * road_T_world.inv();
+                        pKF->SetPose(cam_T_road);
+                    }
 
 
-system.h/.cpp
-
-trackFisheye
-
-Track
-trackMotionModel
-trackReference
-
-
-LoopClosing
-	Eigen::new
+                    std::vector<MapPoint*> mapPoints = mpMap->GetAllMapPoints();
+                    for (std::vector<MapPoint *>::iterator lit = mapPoints.begin(), lend = mapPoints.end();
+                         lit != lend; lit++) {
+                        MapPoint *pMP = *lit;
+                        pMP->SetWorldPos(road_R_world * pMP->GetWorldPos());
+                    }
+                    //cv::waitKey(0);
+                }*/
+                //************************

@@ -100,6 +100,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     mpMap->mSemanticMap = mpSemanticMap;
     //Initialize the Local Mapping thread and launch
     mpLocalMapper = new LocalMapping(mpMap, mSensor==MONOCULAR);
+    srand(time(0));
     mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run,mpLocalMapper);
 
     //Initialize the Loop Closing thread and launch

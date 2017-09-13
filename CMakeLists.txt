@@ -70,7 +70,7 @@ src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
 src/fisheye_corrector/fisheye_corrector.cpp
-        src/SemanticClassMap/SemanticClassMap.cpp src/SemanticClassMap/SemanticClass.h src/SemanticClassMap/ObjectMap.cpp src/SemanticClassMap/ObjectMap.h)
+        src/SemanticClassMap/SemanticClassMap.cpp src/SemanticClassMap/SemanticClass.h src/SemanticClassMap/ObjectMap.cpp src/SemanticClassMap/ObjectMap.h src/SemanticClassMap/planeFit.h src/SemanticClassMap/planeFit.cpp)
 
 target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}

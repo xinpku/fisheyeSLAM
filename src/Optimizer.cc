@@ -33,10 +33,11 @@
 #include "Converter.h"
 
 #include<mutex>
+#include "SemanticClassMap/planeFit.h"
 
 namespace ORB_SLAM2
 {
-
+    bool Optimizer::plane_flag = false;
 
 void Optimizer::GlobalBundleAdjustemnt(Map* pMap, int nIterations, bool* pbStopFlag, const unsigned long nLoopKF, const bool bRobust)
 {
@@ -450,8 +451,10 @@ int Optimizer::PoseOptimization(Frame *pFrame)
     return nInitialCorrespondences-nBad;
 }
 
+
+
 void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap)
-{    
+{
     // Local KeyFrames: First Breath Search from Current Keyframe
     list<KeyFrame*> lLocalKeyFrames;
 
@@ -495,7 +498,7 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap
             KeyFrame* pKFi = mit->first;
 
             if(pKFi->mnBALocalForKF!=pKF->mnId && pKFi->mnBAFixedForKF!=pKF->mnId)
-            {                
+            {
                 pKFi->mnBAFixedForKF=pKF->mnId;
                 if(!pKFi->isBad())
                     lFixedCameras.push_back(pKFi);
@@ -587,7 +590,7 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap
             KeyFrame* pKFi = mit->first;
 
             if(!pKFi->isBad())
-            {                
+            {
                 const cv::KeyPoint &kpUn = pKFi->mvKeysUn[mit->second];
 
                 // Monocular observation
@@ -767,7 +770,6 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap
         pKF->SetPose(Converter::toCvMat(SE3quat));
     }
 
-    //Points
     for(list<MapPoint*>::iterator lit=lLocalMapPoints.begin(), lend=lLocalMapPoints.end(); lit!=lend; lit++)
     {
         MapPoint* pMP = *lit;
@@ -775,6 +777,174 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap
         pMP->SetWorldPos(Converter::toCvMat(vPoint->estimate()));
         pMP->UpdateNormalAndDepth();
     }
+
+//**************************** Plane fitting to find the scale
+    static std::vector<double> height_record;
+    std::vector<MapPoint*> road_map;
+    road_map.reserve(lLocalMapPoints.size());
+    for(list<MapPoint*>::iterator lit=lLocalMapPoints.begin() , lend=lLocalMapPoints.end(); lit!=lend; lit++)
+    {
+        if((*lit)->mSemanticClass==SemanticClass::nRoad||(*lit)->mSemanticClass==SemanticClass::nParkinglots)
+        {
+            road_map.push_back(*lit);
+        }
+    }
+    if(road_map.size()>=50)
+    {
+        Eigen::MatrixXd point_cloud(road_map.size(), 3);
+
+        for (int i = 0;i<road_map.size();i++)
+        {
+            cv::Mat point = road_map[i]->GetWorldPos();
+            point_cloud(i, 0) = point.at<float>(0);
+            point_cloud(i, 1) = point.at<float>(1);
+            point_cloud(i, 2) = point.at<float>(2);
+        }
+
+        std::cout << "-------Local Bundle Adjustment: mapPoints.size() " << road_map.size() << std::endl;
+        //std::cout<<"road map "<<mpMap->mSemanticMap->roadMap.size()<<std::endl;
+        //std::cout<<"parking lot "<<mpMap->mSemanticMap->parkinglotMap.size()<<std::endl;
+        std::vector<bool> inlier_state;
+        int inlier_num;
+        Eigen::Vector4d plane_coeff = findPlaneCoeff(point_cloud, inlier_state,inlier_num);
+        //std::cout<<mpMap->mSemanticMap->current_road_plane.transpose()<<std::endl;
+        Eigen::Vector3d key_frame_center = Converter::toVector3d(pKF->GetCameraCenter());
+        double height = distance_point_plane(plane_coeff,key_frame_center);
+        std::cout<<"height "<<height<<std::endl;
+        height_record.push_back(height);
+        pMap->mSemanticMap->current_road_plane = plane_coeff;
+        if(height_record.size()>7&&plane_coeff!=Eigen::Vector4d()&&!isnan(height)&&!isinf(height)&&height!=0)
+        {
+            std::cout<<"------height record"<<std::endl;
+            int suport_num = 0;
+            for(auto p:height_record)
+            {
+                std::cout<<p<<" ";
+            }
+            std::cout<<std::endl;
+            for(auto p:height_record)
+            {
+                std::cout<<std::abs(height-p)/height<<" ";
+                if(std::abs(height-p)/height<0.3)
+                    suport_num++;
+            }
+            std::cout<<std::endl;
+            std::cout<<"suport_num "<<suport_num<<std::endl;
+
+            if(suport_num>5)
+            {
+                std::cout << "update scale" << std::endl;
+
+
+                for (int i = 0; i < road_map.size(); i++) {
+                    if (inlier_state[i] == false)
+                        road_map[i]->SetBadFlag();
+                }
+
+                double ratio = 3;//0.66 / height;
+
+                plane_coeff(3) *= ratio;
+
+                Eigen::Vector3d plane_normal = plane_coeff.block(0, 0, 3, 1).normalized();
+
+                /*Eigen::Vector3d point_init;
+                if(plane_coeff(2)!=0)
+                    point_init = Eigen::Vector3d(0,0,-plane_coeff(3)/plane_coeff(2));
+                else if(plane_coeff(1)!=0)
+                    point_init = Eigen::Vector3d(0,0,-plane_coeff(3)/plane_coeff(1));
+                else if(plane_coeff(0)!=0)
+                    point_init = Eigen::Vector3d(0,0,-plane_coeff(3)/plane_coeff(0));
+
+                cv::Mat Ow  = pKF->GetCameraCenter();
+                Eigen::Vector3d draw_center(Ow.at<float>(0), Ow.at<float>(1), Ow.at<float>(2));
+                Eigen::Vector3d point_center =draw_center+ (draw_center-point_init).transpose()*plane_normal*plane_normal;
+                Eigen::Vector3d axies1 = -(point_init-point_center).normalized();
+                Eigen::Vector3d axies2 = plane_normal.cross(axies1);
+
+                Eigen::Matrix3d trans_to_plane_o;
+                trans_to_plane_o<<axies2,plane_normal,axies1;
+                std::cout<<"trans_to_plane "<<std::endl<<trans_to_plane_o<<std::endl;
+                Eigen::Matrix3d  trans_to_plane = trans_to_plane_o;
+                std::cout<<"trans_to_plane "<<std::endl<<trans_to_plane<<std::endl;*/
+                std::cout << "ratio " << ratio << std::endl;
+
+                cv::Mat camO = pKF->GetCameraCenter();
+                Eigen::Vector3d position(camO.at<float>(0), camO.at<float>(1), camO.at<float>(2));
+                std::cout << "position before" << position << std::endl;
+                //position = trans_to_plane*(position-point_center);
+                position *= ratio;
+                //position = trans_to_plane.transpose()*position+point_center;
+                std::cout << "position after" << position << std::endl;
+
+                cv::Mat Tcw = pKF->GetPose();
+                cv::Mat Rcw = pKF->GetRotation();
+                cv::Mat tcw = -Rcw * Converter::toCvMat(position);
+                Tcw.at<float>(0, 3) = tcw.at<float>(0);
+                Tcw.at<float>(1, 3) = tcw.at<float>(1);
+                Tcw.at<float>(2, 3) = tcw.at<float>(2);
+                pKF->SetPose(Tcw);
+
+                key_frame_center = Converter::toVector3d(pKF->GetCameraCenter());
+                height = distance_point_plane(plane_coeff, key_frame_center);
+                std::cout << "height after" << height << std::endl;
+
+                plane_flag = true;
+
+                for (std::list<KeyFrame *>::iterator lit = lLocalKeyFrames.begin(), lend = lLocalKeyFrames.end();
+                     lit != lend; lit++) {
+                    KeyFrame *pKF = *lit;
+                    cv::Mat camO = pKF->GetCameraCenter();
+                    Eigen::Vector3d position(camO.at<float>(0), camO.at<float>(1), camO.at<float>(2));
+                    //std::cout<<"position before"<<position<<std::endl;
+                    height = distance_point_plane(plane_coeff, key_frame_center);
+                    std::cout << "height before" << height << std::endl;
+
+                    /*
+                    position = trans_to_plane*(position-point_center);
+                    position*= ratio;
+                    position = trans_to_plane.inverse()*position+point_center;
+                    //std::cout<<"position after"<<position<<std::endl;*/
+
+                    cv::Mat Tcw = pKF->GetPose();
+                    cv::Mat Rcw = pKF->GetRotation();
+                    camO *= ratio;
+                    cv::Mat tcw = -Rcw * camO;
+
+
+                    Tcw.at<float>(0, 3) = tcw.at<float>(0);
+                    Tcw.at<float>(1, 3) = tcw.at<float>(1);
+                    Tcw.at<float>(2, 3) = tcw.at<float>(2);
+                    pKF->SetPose(Tcw);
+                    key_frame_center = Converter::toVector3d(pKF->GetCameraCenter());
+                    height = distance_point_plane(plane_coeff, key_frame_center);
+                    std::cout << "height after" << height << std::endl;
+                }
+
+                for (std::list<MapPoint *>::iterator lit = lLocalMapPoints.begin(), lend = lLocalMapPoints.end();
+                     lit != lend; lit++) {
+                    MapPoint *pMP = *lit;
+
+                    cv::Mat point = pMP->GetWorldPos();
+                    /*Eigen::Vector3d position(point.at<float>(0),point.at<float>(1),point.at<float>(2));
+
+                    position = trans_to_plane*(position-point_center);
+                    position*= ratio;
+                    position = trans_to_plane.inverse()*position+point_center;
+
+                    point.at<float>(0) =position(0);
+                    point.at<float>(1) =position(1);
+                    point.at<float>(2) =position(2);*/
+                    point *= ratio;
+                    pMP->SetWorldPos(point);
+                }
+                cv::waitKey(0);
+            }
+        }
+
+    }
+    //************************
+    //Points
+
 }
 
 

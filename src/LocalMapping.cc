@@ -22,8 +22,10 @@
 #include "LoopClosing.h"
 #include "ORBmatcher.h"
 #include "Optimizer.h"
-
+#include "KeyFrame.h"
+#include "Converter.h"
 #include<mutex>
+#include "SemanticClassMap/planeFit.h"
 namespace ORB_SLAM2
 {
 
@@ -43,11 +45,13 @@ void LocalMapping::SetTracker(Tracking *pTracker)
     mpTracker=pTracker;
 }
 
-void LocalMapping::Run()
+
+
+    void LocalMapping::Run()
 {
 
     mbFinished = false;
-
+    Optimizer::plane_flag = false;
     while(1)
     {
         // Tracking will see that Local Mapping is busy
@@ -78,9 +82,83 @@ void LocalMapping::Run()
                 // Local BA
                 if(mpMap->KeyFramesInMap()>2)
                     Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame,&mbAbortBA, mpMap);
+                //std::cout<<"55555   "<<plane_flag<<std::endl;
+if(Optimizer::plane_flag)
+{
+    std::cout<<"*******************"<<std::endl;
+    KeyFrame *pKF = mlNewKeyFrames.front();
+    cv::Mat camO = pKF->GetCameraCenter();
+    Eigen::Vector3d position(camO.at<float>(0), camO.at<float>(1), camO.at<float>(2));
+
+    cv::Mat Tcw = pKF->GetPose();
+    cv::Mat Rcw = pKF->GetRotation();
+    camO *= 3;
+    cv::Mat tcw = -Rcw * camO;
+
+
+    Tcw.at<float>(0, 3) = tcw.at<float>(0);
+    Tcw.at<float>(1, 3) = tcw.at<float>(1);
+    Tcw.at<float>(2, 3) = tcw.at<float>(2);
+    pKF->SetPose(Tcw);
+    cv::waitKey(0);
+}
+
+
+                /*//**************************** Plane fitting to find the scale
+                if(mpMap->mSemanticMap->parkinglotMap.size() + mpMap->mSemanticMap->roadMap.size()>=100)
+                {
+
+
+                    Eigen::MatrixXd point_cloud(
+                            mpMap->mSemanticMap->parkinglotMap.size() + mpMap->mSemanticMap->roadMap.size(), 3);
+
+                    int count_point = 0;
+                    for (auto it = mpMap->mSemanticMap->roadMap.begin();
+                         it != mpMap->mSemanticMap->roadMap.end(); it++) {
+                        cv::Mat point = (*it)->GetWorldPos();
+                        point_cloud(count_point, 0) = point.at<float>(0);
+                        point_cloud(count_point, 1) = point.at<float>(1);
+                        point_cloud(count_point, 2) = point.at<float>(2);
+                        count_point++;
+                    }
+                    for (auto it = mpMap->mSemanticMap->parkinglotMap.begin();
+                         it != mpMap->mSemanticMap->parkinglotMap.end(); it++) {
+                        cv::Mat point = (*it)->GetWorldPos();
+                        point_cloud(count_point, 0) = point.at<float>(0);
+                        point_cloud(count_point, 1) = point.at<float>(1);
+                        point_cloud(count_point, 2) = point.at<float>(2);
+                        count_point++;
+                    }
+                    std::cout << "-------Local Bundle Adjustment: mapPoints.size() " << count_point << std::endl;
+                    //std::cout<<"road map "<<mpMap->mSemanticMap->roadMap.size()<<std::endl;
+                    //std::cout<<"parking lot "<<mpMap->mSemanticMap->parkinglotMap.size()<<std::endl;
+                    std::vector<bool> inlier_state;
+                    int inlier_num;
+                    mpMap->mSemanticMap->current_road_plane = findPlaneCoeff(point_cloud, inlier_state,inlier_num);
+                    //std::cout<<mpMap->mSemanticMap->current_road_plane.transpose()<<std::endl;
+                    if((float)inlier_num/point_cloud.rows()>0.7)
+                    {
+                        count_point = 0;
+                        for (auto it = mpMap->mSemanticMap->roadMap.begin();
+                             it != mpMap->mSemanticMap->roadMap.end(); it++) {
+                            if (inlier_state[count_point] == false)
+                                (*it)->SetBadFlag();
+                            count_point++;
+                        }
+                        for (auto it = mpMap->mSemanticMap->parkinglotMap.begin();
+                             it != mpMap->mSemanticMap->parkinglotMap.end(); it++) {
+                            if (inlier_state[count_point] == false)
+                                (*it)->SetBadFlag();
+                            count_point++;
+                        }
+                    }
+
+                }
+                //*************************/
 
                 // Check redundant local Keyframes
                 KeyFrameCulling();
+
             }
 
             mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);

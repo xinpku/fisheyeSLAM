@@ -1,0 +1,37 @@
+The result shows that the first frame may not be included in scale adjust.
+
+The lLocalKeyframe may conatain dunplicate frames
+
+The lLocalMapPoint may contain dunplicate mappoint
+
+replace the vector using set.
+
+
+
+Add similarity optimization in Tracking on local map.
+	0. Extract all the local ground points.
+	1. Transform all the ground points to current frame coordinate.
+	2. Compute distances between ground points and ground plane.
+	3. Compute average scale for all the ground points.(may optional only when have sufficent ground points)
+	4. Update translation of current frame.
+	5. Optimze the sim3 pose of current frame using plane distance as normlize term. (optional)
+	
+	
+
+Optimization based on ground points
+	0. Insert a processing after local bundle adjustment
+	1. Do local bundle adjustment first to find a confident local map
+	2. Extract all the road points in local map
+	3. Optimize the object function on SiM3 according
+		|reprojected error on plane|+|reprojected error|
+		
+
+
+Another idea
+Fitting a plane using trajectory points
+The plane should parallel to the road plane
+	may actually not
+
+Current state
+	Try to rotation first two frame to fit the road coordinate, but the result is weird.
+	The bundle adjust processing will adjust the pose of the first frame, which may cause the coordinate totoly different.

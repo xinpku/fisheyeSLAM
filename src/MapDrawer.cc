@@ -54,7 +54,7 @@ void MapDrawer::DrawMapPoints()
         return;
 
     glPointSize(mPointSize);
-    glBegin(GL_POINTS);
+/*    glBegin(GL_POINTS);
     glColor3f(0.0,0.0,0.0);
 
     for(size_t i=0, iend=vpMPs.size(); i<iend;i++)
@@ -64,9 +64,9 @@ void MapDrawer::DrawMapPoints()
         cv::Mat pos = vpMPs[i]->GetWorldPos();
         glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
     }
-    glEnd();
+    glEnd();*/
 
-    glPointSize(mPointSize);
+/*    glPointSize(mPointSize);
     glBegin(GL_POINTS);
     glColor3f(0.0,0.0,0.0);
 
@@ -79,7 +79,7 @@ void MapDrawer::DrawMapPoints()
 
     }
 
-    glEnd();
+    glEnd();*/
 
 //************************road
     glPointSize(mPointSize*2);
@@ -104,7 +104,7 @@ void MapDrawer::DrawMapPoints()
     vpRoadMap.unlock();
     glEnd();
 //**********************car
-    glPointSize(mPointSize*2);
+/*    glPointSize(mPointSize*2);
     glBegin(GL_POINTS);
     r = semantic_color_r[SemanticClass::nCar]>0?(float)semantic_color_r[SemanticClass::nCar]/255:0;
     g = semantic_color_g[SemanticClass::nCar]>0?(float)semantic_color_g[SemanticClass::nCar]/255:0;
@@ -122,9 +122,9 @@ void MapDrawer::DrawMapPoints()
         glVertex3f(pos.at<float>(0), pos.at<float>(1) , pos.at<float>(2) );
     }
     vpCarMap.unlock();
-    glEnd();
+    glEnd();*/
 //****************************person
-    glPointSize(mPointSize*2);
+/*    glPointSize(mPointSize*2);
     glBegin(GL_POINTS);
     r = semantic_color_r[SemanticClass::nPerson]>0?(float)semantic_color_r[SemanticClass::nPerson]/255:0;
     g = semantic_color_g[SemanticClass::nPerson]>0?(float)semantic_color_g[SemanticClass::nPerson]/255:0;
@@ -142,9 +142,9 @@ void MapDrawer::DrawMapPoints()
         glVertex3f(pos.at<float>(0), pos.at<float>(1) , pos.at<float>(2) );
     }
     vpPersonMap.unlock();
-    glEnd();
+    glEnd();*/
 //****************************obstacle
-    glPointSize(mPointSize*2);
+/*    glPointSize(mPointSize*2);
     glBegin(GL_POINTS);
     r = semantic_color_r[SemanticClass::nObstacle]>0?(float)semantic_color_r[SemanticClass::nObstacle]/255:0;
     g = semantic_color_g[SemanticClass::nObstacle]>0?(float)semantic_color_g[SemanticClass::nObstacle]/255:0;
@@ -162,7 +162,7 @@ void MapDrawer::DrawMapPoints()
         glVertex3f(pos.at<float>(0), pos.at<float>(1) , pos.at<float>(2) );
     }
     vpObstacleMap.unlock();
-    glEnd();
+    glEnd();*/
 //****************************parkinglots
     glPointSize(mPointSize*2);
     glBegin(GL_POINTS);
@@ -207,9 +207,9 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph)
 
             glMultMatrixf(Twc.ptr<GLfloat>(0));
 
-            float scale = 5;
+            float scale = 1;
             glLineWidth(mKeyFrameLineWidth);
-            glColor3f(1.0f,0.0f,0.0f);
+            /*glColor3f(1.0f,0.0f,0.0f);
             glBegin(GL_LINES);
             glVertex3f(0,0,0);
             glVertex3f(w*3,0,0);
@@ -222,8 +222,9 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph)
             glColor3f(0.0f,0.0f,1.0f);
             glBegin(GL_LINES);
             glVertex3f(0,0,0);
-            glVertex3f(0,0,z*3);
+            glVertex3f(0,0,z*3);*/
 
+            glBegin(GL_LINES);
             glColor3f(1.0f,0.0f,1.0f);
             glVertex3f(0,0,0);
             glVertex3f(w/scale,h/scale,z/scale);
@@ -299,9 +300,10 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph)
     }
     if(vpKFs.size()>0)
     {
-        cv::Mat Ow = vpKFs[0]->GetCameraCenter();
-        std::cout<<vpKFs[0]->GetPoseInverse()<<std::endl;
-        Eigen::Vector4d coeff(0, 1, 0, 0);
+        cv::Mat Ow = vpKFs.back()->GetCameraCenter();
+        //std::cout<<vpKFs[0]->GetPoseInverse()<<std::endl;
+        Eigen::Vector4d coeff = mpMap->mSemanticMap->current_road_plane;
+        //Eigen::Vector4d coeff(0,1,0,0);
         Eigen::Vector3d center(Ow.at<float>(0), Ow.at<float>(1), Ow.at<float>(2));
         DrawPlane(coeff, center);
     }
@@ -326,11 +328,11 @@ void MapDrawer::DrawPlane(Eigen::Vector4d& plane_coeff,Eigen::Vector3d& draw_cen
     Eigen::Vector3d axies1 = (point_init-point_center).normalized();
     Eigen::Vector3d axies2 = plane_normal.cross(axies1);
 
-    float scale = 2;
-    Eigen::Vector3d point1 = point_center+axies1;
-    Eigen::Vector3d point2 = point_center+axies2;
-    Eigen::Vector3d point3 = point_center-axies1;
-    Eigen::Vector3d point4 = point_center-axies2;
+    float scale = 10;
+    Eigen::Vector3d point1 = point_center+axies1*scale;
+    Eigen::Vector3d point2 = point_center+axies2*scale;
+    Eigen::Vector3d point3 = point_center-axies1*scale;
+    Eigen::Vector3d point4 = point_center-axies2*scale;
 
     glPushMatrix();
 
