@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 	
 	std::string correction_table = argv[4];
 	std::cout << "generate corrector" << std::endl;
-	std::vector<FisheyeCorrector> correctors(6);
+	std::vector<FisheyeCorrector> correctors(3);
 	std::cout << video.get(CV_CAP_PROP_FRAME_HEIGHT) << std::endl;
 	std::cout << video.get(CV_CAP_PROP_FRAME_WIDTH) << std::endl;
 	std::cout << pixel_height << std::endl;
@@ -61,26 +61,25 @@ int main(int argc, char **argv)
    //correctors[0].setClipRegion(cv::Rect(cv::Point2f(115, 34), cv::Point2f(correctors[0].getCorrectedSize().width-20, correctors[0].getCorrectedSize().height)));
     //correctors[2].setSizeScale(0.5);
 
-    std::cout << "*****************************3" << std::endl;
+    /*std::cout << "*****************************3" << std::endl;
     correctors[3] = FisheyeCorrector(correction_table, video.get(CV_CAP_PROP_FRAME_HEIGHT), video.get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 30, 30);
-    correctors[3].setAxisDirection(-80, -20, 10);//30,35,-7
+    correctors[3].setAxisDirection(-80, -10, 10);//-80, -20, 10
     correctors[3].updateMap();
     correctors[3].setClipRegion(cv::Rect(cv::Point2f(150, 100), cv::Point2f(correctors[3].getCorrectedSize().width, correctors[3].getCorrectedSize().height)));
     //correctors[0].setSizeScale(0.5);
 
     std::cout << "*****************************4" << std::endl;
     correctors[4] = FisheyeCorrector(correction_table, video.get(CV_CAP_PROP_FRAME_HEIGHT), video.get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 30, 50);
-    correctors[4].setAxisDirection(0, -30, 0);//30,35,-7
+    correctors[4].setAxisDirection(0, -20, 0);//0, -30, 0
     correctors[4].updateMap();
     correctors[4].setClipRegion(cv::Rect(cv::Point2f(0, 0), cv::Point2f(correctors[4].getCorrectedSize().width, correctors[4].getCorrectedSize().height)));
     //correctors[1].setSizeScale(0.5);
     std::cout << "*****************************5" << std::endl;
     correctors[5] = FisheyeCorrector(correction_table, video.get(CV_CAP_PROP_FRAME_HEIGHT), video.get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 30, 30);
-    correctors[5].setAxisDirection(80, -20, -10);//30,35,-7
+    correctors[5].setAxisDirection(80, -10, -10);//80, -20, -10
     correctors[5].updateMap();
     correctors[5].setClipRegion(cv::Rect(cv::Point2f(0, 100), cv::Point2f(correctors[5].getCorrectedSize().width-150, correctors[5].getCorrectedSize().height)));
-    //correctors[2].setSizeScale(0.5);
-
+    //correctors[2].setSizeScale(0.5);*/
 
     // Vector for tracking time statistics
 	vector<float> vTimesTrack;
@@ -153,7 +152,12 @@ int main(int argc, char **argv)
 		// Wait to load the next frame
 		cv::waitKey(10);
 	}
-
+// Save camera trajectory
+    SLAM.SaveTrajectoryTUM("CameraTrajectory_all.txt");
+    SLAM.SaveTrajectoryVtx("CameraTrajectory.vtx");
+    SLAM.SaveKeyFrameTrajectoryTUM("CameraTrajectory_keyframe.txt");
+    SLAM.SaveMapClouds("pointClouds.vtx");
+    cv::waitKey(0);
 	// Stop all threads
 	SLAM.Shutdown();
 
@@ -168,10 +172,6 @@ int main(int argc, char **argv)
 	std::cout << "median tracking time: " << vTimesTrack[nImages / 2] << endl;
 	std::cout << "mean tracking time: " << totaltime / nImages << endl;
 
-	// Save camera trajectory
-	SLAM.SaveTrajectoryTUM("CameraTrajectory_all.txt");
-	SLAM.SaveTrajectoryVtx("CameraTrajectory.vtx");
-	SLAM.SaveKeyFrameTrajectoryTUM("CameraTrajectory_keyframe.txt");
-	SLAM.SaveMapClouds("pointClouds.vtx");
+
 	return 0;
 }

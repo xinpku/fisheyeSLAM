@@ -484,7 +484,8 @@ bool Initializer::ReconstructF(vector<bool> &vbMatchesInliers, cv::Mat &F21, cv:
 
     // Recover the 4 motion hypotheses
     DecomposeE(E21,R1,R2,t);  
-	if (t.at<float>(2) > 0)t = -t;
+	if (t.at<float>(2) > 0)t = -t;//wx-edit strong asumption that the car is going forward
+    //if (t.at<float>(2) < 0)t = -t;
     cv::Mat t1=t;
     cv::Mat t2=-t;
 
