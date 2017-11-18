@@ -97,7 +97,7 @@ int main(int argc, char **argv)
 	int start_frame;
 	sst >> start_frame;
     std::cout<<"start_frame"<<start_frame<<std::endl;
-	for (int ni = 0; ni<nImages; ni++)
+	for (int ni = 0; ni<700; ni++)
 	{
 		
 		// Read image from file
@@ -157,7 +157,7 @@ int main(int argc, char **argv)
     SLAM.SaveTrajectoryVtx("CameraTrajectory.vtx");
     SLAM.SaveKeyFrameTrajectoryTUM("CameraTrajectory_keyframe.txt");
     SLAM.SaveMapClouds("pointClouds.vtx");
-    cv::waitKey(0);
+    //cv::waitKey(0);
 	// Stop all threads
 	SLAM.Shutdown();
 

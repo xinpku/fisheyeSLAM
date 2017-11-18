@@ -50,7 +50,17 @@ class LocalMapping;
 class LoopClosing;
 class System;
 
-class Tracking
+
+class VocabularyList
+{
+public:
+    std::vector<std::vector<cv::Mat>> frame_features;
+    std::vector<std::vector<cv::Mat>> keyframe_features;
+};
+
+
+
+    class Tracking
 {  
 
 public:
@@ -116,7 +126,7 @@ public:
     bool mbOnlyTracking;
 
     void Reset();
-
+    VocabularyList vocabularyList;
 protected:
 
     // Main tracking function. It is independent of the input sensor.

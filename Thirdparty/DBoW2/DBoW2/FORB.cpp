@@ -14,6 +14,7 @@
 #include <string>
 #include <sstream>
 #include <stdint.h>
+#include <iostream>
 
 #include "FORB.h"
 
@@ -35,7 +36,7 @@ void FORB::meanValue(const std::vector<FORB::pDescriptor> &descriptors,
   }
   else if(descriptors.size() == 1)
   {
-    mean = descriptors[0]->clone();
+    mean = (*descriptors[0]).clone();
   }
   else
   {

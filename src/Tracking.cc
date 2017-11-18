@@ -1107,6 +1107,15 @@ bool Tracking::NeedNewKeyFrame()
     if(mbOnlyTracking)
         return false;
 
+
+    vocabularyList.frame_features.push_back(std::vector<cv::Mat>());
+    for(int i=  0;i<mCurrentFrame.mDescriptors.rows;i++)
+    {
+        vocabularyList.frame_features.back().push_back(mCurrentFrame.mDescriptors.row(i).clone());
+    }
+
+
+
     // If Local Mapping is freezed by a Loop Closure do not insert keyframes
     if(mpLocalMapper->isStopped() || mpLocalMapper->stopRequested())
         return false;
@@ -1262,7 +1271,6 @@ void Tracking::CreateNewKeyFrame()
     }
 
     mpLocalMapper->InsertKeyFrame(pKF);
-
     mpLocalMapper->SetNotStop(false);
 
     mnLastKeyFrameId = mCurrentFrame.mnId;

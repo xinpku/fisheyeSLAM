@@ -26,6 +26,8 @@
 #include <pangolin/pangolin.h>
 #include <iomanip>
 
+
+
 namespace ORB_SLAM2
 {
 
@@ -375,6 +377,16 @@ void System::Reset()
     mbReset = true;
 }
 
+void changeStructure(const cv::Mat &plain, vector<cv::Mat> &out)
+{
+    out.resize(plain.rows);
+
+    for(int i = 0; i < plain.rows; ++i)
+    {
+        out[i] = plain.row(i);
+    }
+}
+
 void System::Shutdown()
 {
     mpLocalMapper->RequestFinish();
@@ -620,6 +632,43 @@ void System::SaveMapClouds(const string &filename)
 		cloud_file << pos.at<float>(0) << " " << pos.at<float>(1) << " " << pos.at<float>(2) << std::endl;
 	}
 }
+
+
+    void System::SaveKeyframes(const std::vector<KeyFrame*> keyframes,const string &filename)
+    {
+        std::set<MapPoint*> mapPointSet;
+        for(int i = 0;i<keyframes.size();i++)
+        {*
+
+        }
+    }
+    void System::LoadMap(const string &filename)
+    {
+
+    }
+    void System::createVocabulary()
+    {
+        std::vector<KeyFrame*> keyframes = mpMap->GetAllKeyFrames();
+        std::vector<std::vector<cv::Mat>> keyframe_features;
+        for(int i = 0;i<keyframes.size();i++)
+        {
+            keyframe_features.push_back(vector<cv::Mat >());
+            changeStructure(keyframes[i]->mDescriptors, keyframe_features.back());
+        }
+
+        const int k = 10;
+        const int L = 3;
+        const DBoW2::WeightingType weight = DBoW2::TF_IDF;
+        const DBoW2::ScoringType score = DBoW2::L1_NORM;
+
+        ORBVocabulary vocabularyKeyFrame(k, L, weight, score);
+
+        std::cout<<"creating vocabulary of keyframes"<<std::endl;
+        vocabularyKeyFrame.create(keyframe_features);
+        std::cout<<"saving vocabulary of keyframes"<<std::endl;
+        vocabularyKeyFrame.saveToBinFile("keyframeVoc.bin");
+    }
+
 
 
 } //namespace ORB_SLAM
