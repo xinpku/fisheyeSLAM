@@ -97,7 +97,7 @@ int main(int argc, char **argv)
 	int start_frame;
 	sst >> start_frame;
     std::cout<<"start_frame"<<start_frame<<std::endl;
-	for (int ni = 0; ni<700; ni++)
+	for (int ni = 0; ni<1000; ni++)
 	{
 		
 		// Read image from file
@@ -159,6 +159,9 @@ int main(int argc, char **argv)
     SLAM.SaveMapClouds("pointClouds.vtx");
     //cv::waitKey(0);
 	// Stop all threads
+	std::cout<<"keyframe size "<<SLAM.mpMap->GetAllKeyFrames().size()<<std::endl;
+	SLAM.SaveKeyframes(SLAM.mpMap->GetAllKeyFrames(),"keyframes.map");
+    SLAM.SaveMapPoints(SLAM.mpMap->GetAllMapPoints(),"mapPoints.map");
 	SLAM.Shutdown();
 
 	// Tracking time statistics

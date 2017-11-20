@@ -228,7 +228,73 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
     AssignFeaturesToGrid();
 }
 
-Frame::Frame(const std::vector<cv::Mat> &imGray,const cv::Mat& object_class, const double &timeStamp, std::vector<FisheyeCorrector> &correctors, std::vector<ORBextractor*>& extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
+
+Frame::Frame(const cv::Size& imgSize,const cv::Mat& Tcw,const std::vector<cv::KeyPoint> keypoint,const std::vector<cv::KeyPoint> keypoint_Un,const cv::Mat descriptor,const double &timeStamp, ORBextractor* extractor,ORBVocabulary* voc, cv::Mat &K, const float &bf, const float &thDepth)
+        :mpORBvocabulary(voc),mpORBextractorLeft(extractor),mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
+         mTimeStamp(timeStamp), mK(K.clone()), mbf(bf), mThDepth(thDepth)
+{
+    // Frame ID
+    mnId=nNextId++;
+
+    // Scale Level Info
+    mnScaleLevels = mpORBextractorLeft->GetLevels();
+    mfScaleFactor = mpORBextractorLeft->GetScaleFactor();
+    mfLogScaleFactor = log(mfScaleFactor);
+    mvScaleFactors = mpORBextractorLeft->GetScaleFactors();
+    mvInvScaleFactors = mpORBextractorLeft->GetInverseScaleFactors();
+    mvLevelSigma2 = mpORBextractorLeft->GetScaleSigmaSquares();
+    mvInvLevelSigma2 = mpORBextractorLeft->GetInverseScaleSigmaSquares();
+
+    // ORB extraction
+    mvKeys = keypoint;
+    mvKeysUn = keypoint_Un;
+    mDescriptors = descriptor;
+
+    N = mvKeys.size();
+    SetPose(Tcw);
+    /*if(mvKeys.empty())
+        return;*/
+
+    //UndistortKeyPoints();
+
+    // Set no stereo information
+    mvuRight = vector<float>(N,-1);
+    mvDepth = vector<float>(N,-1);
+
+    mvpMapPoints = vector<MapPoint*>(N,static_cast<MapPoint*>(NULL));
+    mvbOutlier = vector<bool>(N,false);
+
+    // This is done only for the first Frame (or after a change in the calibration)
+    if(mbInitialComputations)
+    {
+        mnMinX = 0.0f;
+        mnMaxX = imgSize.width;
+        mnMinY = 0.0f;
+        mnMaxY = imgSize.height;
+
+
+        mfGridElementWidthInv=static_cast<float>(FRAME_GRID_COLS)/static_cast<float>(mnMaxX-mnMinX);
+        mfGridElementHeightInv=static_cast<float>(FRAME_GRID_ROWS)/static_cast<float>(mnMaxY-mnMinY);
+
+        fx = K.at<float>(0,0);
+        fy = K.at<float>(1,1);
+        cx = K.at<float>(0,2);
+        cy = K.at<float>(1,2);
+        invfx = 1.0f/fx;
+        invfy = 1.0f/fy;
+
+        mbInitialComputations=false;
+    }
+
+    mb = mbf/fx;
+    if(mvKeysUn.size()>0)
+    AssignFeaturesToGrid();
+}
+
+
+
+
+    Frame::Frame(const std::vector<cv::Mat> &imGray,const cv::Mat& object_class, const double &timeStamp, std::vector<FisheyeCorrector> &correctors, std::vector<ORBextractor*>& extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
 	:mpORBvocabulary(voc), mpORBextractorLeft(extractor[0]), mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
 	mTimeStamp(timeStamp), mK(K.clone()), mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth)
 {
@@ -238,10 +304,7 @@ Frame::Frame(const std::vector<cv::Mat> &imGray,const cv::Mat& object_class, con
 	if (mbInitialComputations)
 	{
 		//ComputeImageBounds(imGray);
-		
 
-
-		
 		fx = K.at<float>(0, 0);
 		fy = K.at<float>(1, 1);
 		cx = K.at<float>(0, 2);
@@ -409,7 +472,7 @@ bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit)
 
     // 3D in absolute coordinates
     cv::Mat P = pMP->GetWorldPos(); 
-	/*std::cout<<"P"<<std::endl << P << std::endl;
+/*	std::cout<<"P"<<std::endl << P << std::endl;
 	std::cout << "mRcw" << std::endl << mRcw << std::endl;
 	std::cout << "mtcw" << std::endl << mtcw << std::endl;*/
     // 3D in camera coordinates

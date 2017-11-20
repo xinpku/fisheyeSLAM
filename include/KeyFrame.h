@@ -31,6 +31,7 @@
 
 #include <mutex>
 #include "SemanticClassMap/SemanticClass.h"
+#include "BoostArchiver.h"
 
 namespace ORB_SLAM2
 {
@@ -44,7 +45,7 @@ class KeyFrame
 {
 public:
     KeyFrame(Frame &F, Map* pMap, KeyFrameDatabase* pKFDB);
-
+    KeyFrame();
     // Pose functions
     void SetPose(const cv::Mat &Tcw);
     cv::Mat GetPose();
@@ -190,8 +191,13 @@ public:
     const int mnMaxY;
     const cv::Mat mK;
 
-
+// MapPoints associated to keypoints
+    std::vector<MapPoint*> mvpMapPoints;
     // The following variables need to be accessed trough a mutex to be thread safe.
+
+    // BoW
+    KeyFrameDatabase* mpKeyFrameDB;
+    ORBVocabulary* mpORBvocabulary;
 protected:
 
     // SE3 Pose and camera center
@@ -201,12 +207,9 @@ protected:
 
     cv::Mat Cw; // Stereo middel point. Only for visualization
 
-    // MapPoints associated to keypoints
-    std::vector<MapPoint*> mvpMapPoints;
 
-    // BoW
-    KeyFrameDatabase* mpKeyFrameDB;
-    ORBVocabulary* mpORBvocabulary;
+
+
 
     // Grid over the image to speed up feature matching
     std::vector< std::vector <std::vector<size_t> > > mGrid;
@@ -233,6 +236,16 @@ protected:
     std::mutex mMutexPose;
     std::mutex mMutexConnections;
     std::mutex mMutexFeatures;
+
+
+private:
+    // serialize is recommended to be private
+    friend class boost::serialization::access;
+    template<class Archive>
+    void save(Archive &ar, const unsigned int version) const;
+    template<class Archive>
+    void load(Archive &ar, const unsigned int version);
+    BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
 
 } //namespace ORB_SLAM

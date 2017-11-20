@@ -117,7 +117,10 @@ public:
 	void SaveMapClouds(const string &filename);
     // TODO: Save/Load functions
     void SaveKeyframes(const std::vector<KeyFrame*> keyframes,const string &filename);
+    void SaveMapPoints(const std::vector<MapPoint*> mapPoints,const string &filename);
     void LoadMap(const string &filename);
+    void addKeyFrame(KeyFrame* keyframe);
+
 
     // Information from most recent processed frame
     // You can call this right after TrackMonocular (or stereo or RGBD)

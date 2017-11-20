@@ -30,10 +30,15 @@ LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 
 find_package(OpenCV 2.4.13 QUIET)
 if(NOT OpenCV_FOUND)
-   find_package(OpenCV 2.4.3 QUIET)
+   find_package(OpenCV 3 QUIET)
    if(NOT OpenCV_FOUND)
       message(FATAL_ERROR "OpenCV > 2.4.3 not found.")
    endif()
+endif()
+
+find_library(BOOST_SERIALIZATION boost_serialization)
+if (NOT BOOST_SERIALIZATION)
+   message(FATAL_ERROR "Can't find libboost_serialization")
 endif()
 
 find_package(Eigen3 3.1.0 REQUIRED)
@@ -78,6 +83,7 @@ ${EIGEN3_LIBS}
 ${Pangolin_LIBRARIES}
 ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
 ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
+${BOOST_SERIALIZATION}
 )
 
 # Build examples
@@ -114,5 +120,5 @@ Examples/Monocular/mono_euroc.cc)
 target_link_libraries(mono_euroc ${PROJECT_NAME})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/mono_video)
 add_executable(mono_video
-        mono_video/mono_video.cpp)
+        mono_video/mono_video.cpp mono_video/loadMap.cpp)
 target_link_libraries(mono_video ${PROJECT_NAME})

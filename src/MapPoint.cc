@@ -446,4 +446,33 @@ int MapPoint::PredictScale(const float &currentDist, Frame* pF)
     return nScale;
 }
 
+
+    MapPoint::MapPoint():
+            nObs(0), mnTrackReferenceForFrame(0),
+            mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), mnLoopPointForKF(0), mnCorrectedByKF(0),
+            mnCorrectedReference(0), mnBAGlobalForKF(0),mnVisible(1), mnFound(1), mbBad(false),
+            mpReplaced(static_cast<MapPoint*>(NULL)), mfMinDistance(0), mfMaxDistance(0)
+    {}
+
+    template<class Archive>
+    void MapPoint::save(Archive & ar, const unsigned int version) const
+    {
+        // note, version is always the latest when saving
+        ar & mWorldPos.at<float>(0);
+        ar & mWorldPos.at<float>(1);
+        ar & mWorldPos.at<float>(2);
+    }
+    template<class Archive>
+    void MapPoint::load(Archive & ar, const unsigned int version)
+    {
+        float x,y,z;
+        ar&x;
+        ar&y;
+        ar&z;
+        mWorldPos = (cv::Mat_<float>(3,1)<<x,y,z);
+    }
+
+    template void MapPoint::load(boost::archive::binary_iarchive&, const unsigned int);
+    template void MapPoint::save(boost::archive::binary_oarchive&, const unsigned int) const;
+
 } //namespace ORB_SLAM

@@ -28,6 +28,7 @@
 #include<opencv2/core/core.hpp>
 #include<mutex>
 #include "SemanticClassMap/SemanticClass.h"
+#include "BoostArchiver.h"
 
 namespace ORB_SLAM2
 {
@@ -116,10 +117,13 @@ public:
 
     SemanticClass mSemanticClass;
     uchar mSemanticProb;
+
+    // Position in absolute coordinates
+    cv::Mat mWorldPos;
+
 protected:    
 
-     // Position in absolute coordinates
-     cv::Mat mWorldPos;
+
 
      // Keyframes observing the point and associated index in keyframe
      std::map<KeyFrame*,size_t> mObservations;
@@ -149,6 +153,18 @@ protected:
 
      std::mutex mMutexPos;
      std::mutex mMutexFeatures;
+
+public:
+    // for serialization
+    MapPoint();
+private:
+    // serialize is recommended to be private
+    friend class boost::serialization::access;
+    template<class Archive>
+    void save(Archive &ar, const unsigned int version) const;
+    template<class Archive>
+    void load(Archive & ar, const unsigned int version);
+    BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
 
 } //namespace ORB_SLAM

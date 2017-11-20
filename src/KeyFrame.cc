@@ -56,6 +56,7 @@ KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
     SetPose(F.mTcw);    
 }
 
+
 void KeyFrame::ComputeBoW()
 {
     if(mBowVec.empty() || mFeatVec.empty())
@@ -662,4 +663,67 @@ float KeyFrame::ComputeSceneMedianDepth(const int q)
     return vDepths[(vDepths.size()-1)/q];
 }
 
+
+    // Default serializing Constructor
+    KeyFrame::KeyFrame():
+            mnFrameId(0),  mTimeStamp(0.0), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
+            mfGridElementWidthInv(0.0), mfGridElementHeightInv(0.0),
+            mnTrackReferenceForFrame(0), mnFuseTargetForKF(0), mnBALocalForKF(0), mnBAFixedForKF(0),
+            mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0), mnBAGlobalForKF(0),
+            fx(0.0), fy(0.0), cx(0.0), cy(0.0), invfx(0.0), invfy(0.0),
+            mbf(0.0), mb(0.0), mThDepth(0.0), N(0), mnScaleLevels(0), mfScaleFactor(0),
+            mfLogScaleFactor(0.0),
+            mnMinX(0), mnMinY(0), mnMaxX(0),
+            mnMaxY(0)
+    {}
+
+
+
+    template<class Archive>
+    void KeyFrame::save(Archive &ar, const unsigned int version) const
+    {
+        // KeyPoints, stereo coordinate and descriptors
+        std::vector<MapPoint*> mvpMapPoints_local;mvpMapPoints_local.reserve(mvpMapPoints.size());
+        std::vector<cv::KeyPoint> mvKeys_local;mvKeys_local.reserve(mvKeys.size());
+        std::vector<cv::KeyPoint> mvKeysUn_local;mvKeysUn_local.reserve(mvKeysUn.size());
+        cv::Mat mDescriptors_local(0,mDescriptors.cols,mDescriptors.type());
+
+        for(int i = 0;i<mvpMapPoints.size();i++)
+        {
+            if(!mvpMapPoints[i]||mvpMapPoints[i]->isBad())
+                continue;
+            mvpMapPoints_local.push_back(mvpMapPoints[i]);
+            mvKeys_local.push_back(mvKeys[i]);
+            mvKeysUn_local.push_back(mvKeysUn[i]);
+            mDescriptors_local.push_back(mDescriptors.row(i));
+        }
+
+
+
+
+        ar & const_cast<std::vector<cv::KeyPoint> &>(mvKeys_local);
+        ar & const_cast<std::vector<cv::KeyPoint> &>(mvKeysUn_local);
+        ar & const_cast<cv::Mat &>(mDescriptors_local);
+        ar & mBowVec;
+        //ar & mFeatVec;
+        ar & Tcw;
+        ar & mvpMapPoints_local;
+    }
+
+    template<class Archive>
+    void KeyFrame::load(Archive &ar, const unsigned int version)
+    {
+        // KeyPoints, stereo coordinate and descriptors
+
+        ar & const_cast<std::vector<cv::KeyPoint> &>(mvKeys);
+        ar & const_cast<std::vector<cv::KeyPoint> &>(mvKeysUn);
+        ar & const_cast<cv::Mat &>(mDescriptors);
+        ar & mBowVec;
+        //ar & mFeatVec;
+        ar & Tcw;
+        ar & mvpMapPoints;
+    }
+
+    template void KeyFrame::load(boost::archive::binary_iarchive&, const unsigned int);
+    template void KeyFrame::save(boost::archive::binary_oarchive&, const unsigned int) const;
 } //namespace ORB_SLAM

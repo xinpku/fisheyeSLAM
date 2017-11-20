@@ -127,6 +127,22 @@ public:
 
     void Reset();
     VocabularyList vocabularyList;
+
+    //ORB
+    ORBextractor* mpORBextractorLeft, *mpORBextractorRight;
+    ORBextractor* mpIniORBextractor;
+    std::vector<ORBextractor*> mpFisheyeORBextractor;
+
+
+    //Calibration matrix
+    cv::Mat mK;
+    cv::Mat mDistCoef;
+    float mbf;
+
+    // Threshold close/far points
+    // Points seen as close by the stereo/RGBD sensor are considered reliable
+    // and inserted from just one frame. Far points requiere a match in two keyframes.
+    float mThDepth;
 protected:
 
     // Main tracking function. It is independent of the input sensor.
@@ -166,10 +182,7 @@ protected:
     LocalMapping* mpLocalMapper;
     LoopClosing* mpLoopClosing;
 
-    //ORB
-    ORBextractor* mpORBextractorLeft, *mpORBextractorRight;
-    ORBextractor* mpIniORBextractor;
-	std::vector<ORBextractor*> mpFisheyeORBextractor;
+
     //BoW
     ORBVocabulary* mpORBVocabulary;
     KeyFrameDatabase* mpKeyFrameDB;
@@ -193,10 +206,7 @@ protected:
     //Map
     Map* mpMap;
 
-    //Calibration matrix
-    cv::Mat mK;
-    cv::Mat mDistCoef;
-    float mbf;
+
 
 	int mCameraNum;
 
@@ -204,10 +214,7 @@ protected:
     int mMinFrames;
     int mMaxFrames;
 
-    // Threshold close/far points
-    // Points seen as close by the stereo/RGBD sensor are considered reliable
-    // and inserted from just one frame. Far points requiere a match in two keyframes.
-    float mThDepth;
+
 
     // For RGB-D inputs only. For some datasets (e.g. TUM) the depthmap values are scaled.
     float mDepthMapFactor;

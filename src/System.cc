@@ -633,19 +633,203 @@ void System::SaveMapClouds(const string &filename)
 	}
 }
 
-
-    void System::SaveKeyframes(const std::vector<KeyFrame*> keyframes,const string &filename)
+#define WEIGHT_THRESH  150
+    std::vector<KeyFrame*> selectFrame(std::vector<KeyFrame*> vpKFs)
     {
-        std::set<MapPoint*> mapPointSet;
-        for(int i = 0;i<keyframes.size();i++)
-        {*
+        std::sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);  //vpKFs has already been sorted
+        std::set<KeyFrame*> spSavedKFs;
 
+//////////////    sparsely chose keyframes from all the keyframes ////////////////
+//	std::vector<KeyFrame*>::iterator it_i = vpKFs.begin(),it_j,it_end;
+        size_t it_i = 0 ,it_j = 0, it_end = vpKFs.size();
+        KeyFrame* pKFi = vpKFs[it_i++],
+                *pKFj;
+        spSavedKFs.insert(pKFi);
+        while( it_i < it_end )
+        {
+            pKFj = vpKFs[it_i]; //*it_i;
+            if (pKFi->isBad()) {
+                if (pKFj != nullptr)
+                    spSavedKFs.insert(pKFj);
+                pKFi = pKFj;
+                it_i++;
+                if (it_i == it_end)
+                    break;
+                continue;
+            }
+
+            std::vector<KeyFrame *> vpKFi_j;
+            int w_max = pKFi->GetWeight(pKFj);
+            int w_thresh = std::max(w_max / 4, WEIGHT_THRESH);
+            if (w_max >= WEIGHT_THRESH)
+                vpKFi_j.push_back(pKFj);
+            it_j = it_i;
+            it_j++;
+            if (it_j == it_end) {
+                if (pKFj != nullptr)
+                    spSavedKFs.insert(pKFj);
+                it_i = it_j;
+                //break;
+                continue;
+            }
+            while (it_j < it_end && pKFi->GetWeight(vpKFs[it_j]) > w_thresh) {
+                vpKFi_j.push_back(vpKFs[it_j++]);
+            }
+
+//		cout << "prev KF id: " << pKFi->mnId << " , current: " << pKFj->mnId
+//		     << ", forward KFs: " << vpKFi_j.size() << endl;
+
+            // delete nearest KFs which have strong overlap with current one in spKFs
+            if (vpKFi_j.empty() || w_max < WEIGHT_THRESH)
+            {
+                if (pKFj != nullptr)
+                    spSavedKFs.insert(pKFj);
+                vpKFi_j.clear();
+                pKFi = pKFj;
+                if (++it_i == it_end)
+                    break;
+            }
+            else
+            {
+                unsigned j = vpKFi_j.size();
+                pKFj = vpKFi_j[j - 1];
+                spSavedKFs.insert(pKFj);
+                for (unsigned k = 0; k < j - 1; k++) {
+                    std::set<MapPoint *> spMapPoint = vpKFi_j[k]->GetMapPoints();
+                    std::set<MapPoint *>::iterator sit = spMapPoint.begin();
+                    for (; sit != spMapPoint.end(); sit++) {
+                        vpKFi_j[k]->EraseMapPointMatch(*sit);
+                    }
+                    pKFi->EraseConnection(vpKFi_j[k]);
+                    pKFi->EraseChild(vpKFi_j[k]);
+                    //mpKeyFrameDatabase->erase(vpKFi_j[k]);
+                }
+                pKFi->UpdateConnections();
+                it_i = it_j;
+                pKFi = pKFj;
+                it_i++;
+            }
         }
+
+        return std::vector<KeyFrame*>(spSavedKFs.begin(),spSavedKFs.end());
+
     }
+
+
+    void System::SaveKeyframes(const std::vector<KeyFrame*> keyframes_list,const string &filename)
+    {
+        std::vector<KeyFrame*> keyframes = selectFrame(keyframes_list);
+
+        std::ofstream out(filename, std::ios_base::binary);
+        if (!out)
+        {
+            cerr << "Cannot Write to Mapfile: " << filename << std::endl;
+            exit(-1);
+        }
+        cout << "Saving Mapfile: " << filename << std::flush;
+        boost::archive::binary_oarchive oa(out, boost::archive::no_header);
+        oa << keyframes;
+        cout << " ...done" << std::endl;
+        out.close();
+
+
+    }
+
+    void System::SaveMapPoints(const std::vector<MapPoint*> mapPoints,const string &filename)
+    {
+        //std::vector<KeyFrame*> keyframes = selectFrame(keyframes_list);
+
+        std::ofstream out(filename, std::ios_base::binary);
+        if (!out)
+        {
+            cerr << "Cannot Write to Mapfile: " << filename << std::endl;
+            exit(-1);
+        }
+        cout << "Saving Mapfile: " << filename << std::flush;
+        boost::archive::binary_oarchive oa(out, boost::archive::no_header);
+        for(auto m:mapPoints)
+        {
+            oa << *m;
+        }
+
+        cout << " ...done" << std::endl;
+        out.close();
+
+
+    }
+
     void System::LoadMap(const string &filename)
     {
+        std::ifstream in(filename, std::ios_base::binary);
+        if (!in)
+        {
+            cerr << "Cannot Open Mapfile: " << filename << " , Create a new one" << std::endl;
+            return;
+        }
+        cout << "Loading Mapfile: " << filename << std::flush;
 
+        std::vector<KeyFrame*> keyframes;
+
+        boost::archive::binary_iarchive ia(in, boost::archive::no_header);
+        ia >> keyframes;
+
+        for(int i= 0;i<keyframes.size();i++)
+        {
+            addKeyFrame(keyframes[i]);
+        }
+
+        auto keyframesInMap = mpMap->GetAllKeyFrames();
+        for(int i= 0;i<keyframesInMap.size();i++)
+        {
+            keyframesInMap[i]->UpdateConnections();
+        }
+
+        auto mappointsInMap = mpMap->GetAllMapPoints();
+        for(int i = 0;i<mappointsInMap.size();i++)
+        {
+            mappointsInMap[i]->ComputeDistinctiveDescriptors();
+            mappointsInMap[i]->UpdateNormalAndDepth();
+            //std::cout<<"point pose "<<mappointsInMap[i]->GetWorldPos().t()<<std::endl;
+        }
+        cout << " ...done" << std::endl;
+        cout << "Map Reconstructing" << flush;
+        cout << " ...done" << endl;
+        in.close();
     }
+
+
+    void System::addKeyFrame(KeyFrame* keyframe_loaded)
+    {
+        const int img_height = 2000;
+        const int img_width = 2000;
+        static float time_stamp = 0;
+        time_stamp+=0.03;
+        Frame frame(cv::Size(img_width,img_height),keyframe_loaded->GetPose(),keyframe_loaded->mvKeys,keyframe_loaded->mvKeysUn,keyframe_loaded->mDescriptors,time_stamp,mpTracker->mpORBextractorLeft,mpVocabulary,mpTracker->mK,mpTracker->mbf,mpTracker->mThDepth);
+
+
+        KeyFrame* keyframe = new KeyFrame(frame,mpMap,mpKeyFrameDatabase);
+        keyframe->mBowVec = keyframe_loaded->mBowVec;
+        keyframe->SetPose(keyframe_loaded->GetPose());
+        vector<cv::Mat> vCurrentDesc = Converter::toDescriptorVector(keyframe->mDescriptors);
+        DBoW2::BowVector bowVec;
+        keyframe->mpORBvocabulary->transform(vCurrentDesc,bowVec,keyframe->mFeatVec,4);
+
+        mpMap->AddKeyFrame(keyframe);
+        std::vector<MapPoint*> MapPoints = keyframe_loaded->mvpMapPoints;
+        for(int i=  0;i<MapPoints.size();i++)
+        {
+            MapPoint* pMP = new MapPoint(MapPoints[i]->mWorldPos,keyframe,mpMap);
+
+            keyframe->AddMapPoint(pMP,i);
+
+            pMP->AddObservation(keyframe,i);
+
+            //Add to Map
+            mpMap->AddMapPoint(pMP);
+        }
+        mpKeyFrameDatabase->add(keyframe);
+    }
+
     void System::createVocabulary()
     {
         std::vector<KeyFrame*> keyframes = mpMap->GetAllKeyFrames();

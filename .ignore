@@ -1,3 +1,12 @@
 *.vcxproj
 *.vcxproj.filters
 *.user
+*.o
+*.so
+Thirdparty/DBoW2/cmake-build-debug/*
+*.pub
+*.vtx
+*.map
+*.bin
+*.txt
+*.cmake
