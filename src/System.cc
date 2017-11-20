@@ -719,7 +719,7 @@ void System::SaveMapClouds(const string &filename)
     void System::SaveKeyframes(const std::vector<KeyFrame*> keyframes_list,const string &filename)
     {
         std::vector<KeyFrame*> keyframes = selectFrame(keyframes_list);
-
+        std::cout<<"saved keyframe "<<keyframes.size()<<std::endl;
         std::ofstream out(filename, std::ios_base::binary);
         if (!out)
         {
