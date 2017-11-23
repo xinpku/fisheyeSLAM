@@ -10,3 +10,4 @@ Thirdparty/DBoW2/cmake-build-debug/*
 *.bin
 *.txt
 *.cmake
+cmake_modules/

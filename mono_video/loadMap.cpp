@@ -11,7 +11,7 @@ using namespace std;
 
 #define usleep(x) Sleep((float)x/1000.0f)
 
-int main(int argc, char **argv)
+int asdadsmain(int argc, char **argv)
 {
     if (argc != 7)
     {
@@ -81,7 +81,7 @@ int main(int argc, char **argv)
     SLAM.ActivateLocalizationMode();
     SLAM.mpTracker->mState = ORB_SLAM2::Tracking::eTrackingState::LOST;
     SLAM.mTrackingState = SLAM.mpTracker->mState;
-    for (int ni = 0; ni<600; ni++)
+    for (int ni = 0; ni<1500; ni++)
     {
 
         // Read image from file
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
         std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
 #endif
         cv::imshow("test",fisheye_im);
-        cv::waitKey(0);
+        cv::waitKey(10);
         // Pass the image to the SLAM system
         SLAM.TrackFisheye(fisheye_im, object_class, tframe, correctors);
         //SLAM.TrackMonocular(imgs[0], tframe);

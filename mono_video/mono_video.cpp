@@ -11,7 +11,7 @@ using namespace std;
 
 #define usleep(x) Sleep((float)x/1000.0f)
 
-int sdfmain(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	if (argc != 7)
 	{
@@ -97,7 +97,7 @@ int sdfmain(int argc, char **argv)
 	int start_frame;
 	sst >> start_frame;
     std::cout<<"start_frame"<<start_frame<<std::endl;
-	for (int ni = 0; ni<1000; ni++)
+	for (int ni = 0; ni<nImages; ni++)
 	{
 		
 		// Read image from file
@@ -132,11 +132,11 @@ int sdfmain(int argc, char **argv)
         SLAM.TrackFisheye(fisheye_im, object_class, tframe, correctors);
 		//SLAM.TrackMonocular(imgs[0], tframe);
 
-		if (SLAM.GetTrackingState() == 3 || (ni>=30&&ni%30==0))
+		/*if (SLAM.GetTrackingState() == 3 || (ni>=30&&ni%30==0))
 		{
 			SLAM.SaveMapClouds("pointClouds.vtx");
 			SLAM.SaveTrajectoryVtx("CameraTrajectory.vtx");
-		}
+		}*/
         //std::cout<<"ni "<<ni<<std::endl;
 		//cv::waitKey(0);
 #ifdef COMPILEDWITHC11

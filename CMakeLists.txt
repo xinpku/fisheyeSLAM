@@ -28,9 +28,9 @@ endif()
 
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 
-find_package(OpenCV 2.4.13 QUIET)
+find_package(OpenCV 3.2.2 REQUIRED)
 if(NOT OpenCV_FOUND)
-   find_package(OpenCV 3 QUIET)
+   find_package(OpenCV 3.2.2 REQUIRED)
    if(NOT OpenCV_FOUND)
       message(FATAL_ERROR "OpenCV > 2.4.3 not found.")
    endif()
@@ -120,5 +120,5 @@ Examples/Monocular/mono_euroc.cc)
 target_link_libraries(mono_euroc ${PROJECT_NAME})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/mono_video)
 add_executable(mono_video
-        mono_video/mono_video.cpp mono_video/loadMap.cpp)
+        mono_video/mono_video.cpp mono_video/loadMap.cpp mono_video/using_larser_pose.cpp)
 target_link_libraries(mono_video ${PROJECT_NAME})

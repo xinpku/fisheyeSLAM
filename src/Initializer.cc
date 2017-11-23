@@ -122,8 +122,215 @@ bool Initializer::Initialize(const Frame &CurrentFrame, const vector<int> &vMatc
     return false;
 }
 
+cv::Mat SkewSymmetricMatrix(const cv::Mat &v)
+{
+    return (cv::Mat_<float>(3,3) <<             0, -v.at<float>(2), v.at<float>(1),
+            v.at<float>(2),               0,-v.at<float>(0),
+            -v.at<float>(1),  v.at<float>(0),              0);
+}
 
-void Initializer::FindHomography(vector<bool> &vbMatchesInliers, float &score, cv::Mat &H21)
+cv::Mat ComputeF12(Frame & pKF1,Frame &pKF2)
+{
+    const cv::Mat R1w = pKF1.mTcw.colRange(0,3).rowRange(0,3).clone();
+    const cv::Mat t1w = pKF1.mTcw.rowRange(0,3).col(3).clone();
+    const cv::Mat R2w = pKF2.mTcw.colRange(0,3).rowRange(0,3).clone();
+    const cv::Mat t2w = pKF2.mTcw.rowRange(0,3).col(3).clone();
+
+    cv::Mat R12 = R1w*R2w.t();
+    cv::Mat t12 = -R1w*R2w.t()*t2w+t1w;
+
+    cv::Mat t12x = SkewSymmetricMatrix(t12);
+
+    const cv::Mat &K1 = pKF1.mK;
+    const cv::Mat &K2 = pKF2.mK;
+
+
+    return K1.t().inv()*t12x*R12*K2.inv();
+}
+
+
+bool Initializer::InitializeWithGivenPose(Frame &LastFrame,Frame& CurrentFrame, const vector<int> &vMatches12, cv::Mat &R21, cv::Mat &t21,
+                             vector<cv::Point3f> &vP3D, vector<bool> &vbTriangulated)
+{
+    // Fill structures with current keypoints and matches with reference frame
+    // Reference Frame: 1, Current Frame: 2
+    cv::Mat poseLastFrame = LastFrame.mTcw;
+    mvKeys2 = CurrentFrame.mvKeysUn;
+
+    mvMatches12.clear();
+    mvMatches12.reserve(mvKeys2.size());
+    mvbMatched1.resize(mvKeys1.size());
+    for(size_t i=0, iend=vMatches12.size();i<iend; i++)
+    {
+        if(vMatches12[i]>=0)
+        {
+            mvMatches12.push_back(make_pair(i,vMatches12[i]));
+            mvbMatched1[i]=true;
+        }
+        else
+            mvbMatched1[i]=false;
+    }
+
+    const int N = mvMatches12.size();
+
+    // Indices for minimum set selection
+    vector<size_t> vAllIndices;
+    vAllIndices.reserve(N);
+    vector<size_t> vAvailableIndices;
+
+    for(int i=0; i<N; i++)
+    {
+        vAllIndices.push_back(i);
+    }
+
+    // Generate sets of 8 points for each RANSAC iteration
+    mvSets = vector< vector<size_t> >(mMaxIterations,vector<size_t>(8,0));
+
+    DUtils::Random::SeedRandOnce(0);
+
+    for(int it=0; it<mMaxIterations; it++)
+    {
+        vAvailableIndices = vAllIndices;
+
+        // Select a minimum set
+        for(size_t j=0; j<8; j++)
+        {
+            int randi = DUtils::Random::RandomInt(0,vAvailableIndices.size()-1);
+            int idx = vAvailableIndices[randi];
+
+            mvSets[it][j] = idx;
+
+            vAvailableIndices[randi] = vAvailableIndices.back();
+            vAvailableIndices.pop_back();
+        }
+    }
+
+    // Launch threads to compute in parallel a fundamental matrix and a homography
+    vector<bool> vbMatchesInliersH, vbMatchesInliersF;
+    cv::Mat F12 = ComputeF12(LastFrame,CurrentFrame);
+
+    CheckFundamental(F12, vbMatchesInliersF, mSigma);
+    // Calibration parameters
+    const float fx = mK.at<float>(0,0);
+    const float fy = mK.at<float>(1,1);
+    const float cx = mK.at<float>(0,2);
+    const float cy = mK.at<float>(1,2);
+
+    vbTriangulated = vector<bool>(mvKeys1.size(),false);
+    vP3D.resize(mvKeys1.size());
+
+    vector<float> vCosParallax;
+    vCosParallax.reserve(mvKeys1.size());
+
+    cv::Mat R1,t1,R2,t2;
+    // Camera 1 Projection Matrix K[I|0]
+    cv::Mat P1 = (mK*poseLastFrame.rowRange(0,3).colRange(0,4).clone());
+    R1 = poseLastFrame.rowRange(0,3).colRange(0,3).clone();
+    t1 = poseLastFrame.rowRange(0,3).col(3).clone();
+    cv::Mat O1 = -R1.t()*t1;
+
+    // Camera 2 Projection Matrix K[R|t]
+    cv::Mat P2 = mK*CurrentFrame.mTcw.rowRange(0,3).colRange(0,4).clone();
+    R2 = CurrentFrame.mTcw.rowRange(0,3).colRange(0,3).clone();
+    t2 = CurrentFrame.mTcw.rowRange(0,3).col(3).clone();
+    cv::Mat O2 = -R2.t()*t2;
+
+    std::cout<<"P1"<<std::endl<<P1<<std::endl;
+    std::cout<<"P2"<<std::endl<<P2<<std::endl;
+
+
+    int nGood=0;
+
+    for(size_t i=0, iend=mvMatches12.size();i<iend;i++)
+    {
+        if(!vbMatchesInliersF[i]||!mvbMatched1[i])
+            continue;
+        //std::cout<<mvMatches12[i].first <<" "<<mvMatches12[i].second<<"v"<<mvKeys1.size()<<" "<<mvKeys2.size()<<std::endl;
+        const cv::KeyPoint &kp1 = mvKeys1[mvMatches12[i].first];
+        const cv::KeyPoint &kp2 = mvKeys2[mvMatches12[i].second];
+        cv::Mat p3dC1;
+
+        //std::cout<<kp1.pt<<std::endl<<kp2.pt<<std::endl;
+        Triangulate(kp1,kp2,P1,P2,p3dC1);
+
+        if(!isfinite(p3dC1.at<float>(0)) || !isfinite(p3dC1.at<float>(1)) || !isfinite(p3dC1.at<float>(2)))
+        {
+            vbTriangulated[mvMatches12[i].first]=false;
+            continue;
+        }
+
+        // Check parallax
+        cv::Mat normal1 = p3dC1 - O1;
+        float dist1 = cv::norm(normal1);
+
+        cv::Mat normal2 = p3dC1 - O2;
+        float dist2 = cv::norm(normal2);
+
+        float cosParallax = normal1.dot(normal2)/(dist1*dist2);
+
+
+        // Check depth in front of second camera (only if enough parallax, as "infinite" points can easily go to negative depth)
+        cv::Mat p3dC2 = R2*p3dC1+t2;
+        p3dC1 = R1*p3dC1+t1;
+
+        // Check depth in front of first camera (only if enough parallax, as "infinite" points can easily go to negative depth)
+
+        if(p3dC1.at<float>(2)<=0 && cosParallax<0.99998)
+            continue;
+        if(p3dC2.at<float>(2)<=0 && cosParallax<0.99998)
+            continue;
+
+        // Check reprojection error in first image
+        float im1x, im1y;
+        float invZ1 = 1.0/p3dC1.at<float>(2);
+        im1x = fx*p3dC1.at<float>(0)*invZ1+cx;
+        im1y = fy*p3dC1.at<float>(1)*invZ1+cy;
+
+        float squareError1 = (im1x-kp1.pt.x)*(im1x-kp1.pt.x)+(im1y-kp1.pt.y)*(im1y-kp1.pt.y);
+
+        if(squareError1>4.0*mSigma2)
+            continue;
+
+        // Check reprojection error in second image
+        float im2x, im2y;
+        float invZ2 = 1.0/p3dC2.at<float>(2);
+        im2x = fx*p3dC2.at<float>(0)*invZ2+cx;
+        im2y = fy*p3dC2.at<float>(1)*invZ2+cy;
+
+        float squareError2 = (im2x-kp2.pt.x)*(im2x-kp2.pt.x)+(im2y-kp2.pt.y)*(im2y-kp2.pt.y);
+
+        if(squareError2>4.0*mSigma2)
+            continue;
+
+        vCosParallax.push_back(cosParallax);
+        vP3D[mvMatches12[i].first] = cv::Point3f(p3dC1.at<float>(0),p3dC1.at<float>(1),p3dC1.at<float>(2));
+        nGood++;
+        //std::cout<<"cosParallax "<<cosParallax<<" cosParallax<0.99998 " <<(cosParallax<0.99998)<<std::endl;
+        if(cosParallax<0.999998)
+            vbTriangulated[mvMatches12[i].first]=true;
+    }
+
+    int Ninlier=0;
+    for(size_t i=0, iend = vbMatchesInliersF.size() ; i<iend; i++)
+        if(vbMatchesInliersF[i])
+            Ninlier++;
+
+    int nMinGood = max(static_cast<int>(0.1*Ninlier),30);
+
+    std::cout<<"nGood "<<nGood<<" Ninlier "<<Ninlier<<std::endl;
+    if(nGood<nMinGood)
+    {
+        std::cout << "maxGood<nMinGood || nsimilar>1  return false to reconstruct F" << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+
+
+
+    void Initializer::FindHomography(vector<bool> &vbMatchesInliers, float &score, cv::Mat &H21)
 {
     // Number of putative matches
     const int N = mvMatches12.size();

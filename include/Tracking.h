@@ -73,6 +73,8 @@ public:
     cv::Mat GrabImageMonocular(const cv::Mat &im, const double &timestamp);
 	cv::Mat GrabImageFisheye(const cv::Mat &fisheyeIm, const std::vector<cv::Mat> &im, const cv::Mat &object_notation,
                                  const double &timestamp, std::vector<FisheyeCorrector> &correctors);
+    cv::Mat GrabImageFisheyeGivenPose(const cv::Mat &fisheyeIm, const std::vector<cv::Mat> &im,const cv::Mat& TcwGiven ,const cv::Mat &object_notation,
+                             const double &timestamp, std::vector<FisheyeCorrector> &correctors);
 
     void SetLocalMapper(LocalMapping* pLocalMapper);
     void SetLoopClosing(LoopClosing* pLoopClosing);
@@ -143,21 +145,27 @@ public:
     // Points seen as close by the stereo/RGBD sensor are considered reliable
     // and inserted from just one frame. Far points requiere a match in two keyframes.
     float mThDepth;
+    //Last Frame, KeyFrame and Relocalisation Info
+    KeyFrame* mpLastKeyFrame;
+    Frame mLastFrame;
+    void UpdateLastFrame();
 protected:
 
     // Main tracking function. It is independent of the input sensor.
     void Track();
-
+    void TrackWithGivenPose(const cv::Mat& TcwGiven);
     // Map initialization for stereo and RGB-D
     void StereoInitialization();
 
     // Map initialization for monocular
     void MonocularInitialization();
+        void CreateInitialMapMonocularGivenPose();
     void CreateInitialMapMonocular();
+    void MonocularInitializationWithGivenPose(const cv::Mat& Tcw);
 
     void CheckReplacedInLastFrame();
     bool TrackReferenceKeyFrame();
-    void UpdateLastFrame();
+
     bool TrackWithMotionModel();
 
     bool Relocalization();
@@ -222,9 +230,7 @@ protected:
     //Current matches in frame
     int mnMatchesInliers;
 
-    //Last Frame, KeyFrame and Relocalisation Info
-    KeyFrame* mpLastKeyFrame;
-    Frame mLastFrame;
+
     unsigned int mnLastKeyFrameId;
     unsigned int mnLastRelocFrameId;
 

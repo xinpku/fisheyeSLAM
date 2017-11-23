@@ -461,6 +461,7 @@ int MapPoint::PredictScale(const float &currentDist, Frame* pF)
         ar & mWorldPos.at<float>(0);
         ar & mWorldPos.at<float>(1);
         ar & mWorldPos.at<float>(2);
+        //ar&mDescriptor;
     }
     template<class Archive>
     void MapPoint::load(Archive & ar, const unsigned int version)
@@ -470,6 +471,7 @@ int MapPoint::PredictScale(const float &currentDist, Frame* pF)
         ar&y;
         ar&z;
         mWorldPos = (cv::Mat_<float>(3,1)<<x,y,z);
+        //ar&mDescriptor;
     }
 
     template void MapPoint::load(boost::archive::binary_iarchive&, const unsigned int);

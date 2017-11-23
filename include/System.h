@@ -81,6 +81,9 @@ public:
 	cv::Mat TrackFisheye(const cv::Mat &imFisheyeGray, const cv::Mat &object_class,
                              const double &timestamp, std::vector<FisheyeCorrector> &correctors);
 
+    cv::Mat TrackFisheyeWithGivenPose(const cv::Mat &imFisheyeGray, const cv::Mat &object_class,
+                         const double &timestamp,const cv::Mat& Tcw, std::vector<FisheyeCorrector> &correctors);
+
     // This stops local mapping thread (map building) and performs only camera tracking.
     void ActivateLocalizationMode();
     // This resumes local mapping thread and performs SLAM again.

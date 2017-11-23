@@ -243,6 +243,74 @@ cv::Mat System::TrackFisheye(const cv::Mat &imFisheyeGray, const cv::Mat &object
 	return Tcw;
 }
 
+
+cv::Mat System::TrackFisheyeWithGivenPose(const cv::Mat &imFisheyeGray, const cv::Mat &object_class,
+                                  const double &timestamp,const cv::Mat& TcwGiven, std::vector<FisheyeCorrector> &correctors)
+{
+    if (mSensor != FISHEYE)
+    {
+        cerr << "ERROR: you called TrackStereo but input sensor was not set to FISHEYE." << endl;
+        exit(-1);
+    }
+
+    // Check mode change
+    {
+        unique_lock<mutex> lock(mMutexMode);
+        if (mbActivateLocalizationMode)
+        {
+            mpLocalMapper->RequestStop();
+
+            // Wait until Local Mapping has effectively stopped
+            while (!mpLocalMapper->isStopped())
+            {
+                usleep(1000);
+            }
+
+            mpTracker->InformOnlyTracking(true);
+            mbActivateLocalizationMode = false;
+        }
+        if (mbDeactivateLocalizationMode)
+        {
+            mpTracker->InformOnlyTracking(false);
+            mpLocalMapper->Release();
+            mbDeactivateLocalizationMode = false;
+        }
+    }
+
+    // Check reset
+    {
+        unique_lock<mutex> lock(mMutexReset);
+        if (mbReset)
+        {
+            mpTracker->Reset();
+            mbReset = false;
+        }
+    }
+
+    std::vector<cv::Mat> imgs;
+    for (int view = 0; view < correctors.size(); view++)
+    {
+        cv::Mat current_view;
+        correctors[view].correct(imFisheyeGray,current_view);
+        imgs.push_back(current_view);
+        /*std::stringstream sst;
+        sst << "view" << view;
+        cv::imshow(sst.str(), current_view);*/
+    }
+
+
+    cv::Mat Tcw = mpTracker->GrabImageFisheyeGivenPose(imFisheyeGray, imgs,TcwGiven, object_class, timestamp, correctors);
+
+    unique_lock<mutex> lock2(mMutexState);
+    mTrackingState = mpTracker->mState;
+    mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
+    mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
+    return Tcw;
+}
+
+
+
+
 cv::Mat System::TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const double &timestamp)
 {
     if(mSensor!=RGBD)
@@ -719,6 +787,7 @@ void System::SaveMapClouds(const string &filename)
     void System::SaveKeyframes(const std::vector<KeyFrame*> keyframes_list,const string &filename)
     {
         std::vector<KeyFrame*> keyframes = selectFrame(keyframes_list);
+        //std::vector<KeyFrame*> keyframes = keyframes_list;
         std::cout<<"saved keyframe "<<keyframes.size()<<std::endl;
         std::ofstream out(filename, std::ios_base::binary);
         if (!out)
