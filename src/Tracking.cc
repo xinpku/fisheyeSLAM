@@ -596,10 +596,14 @@ void Tracking::Track()
     else
     {
         // This can happen if tracking is lost
-        mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
-        mlpReferences.push_back(mlpReferences.back());
-        mlFrameTimes.push_back(mlFrameTimes.back());
-        mlbLost.push_back(mState==LOST);
+        if(!mlRelativeFramePoses.empty())
+        {
+            mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
+            mlpReferences.push_back(mlpReferences.back());
+            mlFrameTimes.push_back(mlFrameTimes.back());
+            mlbLost.push_back(mState==LOST);
+        }
+
     }
 
 }
@@ -1627,11 +1631,13 @@ bool Tracking::Relocalization()
 
     if(!bMatch)
     {
+        mCurrentFrame.mTcw = cv::Mat();
         return false;
     }
     else
     {
         mnLastRelocFrameId = mCurrentFrame.mnId;
+
         return true;
     }
 

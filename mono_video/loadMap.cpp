@@ -44,19 +44,22 @@ int main(int argc, char **argv)
     std::cout << f_image_ << std::endl;
     correctors[2] = FisheyeCorrector(correction_table, video.get(CV_CAP_PROP_FRAME_HEIGHT), video.get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 30, 30);
     correctors[2].setAxisDirection(65, 38, 0);//30,35,-7
+    correctors[2].setClipRegion(cv::Rect(cv::Point2f(20, 34), cv::Point2f(correctors[2].getCorrectedSize().width-115, correctors[2].getCorrectedSize().height)));
+    //correctors[2].setSizeScale(0.5);
     correctors[2].updateMap();
-    //correctors[2].setClipRegion(cv::Rect(cv::Point2f(20, 34), cv::Point2f(correctors[2].getCorrectedSize().width-115, correctors[2].getCorrectedSize().height)));
-    //correctors[0].setSizeScale(0.5);
+
 
     std::cout << "*****************************1" << std::endl;
     correctors[1] = FisheyeCorrector(correction_table, video.get(CV_CAP_PROP_FRAME_HEIGHT), video.get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 31, 31);
     correctors[1].setAxisDirection(0, 30, 0);//30,35,-7
-    correctors[1].updateMap();
-    //correctors[1].setClipRegion(cv::Rect(cv::Point2f(0, 0), cv::Point2f(correctors[1].getCorrectedSize().width, correctors[1].getCorrectedSize().height)));
     //correctors[1].setSizeScale(0.5);
+    //correctors[1].setClipRegion(cv::Rect(cv::Point2f(0, 0), cv::Point2f(correctors[1].getCorrectedSize().width, correctors[1].getCorrectedSize().height)));
+    correctors[1].updateMap();
     std::cout << "*****************************0" << std::endl;
     correctors[0] = FisheyeCorrector(correction_table, video.get(CV_CAP_PROP_FRAME_HEIGHT), video.get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 30, 30);
     correctors[0].setAxisDirection(-65, 38, 0);//30,35,-7
+    //correctors[0].setSizeScale(0.5);
+    correctors[0].setClipRegion(cv::Rect(cv::Point2f(115, 34), cv::Point2f(correctors[0].getCorrectedSize().width-20, correctors[0].getCorrectedSize().height)));
     correctors[0].updateMap();
 
 
@@ -81,7 +84,7 @@ int main(int argc, char **argv)
     SLAM.ActivateLocalizationMode();
     SLAM.mpTracker->mState = ORB_SLAM2::Tracking::eTrackingState::LOST;
     SLAM.mTrackingState = SLAM.mpTracker->mState;
-    for (int ni = 0; ni<600; ni++)
+    for (int ni = 0; ni<1000; ni++)
     {
 
         // Read image from file
@@ -112,7 +115,7 @@ int main(int argc, char **argv)
         std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
 #endif
         cv::imshow("test",fisheye_im);
-        cv::waitKey(0);
+        cv::waitKey(10);
         // Pass the image to the SLAM system
         SLAM.TrackFisheye(fisheye_im, object_class, tframe, correctors);
         //SLAM.TrackMonocular(imgs[0], tframe);

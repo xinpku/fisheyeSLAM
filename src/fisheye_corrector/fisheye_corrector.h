@@ -165,8 +165,8 @@ public:
 		if (map_need_update)
 			updateMap(); 
 		cv::remap(src, dst, map_, cv::Mat(), cv::INTER_CUBIC); 
-		if (size_scale_!=1)
-			cv::resize(dst, dst, cv::Size(dst.cols*size_scale_, dst.rows*size_scale_), size_scale_, size_scale_, cv::INTER_CUBIC);
+/*		if (size_scale_!=1)
+			cv::resize(dst, dst, cv::Size(dst.cols*size_scale_, dst.rows*size_scale_), size_scale_, size_scale_, cv::INTER_CUBIC);*/
 		return dst;
 	}
 	template<class  pointType>
@@ -177,14 +177,15 @@ public:
 
 	cv::Size getCorrectedSize()
 	{
-		return cv::Size(map_.cols*size_scale_, map_.rows*size_scale_);
+		return cv::Size(map_.cols, map_.rows);
 	}
 
 	void setClipRegion(const cv::Rect& region)
 	{
+		std::cout<<region<<std::endl;
 		clip_region_ = region;
-		map_ = original_map_(region);
-		std::cout << "Size of corrected imageis  width:" << map_.cols << " height:" << map_.rows << std::endl;
+/*		map_ = original_map_(region);
+		std::cout << "Size of corrected imageis  width:" << map_.cols << " height:" << map_.rows << std::endl;*/
 	}
 
 	void setSizeScale(float scale)
@@ -226,15 +227,20 @@ public:
 		axis_horizontal_radian_ = degreeToRadian(axis_direction_horizontal);
 		axis_rotation_radian_ = degreeToRadian(axis_rotation);
 		map_need_update = true;
+        generateMap();
 	}
 	void updateMap()
 	{
-		generateMap();
+		if(original_map_.empty())
+			generateMap();
 
 		if (clip_region_.area() == 0)
 			clip_region_ = cv::Rect(0, 0, Width_, Height_);
+		std::cout<<clip_region_<<std::endl;
+		std::cout<<original_map_.size()<<std::endl;
+		map_ = original_map_(clip_region_);
 
-		setClipRegion(clip_region_);
+		cv::resize(map_,map_,cv::Size(0,0), size_scale_, size_scale_, cv::INTER_CUBIC);
 		map_need_update = false;
 	}
 

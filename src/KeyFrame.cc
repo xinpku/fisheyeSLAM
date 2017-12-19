@@ -701,7 +701,7 @@ float KeyFrame::ComputeSceneMedianDepth(const int q)
 
 
 
-        ar & const_cast<std::vector<cv::KeyPoint> &>(mvKeys_local);
+        //ar & const_cast<std::vector<cv::KeyPoint> &>(mvKeys_local);
         ar & const_cast<std::vector<cv::KeyPoint> &>(mvKeysUn_local);
         ar & const_cast<cv::Mat &>(mDescriptors_local);
         ar & mBowVec;
@@ -715,7 +715,7 @@ float KeyFrame::ComputeSceneMedianDepth(const int q)
     {
         // KeyPoints, stereo coordinate and descriptors
 
-        ar & const_cast<std::vector<cv::KeyPoint> &>(mvKeys);
+        //ar & const_cast<std::vector<cv::KeyPoint> &>(mvKeys);
         ar & const_cast<std::vector<cv::KeyPoint> &>(mvKeysUn);
         ar & const_cast<cv::Mat &>(mDescriptors);
         ar & mBowVec;
