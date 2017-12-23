@@ -99,6 +99,33 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     std::cout << "- fps: " << fps << endl;
 
 
+    //Multi-Camera settings
+    mNcameras = fSettings["MultiCamera.n_frame"];
+    mvTgc.resize(mNcameras);
+    mvTcg.resize(mNcameras);
+    for (int i = 0; i < mNcameras; i++)
+    {
+        std::stringstream sst;
+        sst << "camera" << i;
+        std::vector<float> C;
+        std::vector<float> rot;
+        fSettings[(sst.str() + ".C")] >> C;
+        fSettings[(sst.str() + ".R")] >> rot;
+        cv::Mat R;
+        cv::Rodrigues(rot, R);
+
+        mvTcg[i] = cv::Mat::eye(4, 4, CV_32F);
+        R.copyTo(mvTcg[i](cv::Range(0, 3), cv::Range(0, 3)));
+        cv::Mat t = -R*cv::Mat(C);
+        t *= 0.1;
+        t.copyTo(mvTcg[i](cv::Range(0, 3), cv::Range(3, 4)));
+        mvTgc[i] = mvTcg[i].inv();
+    }
+
+
+
+
+
     int nRGB = fSettings["Camera.RGB"];
     mbRGB = nRGB;
 
@@ -1729,7 +1756,5 @@ void Tracking::InformOnlyTracking(const bool &flag)
 {
     mbOnlyTracking = flag;
 }
-
-
 
 } //namespace ORB_SLAM

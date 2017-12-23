@@ -99,6 +99,30 @@ protected:
 
     float mfNNratio;
     bool mbCheckOrientation;
+
+    //Variables and functions related to groupCamera
+public:
+    int SearchByProjectionGroupCamera(Frame &F, const std::vector<MapPoint*> &vpMapPoints, const float th=3);
+
+    // Project MapPoints tracked in last frame into the current frame and search matches.
+    // Used to track from previous frame (Tracking)
+    int SearchByProjectionGroupCamera(Frame &CurrentFrame, const Frame &LastFrame, const float th, const bool bMono);
+
+    // Project MapPoints seen in KeyFrame into the Frame and search matches.
+    // Used in relocalization (Tracking)
+    int SearchByProjectionGroupCamera(Frame &CurrentFrame, KeyFrame* pKF, const std::set<MapPoint*> &sAlreadyFound, const float th, const int ORBdist);
+
+    // Project MapPoints using a Similarity Transformation and search matches.
+    // Used in loop detection (Loop Closing)
+    int SearchByProjectionGroupCamera(KeyFrame* pKF, cv::Mat Scw, const std::vector<MapPoint*> &vpPoints, std::vector<MapPoint*> &vpMatched, int th);
+
+
+
+
+    int SearchForTriangulationGroupCamera(KeyFrame *pKF1, KeyFrame *pKF2, std::vector < std::vector<cv::Mat>> F12,
+                                          vector<pair<size_t, size_t> > &vMatchedPairs, const bool bOnlyStereo);
+
+
 };
 
 }// namespace ORB_SLAM

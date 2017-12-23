@@ -41,7 +41,8 @@ KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
     mvInvLevelSigma2(F.mvInvLevelSigma2), mnMinX(F.mnMinX), mnMinY(F.mnMinY), mnMaxX(F.mnMaxX),
     mnMaxY(F.mnMaxY), mK(F.mK), mvpMapPoints(F.mvpMapPoints), mpKeyFrameDB(pKFDB),
     mpORBvocabulary(F.mpORBvocabulary), mbFirstConnection(true), mpParent(NULL), mbNotErase(false),
-    mbToBeErased(false), mbBad(false), mHalfBaseline(F.mb/2), mpMap(pMap),mvSemanticClass(F.mvSemanticClass),mvSemanticProbability(F.mvSemanticProbability)
+    mbToBeErased(false), mbBad(false), mHalfBaseline(F.mb/2), mpMap(pMap),mvSemanticClass(F.mvSemanticClass),mvSemanticProbability(F.mvSemanticProbability),
+    mvCamera_Id_KeysUn(F.mvCamera_Id_KeysUn), mvTcg(F.mvTcg),Ncameras(F.Ncameras),kp_start_pos(F.kp_start_pos)
 {
     mnId=nNextId++;
 
@@ -82,6 +83,8 @@ void KeyFrame::SetPose(const cv::Mat &Tcw_)
     Ow.copyTo(Twc.rowRange(0,3).col(3));
     cv::Mat center = (cv::Mat_<float>(4,1) << mHalfBaseline, 0 , 0, 1);
     Cw = Twc*center;
+
+    UpdateMultiCameraPose();
 }
 
 cv::Mat KeyFrame::GetPose()
@@ -726,4 +729,7 @@ float KeyFrame::ComputeSceneMedianDepth(const int q)
 
     template void KeyFrame::load(boost::archive::binary_iarchive&, const unsigned int);
     template void KeyFrame::save(boost::archive::binary_oarchive&, const unsigned int) const;
+
+
+
 } //namespace ORB_SLAM

@@ -235,7 +235,35 @@ protected:
     bool mbRGB;
 
     list<MapPoint*> mlpTemporalPoints;
-};
+
+public:
+//*************************************************
+    //Functions and variables related to the groupCamera
+    cv::Mat GrabImageMultiCamera(const std::vector<cv::Mat> &ims, const double &timestamp);
+    void MontageImagesKeypoints(const std::vector<cv::Mat>& images, cv::Mat& montage, Frame& frame);
+
+
+        //Functions and variables related to the groupCamera
+    std::vector<cv::Mat> mvTgc;
+    std::vector<cv::Mat> mvTcg;
+    int mNcameras;
+
+
+
+    void SearchLocalPointsGroupCamera();
+
+
+
+    void TrackGroupCamera();
+    bool TrackWithMotionModelGroupCamera();
+    bool TrackReferenceKeyFrameGroupCamera();
+    bool TrackLocalMapGroupCamera();
+
+
+    // Map initialization for monocular
+    void MonocularInitializationGroupCamera();
+    void CreateInitialMapMonocularGroupCamera();
+    };
 
 } //namespace ORB_SLAM
 

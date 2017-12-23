@@ -48,8 +48,9 @@ Frame::Frame(const Frame &frame)
      mpReferenceKF(frame.mpReferenceKF), mnScaleLevels(frame.mnScaleLevels),
      mfScaleFactor(frame.mfScaleFactor), mfLogScaleFactor(frame.mfLogScaleFactor),
      mvScaleFactors(frame.mvScaleFactors), mvInvScaleFactors(frame.mvInvScaleFactors),
-     mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2),mvSemanticClass(frame.mvSemanticClass),mvSemanticProbability(frame.mvSemanticProbability)
-{
+     mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2),mvSemanticClass(frame.mvSemanticClass),mvSemanticProbability(frame.mvSemanticProbability),
+     mvCamera_Id_KeysUn(frame.mvCamera_Id_KeysUn), mvTcg(frame.mvTcg),Ncameras(frame.Ncameras)
+    {
     for(int i=0;i<FRAME_GRID_COLS;i++)
         for(int j=0; j<FRAME_GRID_ROWS; j++)
             mGrid[i][j]=frame.mGrid[i][j];
@@ -457,6 +458,7 @@ void Frame::SetPose(cv::Mat Tcw)
 {
     mTcw = Tcw.clone();
     UpdatePoseMatrices();
+    UpdateMultiCameraPose();
 }
 
 void Frame::UpdatePoseMatrices()
@@ -880,5 +882,6 @@ cv::Mat Frame::UnprojectStereo(const int &i)
     else
         return cv::Mat();
 }
+
 
 } //namespace ORB_SLAM

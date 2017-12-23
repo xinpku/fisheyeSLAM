@@ -1664,4 +1664,6 @@ int ORBmatcher::DescriptorDistance(const cv::Mat &a, const cv::Mat &b)
     return dist;
 }
 
+
+
 } //namespace ORB_SLAM

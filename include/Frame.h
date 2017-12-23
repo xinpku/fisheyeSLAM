@@ -213,6 +213,34 @@ private:
     cv::Mat mtcw;
     cv::Mat mRwc;
     cv::Mat mOw; //==mtwc
+
+    //The variables related to groupCamera SLAM.
+public:
+    int Ncameras;
+    std::vector<int> kp_start_pos;
+
+
+    std::vector<int> mvCamera_Id_KeysUn;//Record the correspondences of keypoints and cameras
+    std::vector<cv::Mat> mvTcg;//The relative poses of groupCamera to each cameras.
+
+    std::vector<cv::Mat> mvOwSubcamera;//Camera centers of each camera
+    std::vector<cv::Mat> mvTcwSubcamera;//Transformation matrixes from world frame to camera frame.
+    std::vector<cv::Mat> mvRcwSubcamera;
+    std::vector<cv::Mat> mvtcwSubcamera;
+    // Constructor for multiple Monocular cameras.
+    Frame(const std::vector<cv::Mat> &imGrays, const double &timeStamp, ORBextractor* extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth, std::vector<cv::Mat>& Tcm);
+
+    void UpdateMultiCameraPose();
+    cv::Mat getTcwSubcamera(int i)
+    {
+        return mvTcwSubcamera[i].clone();
+    }
+
+    cv::Mat getCameraCenterSubCamera(int i)
+    {
+        return mvOwSubcamera[i].clone();
+    }
+    bool isInFrustumGroupCamera(MapPoint *pMP, float viewingCosLimit);
 };
 
 }// namespace ORB_SLAM

@@ -54,7 +54,8 @@ public:
         MONOCULAR=0,
         STEREO=1,
         RGBD=2,
-		FISHEYE=3
+		FISHEYE=3,
+        GROUPCAMERA=4
     };
 
 public:
@@ -187,6 +188,12 @@ public:
     std::vector<MapPoint*> mTrackedMapPoints;
     std::vector<cv::KeyPoint> mTrackedKeyPointsUn;
     std::mutex mMutexState;
+
+    //Functions related to the groupCamera
+public:
+    cv::Mat TrackMultiCamera(const std::vector<cv::Mat>& ims, const double &timestamp);
+
+
 };
 
 }// namespace ORB_SLAM

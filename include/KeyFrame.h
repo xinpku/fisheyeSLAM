@@ -246,6 +246,26 @@ private:
     template<class Archive>
     void load(Archive &ar, const unsigned int version);
     BOOST_SERIALIZATION_SPLIT_MEMBER();
+
+
+    //Variables and functions related to groupCamera
+public:
+    int Ncameras;
+
+    std::vector<int> kp_start_pos;
+
+    std::vector<int> mvCamera_Id_KeysUn;//Record the correspondences of keypoints and cameras
+    std::vector<cv::Mat> mvTcg;//The relative poses of groupCamera to each cameras.
+
+    std::vector<cv::Mat> mvOwSubcamera;//Camera centers of each camera
+    std::vector<cv::Mat> mvTcwSubcamera;//Transformation matrixes from world frame to camera frame.
+    cv::Mat getTcwSubCamera(int i);
+    cv::Mat getCameraCenterSubCamera(int i);
+    cv::Mat GetRotationSubCamera(int i);
+    cv::Mat GetTranslationSubCamera(int i);
+    void UpdateMultiCameraPose();
+
+
 };
 
 } //namespace ORB_SLAM

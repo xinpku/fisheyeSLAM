@@ -66,6 +66,10 @@ protected:
     Map* mpMap;
 
     std::mutex mMutex;
+
+    //Functions and variables related to the groupCamera
+public:
+
 };
 
 } //namespace ORB_SLAM

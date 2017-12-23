@@ -165,6 +165,23 @@ private:
     template<class Archive>
     void load(Archive & ar, const unsigned int version);
     BOOST_SERIALIZATION_SPLIT_MEMBER();
+
+
+    //Variables and functions related to groupCamera
+public:
+    // Variables used by the tracking
+    std::vector<float> mvTrackProjX;
+    std::vector<float> mvTrackProjY;
+    std::vector<float> mvTrackProjXR;
+    std::vector<bool> mvbTrackInView;
+    std::vector<int> mvnTrackScaleLevel;
+    std::vector<float> mvTrackViewCos;
+
+
+    bool dealed_by_current_frame; //Record if current frame have processed this point.
+                                    // It's used to deal with the situation that a map point is observed by different view points of the same frame
+
+
 };
 
 } //namespace ORB_SLAM
