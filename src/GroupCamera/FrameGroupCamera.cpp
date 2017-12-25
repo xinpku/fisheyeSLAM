@@ -162,4 +162,18 @@ namespace ORB_SLAM2
 
         return state;
     }
+
+
+    std::vector<cv::KeyPoint> Frame::getKeypointUnSubCamera(int c) const
+    {
+        int start_pos = kp_start_pos[c];
+        int end_pose = (c==Ncameras-1?mvKeysUn.size():kp_start_pos[c+1]);
+        std::vector<cv::KeyPoint> keypoints;
+        keypoints.reserve(end_pose - start_pos);
+        for(int i = start_pos;i<end_pose;i++)
+        {
+            keypoints.push_back(mvKeysUn[i]);
+        }
+        return keypoints;
+    }
 }

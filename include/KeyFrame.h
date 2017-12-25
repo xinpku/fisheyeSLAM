@@ -259,6 +259,8 @@ public:
 
     std::vector<cv::Mat> mvOwSubcamera;//Camera centers of each camera
     std::vector<cv::Mat> mvTcwSubcamera;//Transformation matrixes from world frame to camera frame.
+
+    std::vector<cv::KeyPoint> getKeypointUnSubCamera(int i) const;
     cv::Mat getTcwSubCamera(int i);
     cv::Mat getCameraCenterSubCamera(int i);
     cv::Mat GetRotationSubCamera(int i);

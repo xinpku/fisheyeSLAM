@@ -240,6 +240,10 @@ public:
     {
         return mvOwSubcamera[i].clone();
     }
+
+    std::vector<cv::KeyPoint> getKeypointUnSubCamera(int i) const;
+
+
     bool isInFrustumGroupCamera(MapPoint *pMP, float viewingCosLimit);
 };
 
