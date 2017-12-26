@@ -75,7 +75,7 @@ src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
 src/fisheye_corrector/fisheye_corrector.cpp
-        src/SemanticClassMap/SemanticClassMap.cpp src/SemanticClassMap/SemanticClass.h src/SemanticClassMap/ObjectMap.cpp src/SemanticClassMap/ObjectMap.h src/GroupCamera/FrameGroupCamera.cpp src/GroupCamera/KeyFrameGroupCamera.cpp src/GroupCamera/SystemGroupCamera.cpp src/GroupCamera/ORBmatcherGroupCamera.cpp src/GroupCamera/TrackingGroupCamera.cpp src/GroupCamera/InitializerGroupCamera.cpp src/GroupCamera/InitializerGroupCamera.h)
+        src/SemanticClassMap/SemanticClassMap.cpp src/SemanticClassMap/SemanticClass.h src/SemanticClassMap/ObjectMap.cpp src/SemanticClassMap/ObjectMap.h src/GroupCamera/FrameGroupCamera.cpp src/GroupCamera/KeyFrameGroupCamera.cpp src/GroupCamera/SystemGroupCamera.cpp src/GroupCamera/ORBmatcherGroupCamera.cpp src/GroupCamera/TrackingGroupCamera.cpp src/GroupCamera/InitializerGroupCamera.cpp src/GroupCamera/InitializerGroupCamera.h src/GroupCamera/OptimizerGroupCamera.cpp src/GroupCamera/OptimizerGroupCamera.h src/GroupCamera/g2oEdgesAndVertex.cpp src/GroupCamera/g2oEdgesAndVertex.h)
 
 target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}

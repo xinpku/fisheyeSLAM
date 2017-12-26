@@ -266,7 +266,8 @@ public:
     cv::Mat GetRotationSubCamera(int i);
     cv::Mat GetTranslationSubCamera(int i);
     void UpdateMultiCameraPose();
-
+    float ComputeSceneMedianDepthGroupCamera(const int q);
+    void UpdateConnectionsGroupCamera();
 
 };
 

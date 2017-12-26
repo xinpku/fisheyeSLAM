@@ -37,7 +37,7 @@
 #include "Initializer.h"
 #include "MapDrawer.h"
 #include "System.h"
-
+#include "GroupCamera/InitializerGroupCamera.h"
 #include <mutex>
 
 namespace ORB_SLAM2
@@ -261,8 +261,10 @@ public:
 
 
     // Map initialization for monocular
+    InitializerGroupCamera* mpInitializerGroupCamera;
     void MonocularInitializationGroupCamera();
     void CreateInitialMapMonocularGroupCamera();
+
     };
 
 } //namespace ORB_SLAM

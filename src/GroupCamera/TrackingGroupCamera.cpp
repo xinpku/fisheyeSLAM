@@ -104,7 +104,7 @@ namespace ORB_SLAM2
 
         MontageImagesKeypoints(ims, mImGray, mCurrentFrame);
 
-        Track();
+        TrackGroupCamera();
 
         return mCurrentFrame.mTcw.clone();
     }
@@ -129,7 +129,7 @@ namespace ORB_SLAM2
             if(mSensor==System::STEREO || mSensor==System::RGBD)
                 StereoInitialization();
             else
-                MonocularInitialization();
+                MonocularInitializationGroupCamera();
 
             mpFrameDrawer->Update(this);
 
@@ -319,6 +319,7 @@ namespace ORB_SLAM2
                     MapPoint* pMP = *lit;
                     delete pMP;
                 }
+
                 mlpTemporalPoints.clear();
 
                 // Check if we need to insert a new keyframe
@@ -534,5 +535,207 @@ namespace ORB_SLAM2
         else
             return true;
     }
+
+
+
+    // Map initialization for monocular
+    void Tracking::MonocularInitializationGroupCamera()
+    {
+        std::cout << "mCurrentFrame.mvKeys.size() " << mCurrentFrame.mvKeys.size() << std::endl;
+        if(!mpInitializerGroupCamera)
+        {
+            // Set Reference Frame
+            if(mCurrentFrame.mvKeys.size()>100)
+            {
+                mInitialFrame = Frame(mCurrentFrame);
+                mLastFrame = Frame(mCurrentFrame);
+                mvbPrevMatched.resize(mCurrentFrame.mvKeysUn.size());
+                for(size_t i=0; i<mCurrentFrame.mvKeysUn.size(); i++)
+                    mvbPrevMatched[i]=mCurrentFrame.mvKeysUn[i].pt;
+
+                if(mpInitializerGroupCamera)
+                    delete mpInitializerGroupCamera;
+
+                mpInitializerGroupCamera =  new InitializerGroupCamera(mCurrentFrame,1.0,200);
+
+                fill(mvIniMatches.begin(),mvIniMatches.end(),-1);
+                std::cout<<"mCurrentFrame.mvKeys.size()>15  --- " << "mpInitializer initialize" << std::endl;
+                return;
+            }
+        }
+        else
+        {
+            // Try to initialize
+
+            if((int)mCurrentFrame.mvKeys.size()<=100)
+            {
+                delete mpInitializerGroupCamera;
+                mpInitializerGroupCamera = static_cast<InitializerGroupCamera*>(NULL);
+                fill(mvIniMatches.begin(),mvIniMatches.end(),-1);
+                std::cout << "mCurrentFrame.mvKeys.size()<=15 return  ---  mpInitializer deleted" << std::endl;
+                return;
+            }
+
+            // Find correspondences
+            ORBmatcher matcher(0.9,true);
+            int nmatches = matcher.SearchForInitialization(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,100);
+
+            // Check if there are enough correspondences
+            std::cout << "nmatches " << nmatches << std::endl;
+            if(nmatches<100)
+            {
+                delete mpInitializerGroupCamera;
+                mpInitializerGroupCamera = static_cast<InitializerGroupCamera*>(NULL);
+                std::cout << "nmatches<9 return --- mpInitializer deleted" << std::endl;
+                return;
+            }
+
+            cv::Mat Rcw; // Current Camera Rotation
+            cv::Mat tcw; // Current Camera Translation
+            vector<bool> vbTriangulated; // Triangulated Correspondences (mvIniMatches)
+            int init_camera_ID = -1;
+            if(mpInitializerGroupCamera->Initialize(mInitialFrame,mCurrentFrame, mvIniMatches, Rcw, tcw, mvIniP3D, vbTriangulated,init_camera_ID))
+            {
+                for(size_t i=0, iend=mvIniMatches.size(); i<iend;i++)
+                {
+                    if(mvIniMatches[i]>=0 && !vbTriangulated[i])
+                    {
+                        mvIniMatches[i]=-1;
+                        nmatches--;
+                    }
+                }
+
+                // Set Frame Poses
+                mInitialFrame.SetPose(cv::Mat::eye(4,4,CV_32F));
+                cv::Mat Tcw = cv::Mat::eye(4,4,CV_32F);
+                Rcw.copyTo(Tcw.rowRange(0,3).colRange(0,3));
+                tcw.copyTo(Tcw.rowRange(0,3).col(3));
+                mCurrentFrame.SetPose(Tcw);
+
+                CreateInitialMapMonocularGroupCamera();
+            }
+        }
+    }
+    void Tracking::CreateInitialMapMonocularGroupCamera()
+    {
+        // Create KeyFrames
+        KeyFrame* pKFini = new KeyFrame(mInitialFrame,mpMap,mpKeyFrameDB);
+        KeyFrame* pKFcur = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
+
+        //unique_lock<mutex> lock(mpMap->mMutexPointCreation);
+        pKFini->ComputeBoW();
+        pKFcur->ComputeBoW();
+
+        // Insert KFs in the map
+        mpMap->AddKeyFrame(pKFini);
+        mpMap->AddKeyFrame(pKFcur);
+        std::cout<<"CreateInitialMapMonocular"<<std::endl;
+        // Create MapPoints and asscoiate to keyframes
+
+        for(size_t i=0; i<mvIniMatches.size();i++)
+        {
+            if(mvIniMatches[i]<0)
+                continue;
+
+            //Create MapPoint.
+            cv::Mat worldPos(mvIniP3D[i]);
+            MapPoint* pMP = new MapPoint(worldPos,pKFcur,mpMap);
+
+            //****initialize semantic information
+            KeyFrame* semantic_source;
+            int semantic_idx;
+            if(pKFini->mvSemanticProbability[i]>pKFcur->mvSemanticProbability[mvIniMatches[i]])
+            {
+                semantic_source = pKFini;
+                semantic_idx = i;
+            }
+            else
+            {
+                semantic_source = pKFcur;
+                semantic_idx = mvIniMatches[i];
+            }
+
+            pMP->mSemanticClass = semantic_source->mvSemanticClass[semantic_idx];
+            pMP->mSemanticProb = semantic_source->mvSemanticProbability[semantic_idx];
+
+            pKFini->AddMapPoint(pMP,i);
+            pKFcur->AddMapPoint(pMP,mvIniMatches[i]);
+
+
+            pMP->AddObservation(pKFini,i);
+            pMP->AddObservation(pKFcur,mvIniMatches[i]);
+
+            pMP->ComputeDistinctiveDescriptors();
+            pMP->UpdateNormalAndDepth();
+
+            //Fill Current Frame structure
+            mCurrentFrame.mvpMapPoints[mvIniMatches[i]] = pMP;
+            mCurrentFrame.mvbOutlier[mvIniMatches[i]] = false;
+
+            //Add to Map
+            mpMap->AddMapPoint(pMP);
+        }
+
+        // Update Connections
+        pKFini->UpdateConnectionsGroupCamera();
+        pKFcur->UpdateConnectionsGroupCamera();
+
+        // Bundle Adjustment
+        cout << "New Map created with " << mpMap->MapPointsInMap() << " points" << endl;
+
+        Optimizer::GlobalBundleAdjustemntGroupCamera(mpMap,20);
+
+        // Set median depth to 1
+        float medianDepth = pKFini->ComputeSceneMedianDepthGroupCamera(2);
+        float invMedianDepth = 1.0f/medianDepth;
+        //std::cout << "medianDepth  " << medianDepth << std::endl;
+        //std::cout << "pKFcur->TrackedMapPoints(1)  " << pKFcur->TrackedMapPoints(1) << std::endl;
+        if(medianDepth<0 || pKFcur->TrackedMapPoints(1)<100)//wx-adjust-parameter original value is 100
+        {
+            cout << "Wrong initialization, reseting..." << endl;
+            Reset();
+            return;
+        }
+
+        // Scale initial baseline
+        cv::Mat Tc2w = pKFcur->GetPose();
+        Tc2w.col(3).rowRange(0,3) = Tc2w.col(3).rowRange(0,3)*invMedianDepth;
+        pKFcur->SetPose(Tc2w);
+
+        // Scale points
+        vector<MapPoint*> vpAllMapPoints = pKFini->GetMapPointMatches();
+        for(size_t iMP=0; iMP<vpAllMapPoints.size(); iMP++)
+        {
+            if(vpAllMapPoints[iMP])
+            {
+                MapPoint* pMP = vpAllMapPoints[iMP];
+                pMP->SetWorldPos(pMP->GetWorldPos()*invMedianDepth);
+            }
+        }
+
+        mpLocalMapper->InsertKeyFrame(pKFini);
+        mpLocalMapper->InsertKeyFrame(pKFcur);
+
+        mCurrentFrame.SetPose(pKFcur->GetPose());
+        mnLastKeyFrameId=mCurrentFrame.mnId;
+        mpLastKeyFrame = pKFcur;
+
+        mvpLocalKeyFrames.push_back(pKFcur);
+        mvpLocalKeyFrames.push_back(pKFini);
+        mvpLocalMapPoints=mpMap->GetAllMapPoints();
+        mpReferenceKF = pKFcur;
+        mCurrentFrame.mpReferenceKF = pKFcur;
+
+        mLastFrame = Frame(mCurrentFrame);
+
+        mpMap->SetReferenceMapPoints(mvpLocalMapPoints);
+
+        mpMapDrawer->SetCurrentCameraPose(pKFcur->GetPose());
+
+        mpMap->mvpKeyFrameOrigins.push_back(pKFini);
+
+        mState=OK;
+    }
+
 
 }

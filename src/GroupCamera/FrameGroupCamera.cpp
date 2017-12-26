@@ -32,6 +32,7 @@ namespace ORB_SLAM2
         for (int i = 0; i < Tcg.size(); i++)
         {
             Tcg[i].copyTo(mvTcg[i]);
+            mvTgc[i] = Tcg[i].inv();
         }
         // ORB extraction
         for (int i = 0; i < imGrays.size(); i++)

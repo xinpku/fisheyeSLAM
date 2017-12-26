@@ -222,6 +222,8 @@ public:
 
     std::vector<int> mvCamera_Id_KeysUn;//Record the correspondences of keypoints and cameras
     std::vector<cv::Mat> mvTcg;//The relative poses of groupCamera to each cameras.
+    std::vector<cv::Mat> mvTgc;//The relative poses of groupCamera to each cameras.
+
 
     std::vector<cv::Mat> mvOwSubcamera;//Camera centers of each camera
     std::vector<cv::Mat> mvTcwSubcamera;//Transformation matrixes from world frame to camera frame.

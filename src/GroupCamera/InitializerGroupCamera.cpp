@@ -1,6 +1,6 @@
 #include "InitializerGroupCamera.h"
 #include "Initializer.h"
-
+#include<thread>
 namespace ORB_SLAM2
 {
     InitializerGroupCamera::InitializerGroupCamera(const Frame &ReferenceFrame, float sigma = 1.0, int iterations = 200)
@@ -31,6 +31,25 @@ namespace ORB_SLAM2
             if(mvInitializers[c].Initialize(CurrentFrame.getKeypointUnSubCamera(c),vMatches,R21,t21,vP3D,vbTriangulated))
             {
                 cameraID =c;
+
+                cv::Mat T21 = cv::Mat::eye(4,4,CV_32F);
+                R21.copyTo(T21.rowRange(0,3).colRange(0,3));
+                t21.copyTo(T21.rowRange(0,3).col(3));
+                T21 = CurrentFrame.mvTgc[c]*T21*CurrentFrame.mvTcg[c];
+
+                R21 = T21.rowRange(0,3).colRange(0,3);
+                t21 = T21.rowRange(0,3).col(3);
+                for(int i = 0;i<vP3D.size();i++)
+                {
+                    if(vbTriangulated[i])
+                    {
+                        cv::Mat p = CurrentFrame.mvTgc[c]*cv::Mat(vP3D[i]);
+                        vP3D[i] =cv::Point3f(p);
+                    }
+
+                }
+                //TO DO
+                //Initialize other camera using given pose
                 return true;
             }
         }
@@ -113,8 +132,8 @@ namespace ORB_SLAM2
         float SH, SF;
         cv::Mat H, F;
 
-        thread threadH(&Initializer::FindHomography,this,ref(vbMatchesInliersH), ref(SH), ref(H));
-        thread threadF(&Initializer::FindFundamental,this,ref(vbMatchesInliersF), ref(SF), ref(F));
+        std::thread threadH(&Initializer::FindHomography,this,ref(vbMatchesInliersH), ref(SH), ref(H));
+        std::thread threadF(&Initializer::FindFundamental,this,ref(vbMatchesInliersF), ref(SF), ref(F));
 
         // Wait until both threads have finished
         threadH.join();
