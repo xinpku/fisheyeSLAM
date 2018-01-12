@@ -121,6 +121,8 @@ public:
 
     int SearchForTriangulationGroupCamera(KeyFrame *pKF1, KeyFrame *pKF2, std::vector < std::vector<cv::Mat>> F12,
                                           vector<pair<size_t, size_t> > &vMatchedPairs, const bool bOnlyStereo);
+    int SearchForTriangulationGroupCamera(KeyFrame *pKF1, KeyFrame *pKF2, int subCameraIDKF1,int subCameraIDKF2, cv::Mat vF12subcamera,
+                                                      vector<pair<size_t, size_t> > &vMatchedPairs, const bool bOnlyStereo);
 
 
 };

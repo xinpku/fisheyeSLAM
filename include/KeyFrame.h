@@ -262,7 +262,7 @@ public:
 
     std::vector<cv::KeyPoint> getKeypointUnSubCamera(int i) const;
     cv::Mat getTcwSubCamera(int i);
-    cv::Mat getCameraCenterSubCamera(int i);
+    cv::Mat GetCameraCenterSubCamera(int i);
     cv::Mat GetRotationSubCamera(int i);
     cv::Mat GetTranslationSubCamera(int i);
     void UpdateMultiCameraPose();

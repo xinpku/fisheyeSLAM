@@ -28,7 +28,7 @@ namespace ORB_SLAM2
     {
         return mvTcwSubcamera[i].clone();
     }
-    cv::Mat KeyFrame::getCameraCenterSubCamera(int i)
+    cv::Mat KeyFrame::GetCameraCenterSubCamera(int i)
     {
         return mvOwSubcamera[i].clone();
     }

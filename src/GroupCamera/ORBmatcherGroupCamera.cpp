@@ -285,7 +285,7 @@ namespace ORB_SLAM2
             for (int j = 0; j < Ncamera; j++)
             {
                 //Compute epipole in second image
-                cv::Mat Cw = pKF1->getCameraCenterSubCamera(i);
+                cv::Mat Cw = pKF1->GetCameraCenterSubCamera(i);
                 cv::Mat R2w = pKF2->GetRotationSubCamera(j);
                 cv::Mat t2w = pKF2->GetTranslationSubCamera(j);
                 cv::Mat C2 = R2w*Cw + t2w;
@@ -448,5 +448,188 @@ namespace ORB_SLAM2
 
         return nmatches;
     }
+
+
+
+    int ORBmatcher::SearchForTriangulationGroupCamera(KeyFrame *pKF1, KeyFrame *pKF2, int subCameraIDKF1,int subCameraIDKF2, cv::Mat vF12subcamera,
+                                                      vector<pair<size_t, size_t> > &vMatchedPairs, const bool bOnlyStereo)
+    {
+        const DBoW2::FeatureVector &vFeatVec1 = pKF1->mFeatVec;
+        const DBoW2::FeatureVector &vFeatVec2 = pKF2->mFeatVec;
+
+        //Compute epipole in second image
+        cv::Mat Cw = pKF1->GetCameraCenterSubCamera(subCameraIDKF1);
+        cv::Mat R2w = pKF2->GetRotationSubCamera(subCameraIDKF2);
+        cv::Mat t2w = pKF2->GetTranslationSubCamera(subCameraIDKF2);
+        cv::Mat C2 = R2w*Cw+t2w;
+        const float invz = 1.0f/C2.at<float>(2);
+        const float ex =pKF2->fx*C2.at<float>(0)*invz+pKF2->cx;
+        const float ey =pKF2->fy*C2.at<float>(1)*invz+pKF2->cy;
+
+        // Find matches between not tracked keypoints
+        // Matching speed-up by ORB Vocabulary
+        // Compare only ORB that share the same node
+
+        int nmatches=0;
+        vector<bool> vbMatched2(pKF2->N,false);
+        vector<int> vMatches12(pKF1->N,-1);
+
+        vector<int> rotHist[HISTO_LENGTH];
+        for(int i=0;i<HISTO_LENGTH;i++)
+            rotHist[i].reserve(500);
+
+        const float factor = 1.0f/HISTO_LENGTH;
+
+        DBoW2::FeatureVector::const_iterator f1it = vFeatVec1.begin();
+        DBoW2::FeatureVector::const_iterator f2it = vFeatVec2.begin();
+        DBoW2::FeatureVector::const_iterator f1end = vFeatVec1.end();
+        DBoW2::FeatureVector::const_iterator f2end = vFeatVec2.end();
+
+        int subCamBeginPosKF1 = pKF1->kp_start_pos[subCameraIDKF1];
+        int subCamEndPosKF1 = (subCameraIDKF1==pKF1->Ncameras-1?pKF1->mvKeysUn.size():pKF1->kp_start_pos[subCameraIDKF1+1]);
+        int subCamBeginPosKF2 = pKF2->kp_start_pos[subCameraIDKF2];
+        int subCamEndPosKF2 = (subCameraIDKF2==pKF2->Ncameras-1?pKF2->mvKeysUn.size():pKF2->kp_start_pos[subCameraIDKF2+1]);
+
+
+        while(f1it!=f1end && f2it!=f2end)
+        {
+            if(f1it->first == f2it->first)
+            {
+                for(size_t i1=0, iend1=f1it->second.size(); i1<iend1; i1++)
+                {
+                    const size_t idx1 = f1it->second[i1];
+
+                    if(idx1<subCamBeginPosKF1||idx1>=subCamEndPosKF1)//Skip the points that don't belong to the sub camera
+                        continue;
+
+                    MapPoint* pMP1 = pKF1->GetMapPoint(idx1);
+
+                    // If there is already a MapPoint skip
+                    if(pMP1)
+                        continue;
+
+                    const bool bStereo1 = pKF1->mvuRight[idx1]>=0;
+
+                    if(bOnlyStereo)
+                        if(!bStereo1)
+                            continue;
+
+                    const cv::KeyPoint &kp1 = pKF1->mvKeysUn[idx1];
+
+                    const cv::Mat &d1 = pKF1->mDescriptors.row(idx1);
+
+                    int bestDist = TH_LOW;
+                    int bestIdx2 = -1;
+
+                    for(size_t i2=0, iend2=f2it->second.size(); i2<iend2; i2++)
+                    {
+                        size_t idx2 = f2it->second[i2];
+
+                        if(idx2<subCamBeginPosKF2||idx2>=subCamEndPosKF2)//Skip the points that don't belong to the sub camera
+                            continue;
+
+                        MapPoint* pMP2 = pKF2->GetMapPoint(idx2);
+
+                        // If we have already matched or there is a MapPoint skip
+                        if(vbMatched2[idx2] || pMP2)
+                            continue;
+
+                        const bool bStereo2 = pKF2->mvuRight[idx2]>=0;
+
+                        if(bOnlyStereo)
+                            if(!bStereo2)
+                                continue;
+
+                        const cv::Mat &d2 = pKF2->mDescriptors.row(idx2);
+
+                        const int dist = DescriptorDistance(d1,d2);
+
+                        if(dist>TH_LOW || dist>bestDist)
+                            continue;
+
+                        const cv::KeyPoint &kp2 = pKF2->mvKeysUn[idx2];
+
+                        if(!bStereo1 && !bStereo2)
+                        {
+                            const float distex = ex-kp2.pt.x;
+                            const float distey = ey-kp2.pt.y;
+                            if(distex*distex+distey*distey<100*pKF2->mvScaleFactors[kp2.octave])
+                                continue;
+                        }
+
+                        if(CheckDistEpipolarLine(kp1,kp2,vF12subcamera,pKF2))
+                        {
+                            bestIdx2 = idx2;
+                            bestDist = dist;
+                        }
+                    }
+
+                    if(bestIdx2>=0)
+                    {
+                        const cv::KeyPoint &kp2 = pKF2->mvKeysUn[bestIdx2];
+                        vMatches12[idx1]=bestIdx2;
+                        nmatches++;
+
+                        if(mbCheckOrientation)
+                        {
+                            float rot = kp1.angle-kp2.angle;
+                            if(rot<0.0)
+                                rot+=360.0f;
+                            int bin = round(rot*factor);
+                            if(bin==HISTO_LENGTH)
+                                bin=0;
+                            assert(bin>=0 && bin<HISTO_LENGTH);
+                            rotHist[bin].push_back(idx1);
+                        }
+                    }
+                }
+
+                f1it++;
+                f2it++;
+            }
+            else if(f1it->first < f2it->first)
+            {
+                f1it = vFeatVec1.lower_bound(f2it->first);
+            }
+            else
+            {
+                f2it = vFeatVec2.lower_bound(f1it->first);
+            }
+        }
+
+        if(mbCheckOrientation)
+        {
+            int ind1=-1;
+            int ind2=-1;
+            int ind3=-1;
+
+            ComputeThreeMaxima(rotHist,HISTO_LENGTH,ind1,ind2,ind3);
+
+            for(int i=0; i<HISTO_LENGTH; i++)
+            {
+                if(i==ind1 || i==ind2 || i==ind3)
+                    continue;
+                for(size_t j=0, jend=rotHist[i].size(); j<jend; j++)
+                {
+                    vMatches12[rotHist[i][j]]=-1;
+                    nmatches--;
+                }
+            }
+
+        }
+
+        vMatchedPairs.clear();
+        vMatchedPairs.reserve(nmatches);
+
+        for(size_t i=0, iend=vMatches12.size(); i<iend; i++)
+        {
+            if(vMatches12[i]<0)
+                continue;
+            vMatchedPairs.push_back(make_pair(i,vMatches12[i]));
+        }
+
+        return nmatches;
+    }
+
 
 }

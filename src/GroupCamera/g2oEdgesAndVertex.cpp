@@ -53,22 +53,22 @@ namespace ORB_SLAM2
 
         double x = xyz_trans[0];
         double y = xyz_trans[1];
+        double z = xyz_trans[2];
         double invz = 1.0/xyz_trans[2];
         double invz_2 = invz*invz;
 
-        _jacobianOplusXi(0,0) =  x*y*invz_2 *fx;
-        _jacobianOplusXi(0,1) = -(1+(x*x*invz_2)) *fx;
-        _jacobianOplusXi(0,2) = y*invz *fx;
-        _jacobianOplusXi(0,3) = -invz *fx;
-        _jacobianOplusXi(0,4) = 0;
-        _jacobianOplusXi(0,5) = x*invz_2 *fx;
 
-        _jacobianOplusXi(1,0) = (1+y*y*invz_2) *fy;
-        _jacobianOplusXi(1,1) = -x*y*invz_2 *fy;
-        _jacobianOplusXi(1,2) = -x*invz *fy;
-        _jacobianOplusXi(1,3) = 0;
-        _jacobianOplusXi(1,4) = -invz *fy;
-        _jacobianOplusXi(1,5) = y*invz_2 *fy;
+        Eigen::Matrix<double,2,3> dp_dXc;
+        dp_dXc<<
+             fx*invz,0,-fx*x*invz_2,
+                0,fy*invz,-fy*y*invz_2;
+        Eigen::Matrix<double,3,6> dXc_dXi;
+        dXc_dXi<<
+               0,-z,y,-1,0,0,
+                z,0,-x,0,-1,0,
+                -y,x,0,0,0,-1;
+
+        _jacobianOplusXi = dp_dXc*Tcg.rotation().toRotationMatrix()*dXc_dXi;
     }
 
 
@@ -129,35 +129,28 @@ namespace ORB_SLAM2
         Eigen::Vector3d xyz = vi->estimate();
         Eigen::Vector3d xyz_trans = T.map(xyz);
 
+
         double x = xyz_trans[0];
         double y = xyz_trans[1];
         double z = xyz_trans[2];
-        double z_2 = z*z;
+        double invz = 1.0/xyz_trans[2];
+        double invz_2 = invz*invz;
 
-        Eigen::Matrix<double,2,3> tmp;
-        tmp(0,0) = fx;
-        tmp(0,1) = 0;
-        tmp(0,2) = -x/z*fx;
+        Eigen::Matrix<double,2,3> dp_dXc;
+        dp_dXc<<
+              fx*invz,0,-fx*x*invz_2,
+                0,fy*invz,-fy*y*invz_2;
 
-        tmp(1,0) = 0;
-        tmp(1,1) = fy;
-        tmp(1,2) = -y/z*fy;
 
-        _jacobianOplusXi =  -1./z * tmp * T.rotation().toRotationMatrix();
+        _jacobianOplusXi =  dp_dXc*T.rotation().toRotationMatrix() * T.rotation().toRotationMatrix();
+        Eigen::Matrix<double,3,6> dXc_dXi;
+        dXc_dXi<<
+               0,-z,y,-1,0,0,
+                z,0,-x,0,-1,0,
+                -y,x,0,0,0,-1;
 
-        _jacobianOplusXj(0,0) =  x*y/z_2 *fx;
-        _jacobianOplusXj(0,1) = -(1+(x*x/z_2)) *fx;
-        _jacobianOplusXj(0,2) = y/z *fx;
-        _jacobianOplusXj(0,3) = -1./z *fx;
-        _jacobianOplusXj(0,4) = 0;
-        _jacobianOplusXj(0,5) = x/z_2 *fx;
+        _jacobianOplusXj = dp_dXc*Tcg.rotation().toRotationMatrix()*dXc_dXi;
 
-        _jacobianOplusXj(1,0) = (1+y*y/z_2) *fy;
-        _jacobianOplusXj(1,1) = -x*y/z_2 *fy;
-        _jacobianOplusXj(1,2) = -x/z *fy;
-        _jacobianOplusXj(1,3) = 0;
-        _jacobianOplusXj(1,4) = -1./z *fy;
-        _jacobianOplusXj(1,5) = y/z_2 *fy;
     }
 
     Eigen::Vector2d EdgeSE3ProjectXYZGroupCamera::cam_project(const Eigen::Vector3d & trans_xyz) const{

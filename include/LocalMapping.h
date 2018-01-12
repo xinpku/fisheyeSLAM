@@ -121,6 +121,12 @@ protected:
 
     bool mbAcceptKeyFrames;
     std::mutex mMutexAccept;
+
+    //Variables and functions related to groupCamera
+public:
+    void CreateNewMapPointsMultiCamera();
+    cv::Mat ComputeF12SubCamera(KeyFrame *&pKF1, KeyFrame *&pKF2,int subCameraID);
+    void ProcessNewKeyFrameGroupCamera();
 };
 
 } //namespace ORB_SLAM
