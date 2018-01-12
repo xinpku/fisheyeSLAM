@@ -134,8 +134,7 @@ protected:
      // Best descriptor to fast matching
      cv::Mat mDescriptor;
 
-     // Reference KeyFrame
-     KeyFrame* mpRefKF;
+
 
      // Tracking counters
      int mnVisible;
@@ -149,7 +148,6 @@ protected:
      float mfMinDistance;
      float mfMaxDistance;
 
-     Map* mpMap;
 
      std::mutex mMutexPos;
      std::mutex mMutexFeatures;
@@ -157,7 +155,11 @@ protected:
 public:
     // for serialization
     MapPoint();
+    Map* mpMap;
+    // Reference KeyFrame
+    KeyFrame* mpRefKF;
 private:
+
     // serialize is recommended to be private
     friend class boost::serialization::access;
     template<class Archive>

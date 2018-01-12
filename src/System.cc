@@ -818,7 +818,16 @@ void System::SaveMapClouds(const string &filename)
         std::vector<MapPoint*> MapPoints = keyframe_loaded->mvpMapPoints;
         for(int i=  0;i<MapPoints.size();i++)
         {
-            MapPoint* pMP = new MapPoint(MapPoints[i]->mWorldPos,keyframe,mpMap);
+            MapPoint* pMP = MapPoints[i];
+            std::cout<<pMP->mnId<<std::endl;
+            if(pMP->mnFirstKFid<0||pMP->mnFirstKFid>keyframe->mnId)
+            {
+                pMP->mpRefKF = keyframe;
+                pMP->mpMap = mpMap;
+                pMP->mnFirstKFid =  keyframe->mnId;
+                pMP->mnFirstFrame = keyframe->mnFrameId;
+            }
+
 
             keyframe->AddMapPoint(pMP,i);
 
