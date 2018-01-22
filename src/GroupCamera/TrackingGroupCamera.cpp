@@ -75,7 +75,32 @@ namespace ORB_SLAM2
 
 
 
-
+    void Tracking::MontageImagesKeypoints(const std::vector<cv::Mat>& images, cv::Mat& montage, Frame& frame)
+    {
+        std::vector<cv::KeyPoint>& keys = frame.mvKeysUn;
+        std::vector<int>& ids = frame.mvCamera_Id_KeysUn;
+        int rows_of_image_group = images.size() / 2;
+        int width = images[0].cols;
+        int height = images[0].rows;
+        montage = cv::Mat(height*rows_of_image_group, width * 2, images[0].type());
+        std::vector<int> offset_x(images.size());
+        std::vector<int> offset_y(images.size());
+        for (int i = 0; i < rows_of_image_group; i++)
+        {
+            for (int j = 0; j < 2; j++)
+            {
+                images[i * 2 + j].copyTo(montage(cv::Range(height*i, height*(i + 1)), cv::Range(width*j, width*(j + 1))));
+                offset_x[i * 2 + j] = width*j;
+                offset_y[i * 2 + j] = height*i;
+            }
+        }
+        for (int i = 0; i < keys.size(); i++)
+        {
+            int idx = ids[i];
+            keys[i].pt.x += offset_x[idx];
+            keys[i].pt.y += offset_y[idx];
+        }
+    }
 
 
     cv::Mat Tracking::GrabImageMultiCamera(const std::vector<cv::Mat> &ims, const double &timestamp)
@@ -97,14 +122,18 @@ namespace ORB_SLAM2
                     cvtColor(ims[i], ims[i], CV_BGRA2GRAY);
             }
         }
-        if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET)
+
+
+
+       if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET)
             mCurrentFrame = Frame(ims, timestamp, mpIniORBextractor, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth, mvTcg);
         else
             mCurrentFrame = Frame(ims, timestamp, mpORBextractorLeft, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth, mvTcg);
 
         MontageImagesKeypoints(ims, mImGray, mCurrentFrame);
+        mpFrameDrawer->Update(this);
 
-        TrackGroupCamera();
+        /* TrackGroupCamera();*/
 
         return mCurrentFrame.mTcw.clone();
     }

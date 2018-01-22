@@ -2,7 +2,7 @@
 // Created by xin on 17-12-26.
 //
 
-#include "OptimizerGroupCamera.h"
+#include "Optimizer.h"
 
 #include "Thirdparty/g2o/g2o/core/block_solver.h"
 #include "Thirdparty/g2o/g2o/core/optimization_algorithm_levenberg.h"
@@ -24,7 +24,7 @@ namespace ORB_SLAM2
 {
 
 
-    void OptimizerGroupCamera::GlobalBundleAdjustemnt(Map* pMap, int nIterations, bool* pbStopFlag, const unsigned long nLoopKF, const bool bRobust)
+    void Optimizer::GlobalBundleAdjustemntGroupCamera(Map* pMap, int nIterations, bool* pbStopFlag, const unsigned long nLoopKF, const bool bRobust)
     {
         vector<KeyFrame*> vpKFs = pMap->GetAllKeyFrames();
         vector<MapPoint*> vpMP = pMap->GetAllMapPoints();
@@ -32,7 +32,7 @@ namespace ORB_SLAM2
     }
 
 
-    void OptimizerGroupCamera::BundleAdjustment(const vector<KeyFrame *> &vpKFs, const vector<MapPoint *> &vpMP,
+    void Optimizer::BundleAdjustmentGroupCamera(const vector<KeyFrame *> &vpKFs, const vector<MapPoint *> &vpMP,
                                      int nIterations, bool* pbStopFlag, const unsigned long nLoopKF, const bool bRobust)
     {
         vector<bool> vbNotIncludedMP;
@@ -223,7 +223,7 @@ namespace ORB_SLAM2
 
     }
 
-    int OptimizerGroupCamera::PoseOptimization(Frame *pFrame)
+    int Optimizer::PoseOptimizationGroupCamera(Frame *pFrame)
     {
         g2o::SparseOptimizer optimizer;
         g2o::BlockSolver_6_3::LinearSolverType * linearSolver;
@@ -443,7 +443,7 @@ namespace ORB_SLAM2
         return nInitialCorrespondences-nBad;
     }
 
-    void OptimizerGroupCamera::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap)
+    void Optimizer::LocalBundleAdjustmentGroupCamera(KeyFrame *pKF, bool* pbStopFlag, Map* pMap)
     {
         // Local KeyFrames: First Breath Search from Current Keyframe
         list<KeyFrame*> lLocalKeyFrames;
@@ -776,7 +776,7 @@ namespace ORB_SLAM2
     }
 
 
-    void OptimizerGroupCamera::OptimizeEssentialGraph(Map* pMap, KeyFrame* pLoopKF, KeyFrame* pCurKF,
+    void Optimizer::OptimizeEssentialGraphGroupCamera(Map* pMap, KeyFrame* pLoopKF, KeyFrame* pCurKF,
                                            const LoopClosing::KeyFrameAndPose &NonCorrectedSim3,
                                            const LoopClosing::KeyFrameAndPose &CorrectedSim3,
                                            const map<KeyFrame *, set<KeyFrame *> > &LoopConnections, const bool &bFixScale)
@@ -1041,7 +1041,7 @@ namespace ORB_SLAM2
         }
     }
 
-    int OptimizerGroupCamera::OptimizeSim3(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &vpMatches1, g2o::Sim3 &g2oS12, const float th2, const bool bFixScale)
+    int Optimizer::OptimizeSim3GroupCamera(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &vpMatches1, g2o::Sim3 &g2oS12, const float th2, const bool bFixScale)
     {
         g2o::SparseOptimizer optimizer;
         g2o::BlockSolverX::LinearSolverType * linearSolver;

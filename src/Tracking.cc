@@ -100,29 +100,30 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
 
 
     //Multi-Camera settings
-    mNcameras = fSettings["MultiCamera.n_frame"];
-    mvTgc.resize(mNcameras);
-    mvTcg.resize(mNcameras);
-    for (int i = 0; i < mNcameras; i++)
+    if(mSensor==System::GROUPCAMERA)
     {
-        std::stringstream sst;
-        sst << "camera" << i;
-        std::vector<float> C;
-        std::vector<float> rot;
-        fSettings[(sst.str() + ".C")] >> C;
-        fSettings[(sst.str() + ".R")] >> rot;
-        cv::Mat R;
-        cv::Rodrigues(rot, R);
+        mNcameras = fSettings["GroupCamera.n_frame"];
+        mvTgc.resize(mNcameras);
+        mvTcg.resize(mNcameras);
+        for (int i = 0; i < mNcameras; i++)
+        {
+            std::stringstream sst;
+            sst << "camera" << i;
+            std::vector<float> C;
+            std::vector<float> rot;
+            fSettings[(sst.str() + ".C")] >> C;
+            fSettings[(sst.str() + ".R")] >> rot;
+            cv::Mat R;
+            cv::Rodrigues(rot, R);
 
-        mvTcg[i] = cv::Mat::eye(4, 4, CV_32F);
-        R.copyTo(mvTcg[i](cv::Range(0, 3), cv::Range(0, 3)));
-        cv::Mat t = -R*cv::Mat(C);
-        t *= 0.1;
-        t.copyTo(mvTcg[i](cv::Range(0, 3), cv::Range(3, 4)));
-        mvTgc[i] = mvTcg[i].inv();
+            mvTgc[i] = cv::Mat::eye(4, 4, CV_32F);
+            R.copyTo(mvTgc[i](cv::Range(0, 3), cv::Range(0, 3)));
+            cv::Mat t = -R*cv::Mat(C);
+            t *= 0.1;
+            t.copyTo(mvTgc[i](cv::Range(0, 3), cv::Range(3, 4)));
+            mvTcg[i] = mvTgc[i].inv();
+        }
     }
-
-
 
 
 
@@ -149,7 +150,7 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     if(sensor==System::STEREO)
         mpORBextractorRight = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
 
-    if(sensor==System::MONOCULAR)
+    if(sensor==System::MONOCULAR||sensor==System::GROUPCAMERA)
         mpIniORBextractor = new ORBextractor(2*nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
 
 	if (sensor == System::FISHEYE)

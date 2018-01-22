@@ -8,7 +8,7 @@
 
 namespace ORB_SLAM2
 {
-    void LocalMapping::CreateNewMapPointsMultiCamera()
+    void LocalMapping::CreateNewMapPointsGroupCamera()
     {
         // Retrieve neighbor keyframes in covisibility graph
         //std::cout<<"Mapping CreateNewMapPoints "<<std::endl;
@@ -343,5 +343,157 @@ namespace ORB_SLAM2
         // Insert Keyframe in Map
         mpMap->AddKeyFrame(mpCurrentKeyFrame);
     }
+
+    void LocalMapping::SearchInNeighborsGroupCamera()
+    {
+        // Retrieve neighbor keyframes
+        int nn = 10;
+        if(mbMonocular)
+            nn=20;
+        const vector<KeyFrame*> vpNeighKFs = mpCurrentKeyFrame->GetBestCovisibilityKeyFrames(nn);
+        vector<KeyFrame*> vpTargetKFs;
+        for(vector<KeyFrame*>::const_iterator vit=vpNeighKFs.begin(), vend=vpNeighKFs.end(); vit!=vend; vit++)
+        {
+            KeyFrame* pKFi = *vit;
+            if(pKFi->isBad() || pKFi->mnFuseTargetForKF == mpCurrentKeyFrame->mnId)
+                continue;
+            vpTargetKFs.push_back(pKFi);
+            pKFi->mnFuseTargetForKF = mpCurrentKeyFrame->mnId;
+
+            // Extend to some second neighbors
+            const vector<KeyFrame*> vpSecondNeighKFs = pKFi->GetBestCovisibilityKeyFrames(5);
+            for(vector<KeyFrame*>::const_iterator vit2=vpSecondNeighKFs.begin(), vend2=vpSecondNeighKFs.end(); vit2!=vend2; vit2++)
+            {
+                KeyFrame* pKFi2 = *vit2;
+                if(pKFi2->isBad() || pKFi2->mnFuseTargetForKF==mpCurrentKeyFrame->mnId || pKFi2->mnId==mpCurrentKeyFrame->mnId)
+                    continue;
+                vpTargetKFs.push_back(pKFi2);
+            }
+        }
+
+
+        // Search matches by projection from current KF in target KFs
+        ORBmatcher matcher;
+        vector<MapPoint*> vpMapPointMatches = mpCurrentKeyFrame->GetMapPointMatches();
+        for(vector<KeyFrame*>::iterator vit=vpTargetKFs.begin(), vend=vpTargetKFs.end(); vit!=vend; vit++)
+        {
+            KeyFrame* pKFi = *vit;
+
+            matcher.FuseGroupCamera(pKFi,vpMapPointMatches);
+        }
+
+        // Search matches by projection from target KFs in current KF
+        vector<MapPoint*> vpFuseCandidates;
+        vpFuseCandidates.reserve(vpTargetKFs.size()*vpMapPointMatches.size());
+
+        for(vector<KeyFrame*>::iterator vitKF=vpTargetKFs.begin(), vendKF=vpTargetKFs.end(); vitKF!=vendKF; vitKF++)
+        {
+            KeyFrame* pKFi = *vitKF;
+
+            vector<MapPoint*> vpMapPointsKFi = pKFi->GetMapPointMatches();
+
+            for(vector<MapPoint*>::iterator vitMP=vpMapPointsKFi.begin(), vendMP=vpMapPointsKFi.end(); vitMP!=vendMP; vitMP++)
+            {
+                MapPoint* pMP = *vitMP;
+                if(!pMP)
+                    continue;
+                if(pMP->isBad() || pMP->mnFuseCandidateForKF == mpCurrentKeyFrame->mnId)
+                    continue;
+                pMP->mnFuseCandidateForKF = mpCurrentKeyFrame->mnId;
+                vpFuseCandidates.push_back(pMP);
+            }
+        }
+
+        matcher.FuseGroupCamera(mpCurrentKeyFrame,vpFuseCandidates);
+
+
+        // Update points
+        vpMapPointMatches = mpCurrentKeyFrame->GetMapPointMatches();
+        for(size_t i=0, iend=vpMapPointMatches.size(); i<iend; i++)
+        {
+            MapPoint* pMP=vpMapPointMatches[i];
+            if(pMP)
+            {
+                if(!pMP->isBad())
+                {
+                    pMP->ComputeDistinctiveDescriptors();
+                    pMP->UpdateNormalAndDepth();
+                }
+            }
+        }
+
+        // Update connections in covisibility graph
+        mpCurrentKeyFrame->UpdateConnectionsGroupCamera();
+    }
+
+
+    void LocalMapping::RunGroupCamera()
+    {
+
+        mbFinished = false;
+
+        while(1)
+        {
+            // Tracking will see that Local Mapping is busy
+            SetAcceptKeyFrames(false);
+
+            // Check if there are keyframes in the queue
+            if(CheckNewKeyFrames())
+            {
+                // BoW conversion and insertion in Map
+                ProcessNewKeyFrameGroupCamera();
+
+                // Check recent MapPoints
+                MapPointCulling();
+
+                // Triangulate new MapPoints
+                CreateNewMapPointsGroupCamera();
+
+                if(!CheckNewKeyFrames())
+                {
+                    // Find more matches in neighbor keyframes and fuse point duplications
+                    SearchInNeighborsGroupCamera();
+                }
+
+                mbAbortBA = false;
+
+                if(!CheckNewKeyFrames() && !stopRequested())
+                {
+                    // Local BA
+                    if(mpMap->KeyFramesInMap()>2)
+                        Optimizer::LocalBundleAdjustmentGroupCamera(mpCurrentKeyFrame,&mbAbortBA, mpMap);
+
+                    // Check redundant local Keyframes
+                    KeyFrameCulling();
+                }
+
+                mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
+            }
+            else if(Stop())
+            {
+                // Safe area to stop
+                while(isStopped() && !CheckFinish())
+                {
+                    usleep(3000);
+                }
+                if(CheckFinish())
+                    break;
+            }
+
+            ResetIfRequested();
+
+            // Tracking will see that Local Mapping is busy
+            SetAcceptKeyFrames(true);
+
+            if(CheckFinish())
+                break;
+
+            usleep(3000);
+        }
+
+        SetFinish();
+    }
+
+
 
 }

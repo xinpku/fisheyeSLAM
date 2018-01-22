@@ -268,6 +268,7 @@ public:
     void UpdateMultiCameraPose();
     float ComputeSceneMedianDepthGroupCamera(const int q);
     void UpdateConnectionsGroupCamera();
+    vector<size_t> GetFeaturesInAreaSubCamera(const float &x, const float &y, const float &r,int cameraID) const;
 
 };
 

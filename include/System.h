@@ -191,7 +191,7 @@ public:
 
     //Functions related to the groupCamera
 public:
-    cv::Mat TrackMultiCamera(const std::vector<cv::Mat>& ims, const double &timestamp);
+    cv::Mat TrackGroupCamera(const std::vector<cv::Mat> &ims, const double &timestamp);
 
 
 };

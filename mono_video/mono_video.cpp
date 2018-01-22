@@ -11,7 +11,7 @@ using namespace std;
 
 #define usleep(x) Sleep((float)x/1000.0f)
 
-int sdfmain(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	if (argc != 7)
 	{

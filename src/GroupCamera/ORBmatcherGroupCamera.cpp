@@ -6,7 +6,7 @@ namespace ORB_SLAM2
     //********************************************
     //Functions related to groupCamera
 
-    int ORBmatcher::SearchByProjectionGroupCamera(Frame &F, const std::vector<MapPoint*> &vpMapPoints, const float th=3)
+    int ORBmatcher::SearchByProjectionGroupCamera(Frame &F, const std::vector<MapPoint*> &vpMapPoints, const float th)
     {
         int nmatches=0;
 
@@ -32,8 +32,8 @@ namespace ORB_SLAM2
                     r *= th;
 
                 const vector<size_t> vIndices =
-                        F.GetFeaturesInArea(pMP->mvTrackProjX[c], pMP->mvTrackProjY[c], r * F.mvScaleFactors[nPredictedLevel],
-                                            nPredictedLevel - 1, nPredictedLevel);
+                        F.GetFeaturesInAreaSubCamera(pMP->mvTrackProjX[c], pMP->mvTrackProjY[c], r * F.mvScaleFactors[nPredictedLevel],
+                                            nPredictedLevel - 1, nPredictedLevel,c);
 
                 if (vIndices.empty())
                     continue;
@@ -166,11 +166,11 @@ namespace ORB_SLAM2
                         float radius = th*CurrentFrame.mvScaleFactors[nLastOctave];
                         vector<size_t> vIndices2;
                         if (bForward)
-                            vIndices2 = CurrentFrame.GetFeaturesInArea(u, v, radius, nLastOctave);
+                            vIndices2 = CurrentFrame.GetFeaturesInAreaSubCamera(u, v, radius, nLastOctave,-1,c);
                         else if (bBackward)
-                            vIndices2 = CurrentFrame.GetFeaturesInArea(u, v, radius, 0, nLastOctave);
+                            vIndices2 = CurrentFrame.GetFeaturesInAreaSubCamera(u, v, radius, 0, nLastOctave,c);
                         else
-                            vIndices2 = CurrentFrame.GetFeaturesInArea(u, v, radius, nLastOctave - 1, nLastOctave + 1);
+                            vIndices2 = CurrentFrame.GetFeaturesInAreaSubCamera(u, v, radius, nLastOctave - 1, nLastOctave + 1,c);
 
                         if (vIndices2.empty())
                             continue;
@@ -630,6 +630,168 @@ namespace ORB_SLAM2
 
         return nmatches;
     }
+
+
+    // Project MapPoints into KeyFrame and search for duplicated MapPoints.
+    int ORBmatcher::FuseGroupCamera(KeyFrame *pKF, const vector<MapPoint *> &vpMapPoints, const float th)
+    {
+        int nFused=0;
+        const int nMPs = vpMapPoints.size();
+
+
+        for(int c = 0;c<pKF->Ncameras;c++)
+        {
+            cv::Mat Rcw = pKF->GetRotationSubCamera(c);
+            cv::Mat tcw = pKF->GetTranslationSubCamera(c);
+
+            const float &fx = pKF->fx;
+            const float &fy = pKF->fy;
+            const float &cx = pKF->cx;
+            const float &cy = pKF->cy;
+            const float &bf = pKF->mbf;
+
+            cv::Mat Ow = pKF->GetCameraCenterSubCamera(c);
+
+
+            for(int i=0; i<nMPs; i++)
+            {
+                MapPoint* pMP = vpMapPoints[i];
+
+                if(!pMP)
+                    continue;
+
+                if(pMP->isBad() || pMP->IsInKeyFrame(pKF))
+                    continue;
+
+                cv::Mat p3Dw = pMP->GetWorldPos();
+                cv::Mat p3Dc = Rcw*p3Dw + tcw;
+
+                // Depth must be positive
+                if(p3Dc.at<float>(2)<0.0f)
+                    continue;
+
+                const float invz = 1/p3Dc.at<float>(2);
+                const float x = p3Dc.at<float>(0)*invz;
+                const float y = p3Dc.at<float>(1)*invz;
+
+                const float u = fx*x+cx;
+                const float v = fy*y+cy;
+
+                // Point must be inside the image
+                if(!pKF->IsInImage(u,v))
+                    continue;
+
+                const float ur = u-bf*invz;
+
+                const float maxDistance = pMP->GetMaxDistanceInvariance();
+                const float minDistance = pMP->GetMinDistanceInvariance();
+                cv::Mat PO = p3Dw-Ow;
+                const float dist3D = cv::norm(PO);
+
+                // Depth must be inside the scale pyramid of the image
+                if(dist3D<minDistance || dist3D>maxDistance )
+                    continue;
+
+                // Viewing angle must be less than 60 deg
+                cv::Mat Pn = pMP->GetNormal();
+
+                if(PO.dot(Pn)<0.5*dist3D)
+                    continue;
+
+                int nPredictedLevel = pMP->PredictScale(dist3D,pKF);
+
+                // Search in a radius
+                const float radius = th*pKF->mvScaleFactors[nPredictedLevel];
+
+                const vector<size_t> vIndices = pKF->GetFeaturesInAreaSubCamera(u,v,radius,c);
+
+                if(vIndices.empty())
+                    continue;
+
+                // Match to the most similar keypoint in the radius
+
+                const cv::Mat dMP = pMP->GetDescriptor();
+
+                int bestDist = 256;
+                int bestIdx = -1;
+                for(vector<size_t>::const_iterator vit=vIndices.begin(), vend=vIndices.end(); vit!=vend; vit++)
+                {
+                    const size_t idx = *vit;
+
+                    const cv::KeyPoint &kp = pKF->mvKeysUn[idx];
+
+                    const int &kpLevel= kp.octave;
+
+                    if(kpLevel<nPredictedLevel-1 || kpLevel>nPredictedLevel)
+                        continue;
+
+                    if(pKF->mvuRight[idx]>=0)
+                    {
+                        // Check reprojection error in stereo
+                        const float &kpx = kp.pt.x;
+                        const float &kpy = kp.pt.y;
+                        const float &kpr = pKF->mvuRight[idx];
+                        const float ex = u-kpx;
+                        const float ey = v-kpy;
+                        const float er = ur-kpr;
+                        const float e2 = ex*ex+ey*ey+er*er;
+
+                        if(e2*pKF->mvInvLevelSigma2[kpLevel]>7.8)
+                            continue;
+                    }
+                    else
+                    {
+                        const float &kpx = kp.pt.x;
+                        const float &kpy = kp.pt.y;
+                        const float ex = u-kpx;
+                        const float ey = v-kpy;
+                        const float e2 = ex*ex+ey*ey;
+
+                        if(e2*pKF->mvInvLevelSigma2[kpLevel]>5.99)
+                            continue;
+                    }
+
+                    const cv::Mat &dKF = pKF->mDescriptors.row(idx);
+
+                    const int dist = DescriptorDistance(dMP,dKF);
+
+                    if(dist<bestDist)
+                    {
+                        bestDist = dist;
+                        bestIdx = idx;
+                    }
+                }
+
+                // If there is already a MapPoint replace otherwise add new measurement
+                if(bestDist<=TH_LOW)
+                {
+                    MapPoint* pMPinKF = pKF->GetMapPoint(bestIdx);
+                    if(pMPinKF)
+                    {
+                        if(!pMPinKF->isBad())
+                        {
+                            if(pMPinKF->Observations()>pMP->Observations())
+                                pMP->Replace(pMPinKF);
+                            else
+                                pMPinKF->Replace(pMP);
+                        }
+                    }
+                    else
+                    {
+                        pMP->AddObservation(pKF,bestIdx);
+                        pMP->UpdateSemanticInfo(pKF->mvSemanticClass[bestIdx],pKF->mvSemanticProbability[bestIdx]);
+                        pKF->AddMapPoint(pMP,bestIdx);
+                    }
+                    nFused++;
+                }
+            }
+        }
+
+
+        return nFused;
+    }
+
+
 
 
 }

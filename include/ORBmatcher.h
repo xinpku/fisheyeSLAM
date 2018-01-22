@@ -125,6 +125,10 @@ public:
                                                       vector<pair<size_t, size_t> > &vMatchedPairs, const bool bOnlyStereo);
 
 
+    // Project MapPoints into KeyFrame and search for duplicated MapPoints.
+    int FuseGroupCamera(KeyFrame* pKF, const vector<MapPoint *> &vpMapPoints, const float th=3.0);
+
+
 };
 
 }// namespace ORB_SLAM

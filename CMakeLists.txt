@@ -75,7 +75,17 @@ src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
 src/fisheye_corrector/fisheye_corrector.cpp
-        src/SemanticClassMap/SemanticClassMap.cpp src/SemanticClassMap/SemanticClass.h src/SemanticClassMap/ObjectMap.cpp src/SemanticClassMap/ObjectMap.h src/GroupCamera/FrameGroupCamera.cpp src/GroupCamera/KeyFrameGroupCamera.cpp src/GroupCamera/SystemGroupCamera.cpp src/GroupCamera/ORBmatcherGroupCamera.cpp src/GroupCamera/TrackingGroupCamera.cpp src/GroupCamera/InitializerGroupCamera.cpp src/GroupCamera/InitializerGroupCamera.h src/GroupCamera/OptimizerGroupCamera.cpp src/GroupCamera/OptimizerGroupCamera.h src/GroupCamera/g2oEdgesAndVertex.cpp src/GroupCamera/g2oEdgesAndVertex.h src/GroupCamera/LocalMappingGroupCamera.cpp)
+        src/SemanticClassMap/SemanticClassMap.cpp
+        src/SemanticClassMap/ObjectMap.cpp
+        src/GroupCamera/FrameGroupCamera.cpp
+        src/GroupCamera/KeyFrameGroupCamera.cpp
+        src/GroupCamera/SystemGroupCamera.cpp
+        src/GroupCamera/ORBmatcherGroupCamera.cpp
+        src/GroupCamera/TrackingGroupCamera.cpp
+        src/GroupCamera/InitializerGroupCamera.cpp
+        src/GroupCamera/OptimizerGroupCamera.cpp
+        src/GroupCamera/g2oEdgesAndVertex.cpp
+        src/GroupCamera/LocalMappingGroupCamera.cpp)
 
 target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}
@@ -119,6 +129,13 @@ add_executable(mono_euroc
 Examples/Monocular/mono_euroc.cc)
 target_link_libraries(mono_euroc ${PROJECT_NAME})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/mono_video)
+
+
 add_executable(mono_video
         mono_video/mono_video.cpp mono_video/loadMap.cpp)
 target_link_libraries(mono_video ${PROJECT_NAME})
+
+
+add_executable(group_camera
+        mono_video/group_camera.cpp mono_video/group_camera.cpp)
+target_link_libraries(group_camera ${PROJECT_NAME})

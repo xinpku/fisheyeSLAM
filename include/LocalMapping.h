@@ -124,9 +124,11 @@ protected:
 
     //Variables and functions related to groupCamera
 public:
-    void CreateNewMapPointsMultiCamera();
+    void CreateNewMapPointsGroupCamera();
     cv::Mat ComputeF12SubCamera(KeyFrame *&pKF1, KeyFrame *&pKF2,int subCameraID);
     void ProcessNewKeyFrameGroupCamera();
+    void SearchInNeighborsGroupCamera();
+    void RunGroupCamera();
 };
 
 } //namespace ORB_SLAM

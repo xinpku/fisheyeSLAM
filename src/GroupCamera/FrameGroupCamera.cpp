@@ -7,6 +7,8 @@ namespace ORB_SLAM2
     //The functions related to the groupCamera
 
     Frame::Frame(const std::vector<cv::Mat> &imGrays, const double &timeStamp, ORBextractor* extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth,std::vector<cv::Mat>& Tcg)
+            :mpORBvocabulary(voc),mpORBextractorLeft(extractor),mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
+             mTimeStamp(timeStamp), mK(K.clone()),mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth)
     {
         // Frame ID
         mnId = nNextId++;
@@ -25,6 +27,7 @@ namespace ORB_SLAM2
 
         kp_start_pos.resize(Ncameras);
         mvTcg.resize(Tcg.size());
+        mvTgc.resize(Tcg.size());
         mvTcwSubcamera.resize(Tcg.size());
         mvOwSubcamera.resize(Tcg.size());
         mvRcwSubcamera.resize(Tcg.size());
@@ -177,4 +180,63 @@ namespace ORB_SLAM2
         }
         return keypoints;
     }
+
+
+    vector<size_t> Frame::GetFeaturesInAreaSubCamera(const float &x, const float  &y, const float  &r, const int minLevel, const int maxLevel,int cameraID) const
+    {
+        vector<size_t> vIndices;
+        vIndices.reserve(N);
+
+        const int nMinCellX = max(0,(int)floor((x-mnMinX-r)*mfGridElementWidthInv));
+        if(nMinCellX>=FRAME_GRID_COLS)
+            return vIndices;
+
+        const int nMaxCellX = min((int)FRAME_GRID_COLS-1,(int)ceil((x-mnMinX+r)*mfGridElementWidthInv));
+        if(nMaxCellX<0)
+            return vIndices;
+
+        const int nMinCellY = max(0,(int)floor((y-mnMinY-r)*mfGridElementHeightInv));
+        if(nMinCellY>=FRAME_GRID_ROWS)
+            return vIndices;
+
+        const int nMaxCellY = min((int)FRAME_GRID_ROWS-1,(int)ceil((y-mnMinY+r)*mfGridElementHeightInv));
+        if(nMaxCellY<0)
+            return vIndices;
+
+        const bool bCheckLevels = (minLevel>0) || (maxLevel>=0);
+
+        for(int ix = nMinCellX; ix<=nMaxCellX; ix++)
+        {
+            for(int iy = nMinCellY; iy<=nMaxCellY; iy++)
+            {
+                const vector<size_t> vCell = mGrid[ix][iy];
+                if(vCell.empty())
+                    continue;
+
+                for(size_t j=0, jend=vCell.size(); j<jend; j++)
+                {
+                    if(mvCamera_Id_KeysUn[vCell[j]]!=cameraID)
+                        continue;
+                    const cv::KeyPoint &kpUn = mvKeysUn[vCell[j]];
+                    if(bCheckLevels)
+                    {
+                        if(kpUn.octave<minLevel)
+                            continue;
+                        if(maxLevel>=0)
+                            if(kpUn.octave>maxLevel)
+                                continue;
+                    }
+
+                    const float distx = kpUn.pt.x-x;
+                    const float disty = kpUn.pt.y-y;
+
+                    if(fabs(distx)<r && fabs(disty)<r)
+                        vIndices.push_back(vCell[j]);
+                }
+            }
+        }
+
+        return vIndices;
+    }
+
 }

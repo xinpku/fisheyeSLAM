@@ -247,6 +247,9 @@ public:
 
 
     bool isInFrustumGroupCamera(MapPoint *pMP, float viewingCosLimit);
+
+    vector<size_t> GetFeaturesInAreaSubCamera(const float &x, const float  &y, const float  &r, const int minLevel, const int maxLevel,int cameraID) const;
+
 };
 
 }// namespace ORB_SLAM

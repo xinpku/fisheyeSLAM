@@ -3,7 +3,7 @@
 #include<thread>
 namespace ORB_SLAM2
 {
-    InitializerGroupCamera::InitializerGroupCamera(const Frame &ReferenceFrame, float sigma = 1.0, int iterations = 200)
+    InitializerGroupCamera::InitializerGroupCamera(const Frame &ReferenceFrame, float sigma, int iterations)
     {
         mNcameras =ReferenceFrame.Ncameras;
         for(int c = 0;c<ReferenceFrame.Ncameras;c++)
@@ -23,12 +23,17 @@ namespace ORB_SLAM2
             int end_pose = (c==mNcameras-1?InitialFrame.mvKeysUn.size():InitialFrame.kp_start_pos[c+1]);
             std::vector<int> vMatches;
             vMatches.reserve(end_pose - start_pos);
+
+            int start_pos2 = CurrentFrame.kp_start_pos[c];
+            int end_pose2 = (c==mNcameras-1?CurrentFrame.mvKeysUn.size():CurrentFrame.kp_start_pos[c+1]);
+
             for(int i = start_pos;i<end_pose;i++)
             {
-                vMatches.push_back(vMatches12[i]);
+                if(vMatches12[i]>=start_pos2&&vMatches12[i]<end_pose2)
+                    vMatches.push_back(vMatches12[i]);
             }
 
-            if(mvInitializers[c].Initialize(CurrentFrame.getKeypointUnSubCamera(c),vMatches,R21,t21,vP3D,vbTriangulated))
+            if(mvInitializers[c].Initialize(CurrentFrame.mvKeysUn,vMatches,R21,t21,vP3D,vbTriangulated))
             {
                 cameraID =c;
 
@@ -60,7 +65,7 @@ namespace ORB_SLAM2
 
 
 
-    Initializer::Initializer(const cv::Mat &K,const std::vector<cv::KeyPoint>& vKeys, float sigma = 1.0, int iterations = 200)
+    Initializer::Initializer(const cv::Mat &K,const std::vector<cv::KeyPoint>& vKeys, float sigma, int iterations)
     {
         mK = K.clone();
 

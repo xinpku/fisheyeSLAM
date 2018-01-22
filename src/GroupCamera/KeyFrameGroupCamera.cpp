@@ -190,4 +190,48 @@ namespace ORB_SLAM2
 
         }
     }
+
+    vector<size_t> KeyFrame::GetFeaturesInAreaSubCamera(const float &x, const float &y, const float &r,int cameraID) const
+    {
+        vector<size_t> vIndices;
+        vIndices.reserve(N);
+
+        const int nMinCellX = max(0,(int)floor((x-mnMinX-r)*mfGridElementWidthInv));
+        if(nMinCellX>=mnGridCols)
+            return vIndices;
+
+        const int nMaxCellX = min((int)mnGridCols-1,(int)ceil((x-mnMinX+r)*mfGridElementWidthInv));
+        if(nMaxCellX<0)
+            return vIndices;
+
+        const int nMinCellY = max(0,(int)floor((y-mnMinY-r)*mfGridElementHeightInv));
+        if(nMinCellY>=mnGridRows)
+            return vIndices;
+
+        const int nMaxCellY = min((int)mnGridRows-1,(int)ceil((y-mnMinY+r)*mfGridElementHeightInv));
+        if(nMaxCellY<0)
+            return vIndices;
+
+        for(int ix = nMinCellX; ix<=nMaxCellX; ix++)
+        {
+            for(int iy = nMinCellY; iy<=nMaxCellY; iy++)
+            {
+                const vector<size_t> vCell = mGrid[ix][iy];
+                for(size_t j=0, jend=vCell.size(); j<jend; j++)
+                {
+                    if(mvCamera_Id_KeysUn[vCell[j]]!=cameraID)
+                        continue;
+                    const cv::KeyPoint &kpUn = mvKeysUn[vCell[j]];
+                    const float distx = kpUn.pt.x-x;
+                    const float disty = kpUn.pt.y-y;
+
+                    if(fabs(distx)<r && fabs(disty)<r)
+                        vIndices.push_back(vCell[j]);
+                }
+            }
+        }
+
+        return vIndices;
+    }
+
 }

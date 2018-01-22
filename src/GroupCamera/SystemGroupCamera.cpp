@@ -4,7 +4,7 @@ namespace ORB_SLAM2
 {
     //**************************************
     //Functions related to the groupCamera
-    cv::Mat System::TrackMultiCamera(const std::vector<cv::Mat>& ims, const double &timestamp)
+    cv::Mat System::TrackGroupCamera(const std::vector<cv::Mat> &ims, const double &timestamp)
     {
         if (mSensor != GROUPCAMERA)
         {
