@@ -22,6 +22,10 @@
 #include "LoopClosing.h"
 #include "ORBmatcher.h"
 #include "Optimizer.h"
+#include "debug_utils/debug_utils.h"
+
+
+
 
 #include<mutex>
 namespace ORB_SLAM2
@@ -189,16 +193,20 @@ void LocalMapping::MapPointCulling()
         }
         else if(pMP->GetFoundRatio()<0.25f )
         {
+            print_value(pMP->GetFoundRatio());
             pMP->SetBadFlag();
             lit = mlpRecentAddedMapPoints.erase(lit);
         }
         else if(((int)nCurrentKFid-(int)pMP->mnFirstKFid)>=2 && pMP->Observations()<=cnThObs)
         {
+            print_value(pMP->Observations());
             pMP->SetBadFlag();
             lit = mlpRecentAddedMapPoints.erase(lit);
         }
         else if(((int)nCurrentKFid-(int)pMP->mnFirstKFid)>=3)
+        {
             lit = mlpRecentAddedMapPoints.erase(lit);
+        }
         else
             lit++;
     }

@@ -1,5 +1,5 @@
 #include "g2oEdgesAndVertex.h"
-
+#include "debug_utils/debug_utils.h"
 namespace ORB_SLAM2
 {
 
@@ -48,27 +48,38 @@ namespace ORB_SLAM2
 
 
     void EdgeSE3ProjectXYZOnlyPoseGroupCamera::linearizeOplus() {
-        g2o::VertexSE3Expmap * vi = static_cast<g2o::VertexSE3Expmap *>(_vertices[0]);
-        Eigen::Vector3d xyz_trans = vi->estimate().map(Xw);
 
-        double x = xyz_trans[0];
-        double y = xyz_trans[1];
-        double z = xyz_trans[2];
-        double invz = 1.0/xyz_trans[2];
+        g2o::VertexSE3Expmap * vi = static_cast<g2o::VertexSE3Expmap *>(_vertices[0]);
+
+        g2o::SE3Quat Tcw(Tcg_*vi->estimate());
+        Eigen::Vector3d xyz = Xw;
+        Eigen::Vector3d xyz_camera = Tcw.map(xyz);
+        Eigen::Vector3d xyz_group = vi->estimate().map(xyz);
+
+        double x_c = xyz_camera[0];
+        double y_c = xyz_camera[1];
+        double z_c = xyz_camera[2];
+        double invz = 1.0f/z_c;
         double invz_2 = invz*invz;
+
+        double x_g = xyz_group[0];
+        double y_g = xyz_group[1];
+        double z_g = xyz_group[2];
+
 
 
         Eigen::Matrix<double,2,3> dp_dXc;
         dp_dXc<<
-             fx*invz,0,-fx*x*invz_2,
-                0,fy*invz,-fy*y*invz_2;
-        Eigen::Matrix<double,3,6> dXc_dXi;
-        dXc_dXi<<
-               0,-z,y,-1,0,0,
-                z,0,-x,0,-1,0,
-                -y,x,0,0,0,-1;
+              fx*invz,0,-fx*x_c*invz_2,
+                0,fy*invz,-fy*y_c*invz_2;
 
-        _jacobianOplusXi = dp_dXc*Tcg.rotation().toRotationMatrix()*dXc_dXi;
+        Eigen::Matrix<double,3,6> dXg_dXi;
+        dXg_dXi<<
+               0,-z_g,y_g,-1,0,0,
+                z_g,0,-x_g,0,-1,0,
+                -y_g,x_g,0,0,0,-1;
+
+        _jacobianOplusXi = dp_dXc*Tcg_.rotation().toRotationMatrix().transpose()*dXg_dXi;
     }
 
 
@@ -124,32 +135,44 @@ namespace ORB_SLAM2
 
     void EdgeSE3ProjectXYZGroupCamera::linearizeOplus() {
         g2o::VertexSE3Expmap * vj = static_cast<g2o::VertexSE3Expmap *>(_vertices[1]);
-        g2o::SE3Quat T(vj->estimate());
+        g2o::SE3Quat Tcw(Tcg_*vj->estimate());
         g2o::VertexSBAPointXYZ* vi = static_cast<g2o::VertexSBAPointXYZ*>(_vertices[0]);
         Eigen::Vector3d xyz = vi->estimate();
-        Eigen::Vector3d xyz_trans = T.map(xyz);
+        Eigen::Vector3d xyz_camera = Tcw.map(xyz);
+        Eigen::Vector3d xyz_group = vj->estimate().map(xyz);
 
-
-        double x = xyz_trans[0];
-        double y = xyz_trans[1];
-        double z = xyz_trans[2];
-        double invz = 1.0/xyz_trans[2];
+        double x_c = xyz_camera[0];
+        double y_c = xyz_camera[1];
+        double z_c = xyz_camera[2];
+        double invz = 1.0f/z_c;
         double invz_2 = invz*invz;
+
+        double x_g = xyz_group[0];
+        double y_g = xyz_group[1];
+        double z_g = xyz_group[2];
+
+
 
         Eigen::Matrix<double,2,3> dp_dXc;
         dp_dXc<<
-              fx*invz,0,-fx*x*invz_2,
-                0,fy*invz,-fy*y*invz_2;
+              fx*invz,0,-fx*x_c*invz_2,
+                0,fy*invz,-fy*y_c*invz_2;
 
+        /* std::cout<<"-------------------------"<<std::endl;
+          std::cout<<"Tgw"<<std::endl<<vj->estimate()<<std::endl;
+          std::cout<<"xyz: "<<xyz<<std::endl;
+          std::cout<<xyz_camera.transpose()<<"  "<<xyz_group.transpose()<<std::endl;
+        std::cout<<"dp_dXc"<<std::endl<<dp_dXc<<std::endl;
+  */
 
-        _jacobianOplusXi =  dp_dXc*T.rotation().toRotationMatrix() * T.rotation().toRotationMatrix();
-        Eigen::Matrix<double,3,6> dXc_dXi;
-        dXc_dXi<<
-               0,-z,y,-1,0,0,
-                z,0,-x,0,-1,0,
-                -y,x,0,0,0,-1;
+        _jacobianOplusXi =  dp_dXc*Tcw.rotation().toRotationMatrix();
+        Eigen::Matrix<double,3,6> dXg_dXi;
+        dXg_dXi<<
+               0,-z_g,y_g,-1,0,0,
+                z_g,0,-x_g,0,-1,0,
+                -y_g,x_g,0,0,0,-1;
 
-        _jacobianOplusXj = dp_dXc*Tcg.rotation().toRotationMatrix()*dXc_dXi;
+        _jacobianOplusXj = dp_dXc*Tcg_.rotation().toRotationMatrix()*dXg_dXi;
 
     }
 

@@ -1,5 +1,5 @@
 #include "ORBmatcher.h"
-
+#include "debug_utils/debug_utils.h"
 
 namespace ORB_SLAM2
 {
@@ -8,21 +8,24 @@ namespace ORB_SLAM2
 
     int ORBmatcher::SearchByProjectionGroupCamera(Frame &F, const std::vector<MapPoint*> &vpMapPoints, const float th)
     {
-        int nmatches=0;
+        int nmatches = 0;
+        printON
 
-        const bool bFactor = th!=1.0;
+        const bool bFactor = th != 1.0;
 
-        for (size_t iMP = 0; iMP < vpMapPoints.size(); iMP++)
+        for (int c = 0; c < F.Ncameras; c++)
         {
-            MapPoint *pMP = vpMapPoints[iMP];
-            if (!pMP->mbTrackInView)
-                continue;
 
-            if (pMP->isBad())
-                continue;
-
-            for(int c = 0;c<F.Ncameras;c++)
+            for (size_t iMP = 0; iMP < vpMapPoints.size(); iMP++)
             {
+                MapPoint *pMP = vpMapPoints[iMP];
+                if (!pMP->mvbTrackInView[c])
+                    continue;
+
+                if (pMP->isBad())
+                    continue;
+
+
                 const int &nPredictedLevel = pMP->mvnTrackScaleLevel[c];
 
                 // The size of the window will depend on the viewing direction
@@ -30,10 +33,10 @@ namespace ORB_SLAM2
 
                 if (bFactor)
                     r *= th;
-
                 const vector<size_t> vIndices =
-                        F.GetFeaturesInAreaSubCamera(pMP->mvTrackProjX[c], pMP->mvTrackProjY[c], r * F.mvScaleFactors[nPredictedLevel],
-                                            nPredictedLevel - 1, nPredictedLevel,c);
+                        F.GetFeaturesInAreaSubCamera(pMP->mvTrackProjX[c], pMP->mvTrackProjY[c],
+                                                     r * F.mvScaleFactors[nPredictedLevel],
+                                                     nPredictedLevel - 1, nPredictedLevel, c);
 
                 if (vIndices.empty())
                     continue;
@@ -72,7 +75,8 @@ namespace ORB_SLAM2
                         bestLevel2 = bestLevel;
                         bestLevel = F.mvKeysUn[idx].octave;
                         bestIdx = idx;
-                    } else if (dist < bestDist2)
+                    }
+                    else if (dist < bestDist2)
                     {
                         bestLevel2 = F.mvKeysUn[idx].octave;
                         bestDist2 = dist;
@@ -86,21 +90,11 @@ namespace ORB_SLAM2
                         continue;
 
                     F.mvpMapPoints[bestIdx] = pMP;
-                    if(!pMP->dealed_by_current_frame)
-                    {
-                        nmatches++;
-                        pMP->dealed_by_current_frame = true;
-                    }
+                    nmatches++;
                 }
-
             }
 
-        }
-
-        for (size_t iMP = 0; iMP < vpMapPoints.size(); iMP++)
-        {
-            if (vpMapPoints[iMP])
-                vpMapPoints[iMP]->dealed_by_current_frame = false;
+        print_value(nmatches, true);
         }
 
         return nmatches;
@@ -114,34 +108,41 @@ namespace ORB_SLAM2
     {
         int nmatches = 0;
 
-        // Rotation Histogram (to check rotation consistency)
-        vector<int> rotHist[HISTO_LENGTH];
-        for (int i = 0; i<HISTO_LENGTH; i++)
-            rotHist[i].reserve(500);
-        const float factor = 1.0f / HISTO_LENGTH;
-
-
         const int& Ncameras = CurrentFrame.Ncameras;
-
-
-        const bool bForward =  !bMono;//暂时没有用处，预留给之后可能的立体视觉实现
-        const bool bBackward = !bMono;//暂时没有用处，预留给之后可能的立体视觉实现
-
-        for (int i = 0; i<LastFrame.N; i++)
+        printON;
+        for (int c = 0; c < Ncameras; c++)//分别按照各个子相机投影，然后检索可能的对应，并将对应关系加入到index向量，之后从index向量中搜索最好的匹配
         {
-            MapPoint* pMP = LastFrame.mvpMapPoints[i];
+            // Rotation Histogram (to check rotation consistency)
+            vector<int> rotHist[HISTO_LENGTH];
+            for (int i = 0; i<HISTO_LENGTH; i++)
+                rotHist[i].reserve(500);
+            const float factor = 1.0f / HISTO_LENGTH;
 
-            if (pMP)
+
+            // Project
+            const cv::Mat& Rcw = CurrentFrame.mvRcwSubcamera[c];
+            const cv::Mat& tcw = CurrentFrame.mvtcwSubcamera[c];
+
+            const cv::Mat twc = -Rcw.t()*tcw;
+
+            const cv::Mat Rlw = LastFrame.mvTcwSubcamera[c].rowRange(0,3).colRange(0,3);
+            const cv::Mat tlw = LastFrame.mvTcwSubcamera[c].rowRange(0,3).col(3);
+
+            const cv::Mat tlc = Rlw*twc+tlw;
+
+            const bool bForward = tlc.at<float>(2)>CurrentFrame.mb && !bMono;
+            const bool bBackward = -tlc.at<float>(2)>CurrentFrame.mb && !bMono;
+
+
+            for (int i = 0; i<LastFrame.N; i++)
             {
-                if (!LastFrame.mvbOutlier[i] && !pMP->dealed_by_current_frame)//如果已经被处理过了就不再投影
+                MapPoint* pMP = LastFrame.mvpMapPoints[i];
+
+                if (pMP)
                 {
-                    pMP->dealed_by_current_frame = true;//将已经处理过的标志置位
-                    bool counted_once = false;//To deal with the situation that a map point is observed by multiple view point in a frame
-                    for (int c = 0; c < Ncameras; c++)//分别按照各个子相机投影，然后检索可能的对应，并将对应关系加入到index向量，之后从index向量中搜索最好的匹配
+                    if (!LastFrame.mvbOutlier[i])//如果已经被处理过了就不再投影
                     {
-                        // Project
-                        const cv::Mat& Rcw = CurrentFrame.mvRcwSubcamera[c];
-                        const cv::Mat& tcw = CurrentFrame.mvtcwSubcamera[c];
+
                         cv::Mat x3Dw = pMP->GetWorldPos();
                         cv::Mat x3Dc = Rcw*x3Dw + tcw;
 
@@ -154,6 +155,7 @@ namespace ORB_SLAM2
 
                         float u = CurrentFrame.fx*xc*invzc + CurrentFrame.cx;
                         float v = CurrentFrame.fy*yc*invzc + CurrentFrame.cy;
+
 
                         if (u<CurrentFrame.mnMinX || u>CurrentFrame.mnMaxX)
                             continue;
@@ -210,11 +212,7 @@ namespace ORB_SLAM2
                         {
                             CurrentFrame.mvpMapPoints[bestIdx2] = pMP;
 
-                            if(!counted_once)//A map point only counted once
-                            {
-                                nmatches++;
-                                counted_once = true;
-                            }
+                            nmatches++;
 
                             if (mbCheckOrientation)
                             {
@@ -231,35 +229,29 @@ namespace ORB_SLAM2
                     }
                 }
             }
-        }
-        //清空所有处理记录
-        for (int i = 0; i < LastFrame.N; i++)
-        {
-            MapPoint* pMP = LastFrame.mvpMapPoints[i];
 
-            if (pMP)
-                pMP->dealed_by_current_frame = false;
-        }
-        //Apply rotation consistency
-        if (mbCheckOrientation)
-        {
-            int ind1 = -1;
-            int ind2 = -1;
-            int ind3 = -1;
-
-            ComputeThreeMaxima(rotHist, HISTO_LENGTH, ind1, ind2, ind3);
-
-            for (int i = 0; i<HISTO_LENGTH; i++)
+            //Apply rotation consistency
+            if (mbCheckOrientation)
             {
-                if (i != ind1 && i != ind2 && i != ind3)
+                int ind1 = -1;
+                int ind2 = -1;
+                int ind3 = -1;
+
+                ComputeThreeMaxima(rotHist, HISTO_LENGTH, ind1, ind2, ind3);
+
+                for (int i = 0; i<HISTO_LENGTH; i++)
                 {
-                    for (size_t j = 0, jend = rotHist[i].size(); j<jend; j++)
+                    if (i != ind1 && i != ind2 && i != ind3)
                     {
-                        CurrentFrame.mvpMapPoints[rotHist[i][j]] = static_cast<MapPoint*>(NULL);
-                        nmatches--;
+                        for (size_t j = 0, jend = rotHist[i].size(); j<jend; j++)
+                        {
+                            CurrentFrame.mvpMapPoints[rotHist[i][j]] = static_cast<MapPoint*>(NULL);
+                            nmatches--;
+                        }
                     }
                 }
             }
+            print_value(nmatches);
         }
 
         return nmatches;

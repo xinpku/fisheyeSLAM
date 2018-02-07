@@ -36,6 +36,7 @@
 #include<iostream>
 
 #include<mutex>
+#include "debug_utils/debug_utils.h"
 
 using namespace std;
 
@@ -1393,12 +1394,15 @@ void Tracking::UpdateLocalPoints()
             }
         }
     }
+    print_value(mvpLocalMapPoints.size(),true);
 }
 
 
 void Tracking::UpdateLocalKeyFrames()
 {
     // Each map point vote for the keyframes in which it has been observed
+    mvpLocalKeyFrames.clear();
+
     map<KeyFrame*,int> keyframeCounter;
     for(int i=0; i<mCurrentFrame.N; i++)
     {
@@ -1417,7 +1421,7 @@ void Tracking::UpdateLocalKeyFrames()
             }
         }
     }
-
+    print_value(keyframeCounter.size(),true);
     if(keyframeCounter.empty())
         return;
 
@@ -1499,6 +1503,7 @@ void Tracking::UpdateLocalKeyFrames()
 
     }
 
+    print_value(mvpLocalKeyFrames.size(),true);
     if(pKFmax)
     {
         mpReferenceKF = pKFmax;
@@ -1709,12 +1714,24 @@ void Tracking::Reset()
         mpInitializer = static_cast<Initializer*>(NULL);
     }
 
+    for(int c = 0;c<mNcameras;c++)
+    {
+        mvTcg[c].col(3).rowRange(0,3) = mvTcg[c].col(3).rowRange(0,3)*mDepthScale;
+        mvTgc[c].col(3).rowRange(0,3) = mvTgc[c].col(3).rowRange(0,3)*mDepthScale;
+    }
+
+    mDepthScale = 1;
+
+
     mlRelativeFramePoses.clear();
     mlpReferences.clear();
     mlFrameTimes.clear();
     mlbLost.clear();
 	cout << "clear done" << endl;
 	std::cout << "waiting reset" << std::endl;
+
+
+
 	//usleep(5000);
 	if(mpViewer)
     	mpViewer->Release();

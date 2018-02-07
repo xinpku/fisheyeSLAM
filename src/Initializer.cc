@@ -116,9 +116,9 @@ Initializer::Initializer(const Frame &ReferenceFrame, float sigma, int iteration
 	//std::cout << "SF:" << SF << std::endl;
 	//std::cout << "RH:" << RH << std::endl;
     // Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
-    //if(RH>0.40)
-    //return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
-    //else //if(pF_HF>0.6)
+    if(RH>0.40)
+    return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
+    else //if(pF_HF>0.6)
     return ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,0.15,30);
 
     return false;
@@ -487,7 +487,7 @@ bool Initializer::ReconstructF(vector<bool> &vbMatchesInliers, cv::Mat &F21, cv:
 
     // Recover the 4 motion hypotheses
     DecomposeE(E21,R1,R2,t);  
-	if (t.at<float>(2) > 0)t = -t;//wx-edit strong asumption that the car is going forward
+	//if (t.at<float>(2) > 0)t = -t;//wx-edit strong asumption that the car is going forward
     //if (t.at<float>(2) < 0)t = -t;
     cv::Mat t1=t;
     cv::Mat t2=-t;
@@ -499,8 +499,8 @@ bool Initializer::ReconstructF(vector<bool> &vbMatchesInliers, cv::Mat &F21, cv:
 
     int nGood1 = CheckRT(R1,t1,mvKeys1,mvKeys2,mvMatches12,vbMatchesInliers,K, vP3D1, 4.0*mSigma2, vbTriangulated1, parallax1);
     int nGood2 = CheckRT(R2,t1,mvKeys1,mvKeys2,mvMatches12,vbMatchesInliers,K, vP3D2, 4.0*mSigma2, vbTriangulated2, parallax2);
-	int nGood3 = 0;//CheckRT(R1,t2,mvKeys1,mvKeys2,mvMatches12,vbMatchesInliers,K, vP3D3, 4.0*mSigma2, vbTriangulated3, parallax3);
-	int nGood4 = 0;//CheckRT(R2,t2,mvKeys1,mvKeys2,mvMatches12,vbMatchesInliers,K, vP3D4, 4.0*mSigma2, vbTriangulated4, parallax4);
+	int nGood3 = CheckRT(R1,t2,mvKeys1,mvKeys2,mvMatches12,vbMatchesInliers,K, vP3D3, 4.0*mSigma2, vbTriangulated3, parallax3);
+	int nGood4 = CheckRT(R2,t2,mvKeys1,mvKeys2,mvMatches12,vbMatchesInliers,K, vP3D4, 4.0*mSigma2, vbTriangulated4, parallax4);
 
     int maxGood = max(nGood1,max(nGood2,max(nGood3,nGood4)));
 
@@ -528,8 +528,8 @@ bool Initializer::ReconstructF(vector<bool> &vbMatchesInliers, cv::Mat &F21, cv:
     }
 
     // If best reconstruction has enough parallax initialize
-	//std::cout << "nGood: " << nGood1 << " " << nGood2 << " " << nGood3 << " " << nGood4 << std::endl;
-	//std::cout << "parallaxs: " << parallax1 << " " << parallax2 << " " << parallax3 << " " << parallax4 << std::endl;
+	std::cout << "nGood: " << nGood1 << " " << nGood2 << " " << nGood3 << " " << nGood4 << std::endl;
+	std::cout << "parallaxs: " << parallax1 << " " << parallax2 << " " << parallax3 << " " << parallax4 << std::endl;
     if(maxGood==nGood1)
     {
         if(parallax1>minParallax)

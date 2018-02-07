@@ -216,6 +216,7 @@ private:
 
     //The variables related to groupCamera SLAM.
 public:
+    bool mbHaveSemantic;
     int Ncameras;
     std::vector<int> kp_start_pos;
 
@@ -231,6 +232,9 @@ public:
     std::vector<cv::Mat> mvtcwSubcamera;
     // Constructor for multiple Monocular cameras.
     Frame(const std::vector<cv::Mat> &imGrays, const double &timeStamp, ORBextractor* extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth, std::vector<cv::Mat>& Tcm);
+    void ExtractORBGroupCamera(const std::vector<cv::Mat> &ims);
+    // Compute Bag of Words representation.
+
 
     void UpdateMultiCameraPose();
     cv::Mat getTcwSubcamera(int i)

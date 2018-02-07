@@ -2,9 +2,8 @@
 #include "LoopClosing.h"
 #include "ORBmatcher.h"
 #include "Optimizer.h"
-
 #include<mutex>
-
+#include "debug_utils/debug_utils.h"
 
 namespace ORB_SLAM2
 {
@@ -53,11 +52,13 @@ namespace ORB_SLAM2
             }
             else
             {
-                const float medianDepthKF2 = pKF2->ComputeSceneMedianDepth(2);
+                const float medianDepthKF2 = pKF2->ComputeSceneMedianDepthGroupCamera(2);
                 const float ratioBaselineDepth = baseline/medianDepthKF2;
 
                 if(ratioBaselineDepth<0.01)
+                {
                     continue;
+                }
             }
 
 
@@ -278,6 +279,8 @@ namespace ORB_SLAM2
             }
 
         }
+
+        print_value(nnew);
     }
 
 
@@ -431,9 +434,10 @@ namespace ORB_SLAM2
     {
 
         mbFinished = false;
-
+        printON;
         while(1)
         {
+
             // Tracking will see that Local Mapping is busy
             SetAcceptKeyFrames(false);
 
@@ -442,7 +446,7 @@ namespace ORB_SLAM2
             {
                 // BoW conversion and insertion in Map
                 ProcessNewKeyFrameGroupCamera();
-
+                print_string("MapPointCulling<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
                 // Check recent MapPoints
                 MapPointCulling();
 

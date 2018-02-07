@@ -8,10 +8,13 @@ namespace ORB_SLAM2
     {
         for (int i = 0; i < mvTcg.size(); i++)
         {
-            mvTcwSubcamera[i] = mvTcg[i] * Tcw;
+            mvTcwSubcamera[i] = mvTcg[i] * Tcw*mvTcg[i].inv();
             mvOwSubcamera[i] = -(mvTcwSubcamera[i].rowRange(0, 3).colRange(0, 3)).t()*(mvTcwSubcamera[i].rowRange(0, 3).col(3));
         }
     }
+
+
+
     std::vector<cv::KeyPoint> KeyFrame::getKeypointUnSubCamera(int c) const
     {
         int start_pos = kp_start_pos[c];
@@ -47,14 +50,14 @@ namespace ORB_SLAM2
     float KeyFrame::ComputeSceneMedianDepthGroupCamera(const int q)
     {
         vector<MapPoint*> vpMapPoints;
-        std::vector<cv::Mat> Tcw_;
+        std::vector<cv::Mat> Tcw_(Ncameras);
         {
             unique_lock<mutex> lock(mMutexFeatures);
             unique_lock<mutex> lock2(mMutexPose);
             vpMapPoints = mvpMapPoints;
             for(int c = 0;c<Ncameras;c++)
             {
-                Tcw_[c] = getTcwSubCamera(c).clone();
+                Tcw_[c] = getTcwSubCamera(c);
             }
         }
 

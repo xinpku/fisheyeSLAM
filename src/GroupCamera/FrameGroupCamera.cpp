@@ -1,5 +1,5 @@
 #include "Frame.h"
-
+#include "debug_utils/debug_utils.h"
 
 namespace ORB_SLAM2
 {
@@ -38,17 +38,7 @@ namespace ORB_SLAM2
             mvTgc[i] = Tcg[i].inv();
         }
         // ORB extraction
-        for (int i = 0; i < imGrays.size(); i++)
-        {
-            std::vector<cv::KeyPoint> mvKeys_temp;
-            cv::Mat descriptors_temp;
-            (*mpORBextractorLeft)(imGrays[i], cv::Mat(), mvKeys_temp, descriptors_temp);
-            mvKeys.insert(mvKeys.end(),mvKeys_temp.begin(),mvKeys_temp.end());
-            std::vector<int> camera_id(mvKeys_temp.size(),i);
-            kp_start_pos[i] = mvCamera_Id_KeysUn.size();
-            mvCamera_Id_KeysUn.insert(mvCamera_Id_KeysUn.begin(),camera_id.begin(),camera_id.end());
-            mDescriptors.push_back(descriptors_temp);
-        }
+        ExtractORBGroupCamera(imGrays);
 
 
         N = mvKeys.size();
@@ -88,14 +78,39 @@ namespace ORB_SLAM2
         AssignFeaturesToGrid();
     }
 
+
+    void Frame::ExtractORBGroupCamera(const std::vector<cv::Mat> &imGrays)
+    {
+        for (int i = 0; i < imGrays.size(); i++)
+        {
+            std::vector<cv::KeyPoint> mvKeys_temp;
+            cv::Mat descriptors_temp;
+            (*mpORBextractorLeft)(imGrays[i], cv::Mat(), mvKeys_temp, descriptors_temp);
+
+            for(auto& p:mvKeys_temp)
+                p.class_id = i;
+
+            mvKeys.insert(mvKeys.end(),mvKeys_temp.begin(),mvKeys_temp.end());
+            print_value(mvKeys.size())
+            std::vector<int> camera_id(mvKeys_temp.size(),i);
+            kp_start_pos[i] = mvCamera_Id_KeysUn.size();
+            mvCamera_Id_KeysUn.insert(mvCamera_Id_KeysUn.end(),camera_id.begin(),camera_id.end());
+            mDescriptors.push_back(descriptors_temp);
+        }
+
+
+        mvSemanticClass = std::vector<SemanticClass>(mvKeys.size(),SemanticClass::nBackground);
+        mvSemanticProbability =  std::vector<uchar>(mvKeys.size(),100);
+    }
+
     void Frame::UpdateMultiCameraPose()
     {
         for (int i = 0; i < mvTcg.size(); i++)
         {
-            mvTcwSubcamera[i] = mvTcg[i] * mTcw;
+            mvTcwSubcamera[i] = mvTcg[i] * mTcw*mvTcg[i].inv();
             mvOwSubcamera[i] = -(mvTcwSubcamera[i].rowRange(0, 3).colRange(0, 3)).t()*(mvTcwSubcamera[i].rowRange(0, 3).col(3));
-            mvRcwSubcamera[i] = mvTcwSubcamera[i].rowRange(0, 3).colRange(0, 3);
-            mvtcwSubcamera[i] = mvTcwSubcamera[i].rowRange(0, 3).col(3);
+            mvTcwSubcamera[i].rowRange(0, 3).colRange(0, 3).copyTo(mvRcwSubcamera[i]);
+            mvTcwSubcamera[i].rowRange(0, 3).col(3).copyTo(mvtcwSubcamera[i]);
         }
     }
 
@@ -122,7 +137,9 @@ namespace ORB_SLAM2
 
             // Check positive depth
             if(PcZ<0.0f)
+            {
                 continue;
+            }
 
             // Project in image and check it is not outside
             const float invz = 1.0f/PcZ;
@@ -130,9 +147,13 @@ namespace ORB_SLAM2
             const float v=fy*PcY*invz+cy;
 
             if(u<mnMinX || u>mnMaxX)
+            {
                 continue;
+            }
             if(v<mnMinY || v>mnMaxY)
+            {
                 continue;
+            }
 
             // Check distance is in the scale invariance region of the MapPoint
             const float maxDistance = pMP->GetMaxDistanceInvariance();
@@ -141,7 +162,9 @@ namespace ORB_SLAM2
             const float dist = cv::norm(PO);
 
             if(dist<minDistance || dist>maxDistance)
+            {
                 continue;
+            }
 
             // Check viewing angle
             cv::Mat Pn = pMP->GetNormal();
@@ -149,7 +172,9 @@ namespace ORB_SLAM2
             const float viewCos = PO.dot(Pn)/dist;
 
             if(viewCos<viewingCosLimit)
+            {
                 continue;
+            }
 
             // Predict scale in the image
             const int nPredictedLevel = pMP->PredictScale(dist,this);
@@ -205,6 +230,7 @@ namespace ORB_SLAM2
 
         const bool bCheckLevels = (minLevel>0) || (maxLevel>=0);
 
+
         for(int ix = nMinCellX; ix<=nMaxCellX; ix++)
         {
             for(int iy = nMinCellY; iy<=nMaxCellY; iy++)
@@ -215,6 +241,7 @@ namespace ORB_SLAM2
 
                 for(size_t j=0, jend=vCell.size(); j<jend; j++)
                 {
+
                     if(mvCamera_Id_KeysUn[vCell[j]]!=cameraID)
                         continue;
                     const cv::KeyPoint &kpUn = mvKeysUn[vCell[j]];
@@ -235,7 +262,7 @@ namespace ORB_SLAM2
                 }
             }
         }
-
+        //print_value(vIndices.size());
         return vIndices;
     }
 

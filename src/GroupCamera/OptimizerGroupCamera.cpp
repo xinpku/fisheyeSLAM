@@ -18,6 +18,7 @@
 
 #include<mutex>
 #include "g2oEdgesAndVertex.h"
+#include "debug_utils/debug_utils.h"
 
 
 namespace ORB_SLAM2
@@ -28,7 +29,7 @@ namespace ORB_SLAM2
     {
         vector<KeyFrame*> vpKFs = pMap->GetAllKeyFrames();
         vector<MapPoint*> vpMP = pMap->GetAllMapPoints();
-        BundleAdjustment(vpKFs,vpMP,nIterations,pbStopFlag, nLoopKF, bRobust);
+        BundleAdjustmentGroupCamera(vpKFs,vpMP,nIterations,pbStopFlag, nLoopKF, bRobust);
     }
 
 
@@ -78,6 +79,7 @@ namespace ORB_SLAM2
             if(pMP->isBad())
                 continue;
             g2o::VertexSBAPointXYZ* vPoint = new g2o::VertexSBAPointXYZ();
+
             vPoint->setEstimate(Converter::toVector3d(pMP->GetWorldPos()));
             const int id = pMP->mnId+maxKFid+1;
             vPoint->setId(id);
@@ -124,7 +126,7 @@ namespace ORB_SLAM2
                     e->fy = pKF->fy;
                     e->cx = pKF->cx;
                     e->cy = pKF->cy;
-                    e->Tcg = Converter::toSE3Quat(pKF->mvTcg[cameraID]);
+                    e->Tcg_ = Converter::toSE3Quat(pKF->mvTcg[cameraID]);
                     optimizer.addEdge(e);
                 }
                 else
@@ -240,6 +242,7 @@ namespace ORB_SLAM2
         // Set Frame vertex
         g2o::VertexSE3Expmap * vSE3 = new g2o::VertexSE3Expmap();
         vSE3->setEstimate(Converter::toSE3Quat(pFrame->mTcw));
+
         vSE3->setId(0);
         vSE3->setFixed(false);
         optimizer.addVertex(vSE3);
@@ -251,9 +254,7 @@ namespace ORB_SLAM2
         vector<size_t> vnIndexEdgeMono;
         vpEdgesMono.reserve(N);
         vnIndexEdgeMono.reserve(N);
-        std::vector<g2o::SE3Quat> Tcg;
-        for(int c = 0;c<pFrame->Ncameras;c++)
-            Tcg[c] = Converter::toSE3Quat(pFrame->mvTcg[c]);
+
 
         vector<g2o::EdgeStereoSE3ProjectXYZOnlyPose*> vpEdgesStereo;
         vector<size_t> vnIndexEdgeStereo;
@@ -303,7 +304,7 @@ namespace ORB_SLAM2
                         e->Xw[0] = Xw.at<float>(0);
                         e->Xw[1] = Xw.at<float>(1);
                         e->Xw[2] = Xw.at<float>(2);
-                        e->Tcg = Tcg[cameraID];
+                        e->Tcg_ = Converter::toSE3Quat(pFrame->mvTcg[cameraID]);;
 
                         optimizer.addEdge(e);
 
@@ -364,14 +365,18 @@ namespace ORB_SLAM2
         const int its[4]={10,20,10,30};
 
         int nBad=0;
+        print_value(nInitialCorrespondences-nBad,true);
         for(size_t it=0; it<4; it++)
         {
 
             vSE3->setEstimate(Converter::toSE3Quat(pFrame->mTcw));
             optimizer.initializeOptimization(0);
+
             optimizer.optimize(its[it]);
 
             nBad=0;
+            //std::cout<<"--------------------------------"<<std::endl;
+
             for(size_t i=0, iend=vpEdgesMono.size(); i<iend; i++)
             {
                 EdgeSE3ProjectXYZOnlyPoseGroupCamera* e = vpEdgesMono[i];
@@ -384,6 +389,7 @@ namespace ORB_SLAM2
                 }
 
                 const float chi2 = e->chi2();
+                //std::cout<<std::fixed<<std::setprecision(1)<<chi2<<";";
 
                 if(chi2>chi2Mono[it])
                 {
@@ -400,6 +406,8 @@ namespace ORB_SLAM2
                 if(it==2)
                     e->setRobustKernel(0);
             }
+            std::cout<<std::endl;
+            print_value(nInitialCorrespondences-nBad,true);
 
             for(size_t i=0, iend=vpEdgesStereo.size(); i<iend; i++)
             {
@@ -413,7 +421,6 @@ namespace ORB_SLAM2
                 }
 
                 const float chi2 = e->chi2();
-
                 if(chi2>chi2Stereo[it])
                 {
                     pFrame->mvbOutlier[idx]=true;
@@ -432,6 +439,7 @@ namespace ORB_SLAM2
 
             if(optimizer.edges().size()<10)
                 break;
+
         }
 
         // Recover optimized pose and return number of inliers
@@ -439,7 +447,6 @@ namespace ORB_SLAM2
         g2o::SE3Quat SE3quat_recov = vSE3_recov->estimate();
         cv::Mat pose = Converter::toCvMat(SE3quat_recov);
         pFrame->SetPose(pose);
-
         return nInitialCorrespondences-nBad;
     }
 
@@ -609,7 +616,7 @@ namespace ORB_SLAM2
                         e->cx = pKFi->cx;
                         e->cy = pKFi->cy;
 
-                        e->Tcg = Converter::toSE3Quat(pKFi->mvTcg[cameraID]);
+                        e->Tcg_ = Converter::toSE3Quat(pKFi->mvTcg[cameraID]);
 
                         optimizer.addEdge(e);
                         vpEdgesMono.push_back(e);

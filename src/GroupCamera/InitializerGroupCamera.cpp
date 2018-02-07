@@ -9,7 +9,7 @@ namespace ORB_SLAM2
         for(int c = 0;c<ReferenceFrame.Ncameras;c++)
         {
 
-            Initializer initializer =  Initializer(ReferenceFrame.mK,ReferenceFrame.getKeypointUnSubCamera(c),1.0,200);
+            Initializer initializer =  Initializer(ReferenceFrame.mK,ReferenceFrame.mvKeysUn,1.0,200);
             mvInitializers.push_back(initializer);
         }
     }
@@ -17,20 +17,23 @@ namespace ORB_SLAM2
     bool InitializerGroupCamera::Initialize(const Frame& InitialFrame,const Frame &CurrentFrame, const vector<int> &vMatches12,
                     cv::Mat &R21, cv::Mat &t21, vector<cv::Point3f> &vP3D, vector<bool> &vbTriangulated,int cameraID)
     {
+
+
         for(int c = 0;c<mNcameras;c++)
         {
             int start_pos = InitialFrame.kp_start_pos[c];
             int end_pose = (c==mNcameras-1?InitialFrame.mvKeysUn.size():InitialFrame.kp_start_pos[c+1]);
-            std::vector<int> vMatches;
-            vMatches.reserve(end_pose - start_pos);
+
 
             int start_pos2 = CurrentFrame.kp_start_pos[c];
             int end_pose2 = (c==mNcameras-1?CurrentFrame.mvKeysUn.size():CurrentFrame.kp_start_pos[c+1]);
 
+            std::vector<int> vMatches(vMatches12.size(),-1);
+
             for(int i = start_pos;i<end_pose;i++)
             {
-                if(vMatches12[i]>=start_pos2&&vMatches12[i]<end_pose2)
-                    vMatches.push_back(vMatches12[i]);
+                if((vMatches12[i]>=start_pos2&&vMatches12[i]<end_pose2))
+                    vMatches[i] = vMatches12[i];
             }
 
             if(mvInitializers[c].Initialize(CurrentFrame.mvKeysUn,vMatches,R21,t21,vP3D,vbTriangulated))
@@ -48,8 +51,11 @@ namespace ORB_SLAM2
                 {
                     if(vbTriangulated[i])
                     {
-                        cv::Mat p = CurrentFrame.mvTgc[c]*cv::Mat(vP3D[i]);
-                        vP3D[i] =cv::Point3f(p);
+
+                        cv::Mat point = cv::Mat::ones(4,1,CV_32F);
+                        cv::Mat(vP3D[i]).copyTo(point.rowRange(0,3));
+                        cv::Mat p = CurrentFrame.mvTgc[c]*point;
+                        vP3D[i] =cv::Point3f(p.rowRange(0,3));
                     }
 
                 }
@@ -100,6 +106,11 @@ namespace ORB_SLAM2
 
         const int N = mvMatches12.size();
 
+        if(N<8)
+        {
+            std::cout<<"N: "<<N<<std::endl;
+            return false;
+        }
         // Indices for minimum set selection
         vector<size_t> vAllIndices;
         vAllIndices.reserve(N);
@@ -146,14 +157,14 @@ namespace ORB_SLAM2
 
         // Compute ratio of scores
         float RH = SH/(SH+SF);
-        //std::cout << "SH:" << SH << std::endl;
-        //std::cout << "SF:" << SF << std::endl;
-        //std::cout << "RH:" << RH << std::endl;
+        std::cout << "SH:" << SH << std::endl;
+        std::cout << "SF:" << SF << std::endl;
+        std::cout << "RH:" << RH << std::endl;
         // Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
-        //if(RH>0.40)
-        //return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
-        //else //if(pF_HF>0.6)
-        return ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,0.15,30);
+        if(RH>0.40)
+            return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
+        else //if(pF_HF>0.6)
+            return ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,0.15,30);
 
         return false;
     }

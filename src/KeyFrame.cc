@@ -42,7 +42,9 @@ KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
     mnMaxY(F.mnMaxY), mK(F.mK), mvpMapPoints(F.mvpMapPoints), mpKeyFrameDB(pKFDB),
     mpORBvocabulary(F.mpORBvocabulary), mbFirstConnection(true), mpParent(NULL), mbNotErase(false),
     mbToBeErased(false), mbBad(false), mHalfBaseline(F.mb/2), mpMap(pMap),mvSemanticClass(F.mvSemanticClass),mvSemanticProbability(F.mvSemanticProbability),
-    mvCamera_Id_KeysUn(F.mvCamera_Id_KeysUn), mvTcg(F.mvTcg),Ncameras(F.Ncameras),kp_start_pos(F.kp_start_pos)
+    Ncameras(F.Ncameras), kp_start_pos(F.kp_start_pos), mvCamera_Id_KeysUn(F.mvCamera_Id_KeysUn),
+    mvTcg(F.mvTcg), mvOwSubcamera(F.mvOwSubcamera), mvTcwSubcamera(F.mvTcwSubcamera)
+
 {
     mnId=nNextId++;
 

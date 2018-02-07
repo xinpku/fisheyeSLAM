@@ -23,6 +23,7 @@
 #include "ORBmatcher.h"
 #include <thread>
 #include <opencv2/imgproc/imgproc.hpp>
+#include "debug_utils/debug_utils.h"
 
 namespace ORB_SLAM2
 {
@@ -49,7 +50,8 @@ Frame::Frame(const Frame &frame)
      mfScaleFactor(frame.mfScaleFactor), mfLogScaleFactor(frame.mfLogScaleFactor),
      mvScaleFactors(frame.mvScaleFactors), mvInvScaleFactors(frame.mvInvScaleFactors),
      mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2),mvSemanticClass(frame.mvSemanticClass),mvSemanticProbability(frame.mvSemanticProbability),
-     mvCamera_Id_KeysUn(frame.mvCamera_Id_KeysUn), mvTcg(frame.mvTcg),Ncameras(frame.Ncameras)
+     mvCamera_Id_KeysUn(frame.mvCamera_Id_KeysUn), Ncameras(frame.Ncameras), kp_start_pos(frame.kp_start_pos),
+     mvTcg(frame.mvTcg),mvTgc(frame.mvTgc), mvOwSubcamera(frame.mvOwSubcamera), mvTcwSubcamera(frame.mvTcwSubcamera),mvRcwSubcamera(frame.mvRcwSubcamera), mvtcwSubcamera(frame.mvtcwSubcamera)
     {
     for(int i=0;i<FRAME_GRID_COLS;i++)
         for(int j=0; j<FRAME_GRID_ROWS; j++)
@@ -57,7 +59,7 @@ Frame::Frame(const Frame &frame)
 
     if(!frame.mTcw.empty())
         SetPose(frame.mTcw);
-}
+    }
 
 
 Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeStamp, ORBextractor* extractorLeft, ORBextractor* extractorRight, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
@@ -384,6 +386,11 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
         (*mpORBextractorLeft)(im,cv::Mat(),mvKeys,mDescriptors);
     else
         (*mpORBextractorRight)(im,cv::Mat(),mvKeysRight,mDescriptorsRight);
+
+
+    mvSemanticClass = std::vector<SemanticClass>(mvKeys.size(),SemanticClass::nBackground);
+    mvSemanticProbability =  std::vector<uchar>(mvKeys.size(),100);
+
 }
 
 void Frame::ExtractORBFisheye(const std::vector<cv::Mat> &ims,const cv::Mat& object_class ,std::vector<FisheyeCorrector> &correctors, std::vector<ORBextractor*>& ORBextractor)
@@ -391,10 +398,10 @@ void Frame::ExtractORBFisheye(const std::vector<cv::Mat> &ims,const cv::Mat& obj
     //std::cout<<"ExtractORBFisheye "<<std::endl;
 	std::vector<cv::KeyPoint> mvKeys_current,mvfisheye_keys_current,mvundist_keys_current;
 	cv::Mat mDescriptors_current;
-    bool have_semantic = !object_class.empty();
+    mbHaveSemantic = !object_class.empty();
     cv::Mat object_classID;
     cv::Mat object_prob;
-    if(have_semantic)
+    if(mbHaveSemantic)
     {
         std::vector<cv::Mat> object_channel;
         cv::split(object_class, object_channel);
@@ -405,6 +412,7 @@ void Frame::ExtractORBFisheye(const std::vector<cv::Mat> &ims,const cv::Mat& obj
 	for (int i = 0; i < ims.size(); i++)
 	{
 		(*ORBextractor[i])(ims[i], cv::Mat(), mvKeys_current, mDescriptors_current);
+
 		correctors[i].mapToOriginalImage(mvKeys_current, mvfisheye_keys_current);
 		std::vector<bool> points_validate;
 		correctors[i].mapFromCorrectedImageToCenterImagePlane(mvKeys_current, mvundist_keys_current, cx, cy, fx);
@@ -422,13 +430,13 @@ void Frame::ExtractORBFisheye(const std::vector<cv::Mat> &ims,const cv::Mat& obj
         //std::cout<<mvKeys_current.size()<<"   "<<mvfisheye_keys_current.size()<<std::endl;
 		for (int j = 0; j < mvKeys_current.size(); j++)
 		{
-            if(have_semantic&&(SemanticClass)object_classID.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x)
+            if(mbHaveSemantic&&(SemanticClass)object_classID.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x)
                     == SemanticClass::nRejection)
                 continue;
             //std::cout<<j<<"    ";
             mvKeys.push_back(mvfisheye_keys_current[j]);
             //std::cout<<mvfisheye_keys_current[j].pt<<std::endl;
-            if(have_semantic)
+            if(mbHaveSemantic)
             {
                 mvSemanticClass.push_back((SemanticClass)object_classID.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x));
                 mvSemanticProbability.push_back(object_prob.at<uchar>((int)mvfisheye_keys_current[j].pt.y,(int)mvfisheye_keys_current[j].pt.x));
@@ -459,6 +467,7 @@ void Frame::SetPose(cv::Mat Tcw)
     mTcw = Tcw.clone();
     UpdatePoseMatrices();
     UpdateMultiCameraPose();
+
 }
 
 void Frame::UpdatePoseMatrices()

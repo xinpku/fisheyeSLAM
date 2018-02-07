@@ -247,7 +247,7 @@ public:
     std::vector<cv::Mat> mvTgc;
     std::vector<cv::Mat> mvTcg;
     int mNcameras;
-
+    float mDepthScale = 1;
 
 
     void SearchLocalPointsGroupCamera();

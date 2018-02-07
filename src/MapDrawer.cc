@@ -24,6 +24,7 @@
 #include <pangolin/pangolin.h>
 #include <mutex>
 #include <src/SemanticClassMap/SemanticClassMap.h>
+#include "debug_utils/debug_utils.h"
 
 namespace ORB_SLAM2
 {
@@ -200,54 +201,58 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph)
     {
         for(size_t i=0; i<vpKFs.size(); i++)
         {
-            KeyFrame* pKF = vpKFs[i];
-            cv::Mat Twc = pKF->GetPoseInverse().t();
+            for(int c = 0;c<vpKFs[i]->Ncameras;c++)
+            {
+                KeyFrame* pKF = vpKFs[i];
+                //cv::Mat Twc = pKF->GetPoseInverse().t();
+                cv::Mat Twc = pKF->mvTcwSubcamera[c].inv().t();
+                glPushMatrix();
 
-            glPushMatrix();
+                glMultMatrixf(Twc.ptr<GLfloat>(0));
 
-            glMultMatrixf(Twc.ptr<GLfloat>(0));
+                float scale = 1;
+                glLineWidth(mKeyFrameLineWidth);
+                glColor3f(1.0f,0.0f,0.0f);
+                glBegin(GL_LINES);
+                glVertex3f(0,0,0);
+                glVertex3f(w*3,0,0);
 
-            float scale = 5;
-            glLineWidth(mKeyFrameLineWidth);
-            glColor3f(1.0f,0.0f,0.0f);
-            glBegin(GL_LINES);
-            glVertex3f(0,0,0);
-            glVertex3f(w*3,0,0);
+                glColor3f(0.0f,1.0f,0.0f);
+                glBegin(GL_LINES);
+                glVertex3f(0,0,0);
+                glVertex3f(0,h*3,0);
 
-            glColor3f(0.0f,1.0f,0.0f);
-            glBegin(GL_LINES);
-            glVertex3f(0,0,0);
-            glVertex3f(0,h*3,0);
+                glColor3f(0.0f,0.0f,1.0f);
+                glBegin(GL_LINES);
+                glVertex3f(0,0,0);
+                glVertex3f(0,0,z*3);
+                glBegin(GL_LINES);
+                glColor3f(1.0f,0.0f,1.0f);
+                glVertex3f(0,0,0);
+                glVertex3f(w/scale,h/scale,z/scale);
+                glVertex3f(0,0,0);
+                glVertex3f(w/scale,-h/scale,z/scale);
+                glVertex3f(0,0,0);
+                glVertex3f(-w/scale,-h/scale,z/scale);
+                glVertex3f(0,0,0);
+                glVertex3f(-w/scale,h/scale,z/scale);
 
-            glColor3f(0.0f,0.0f,1.0f);
-            glBegin(GL_LINES);
-            glVertex3f(0,0,0);
-            glVertex3f(0,0,z*3);
+                glVertex3f(w/scale,h/scale,z/scale);
+                glVertex3f(w/scale,-h/scale,z/scale);
 
-            glColor3f(1.0f,0.0f,1.0f);
-            glVertex3f(0,0,0);
-            glVertex3f(w/scale,h/scale,z/scale);
-            glVertex3f(0,0,0);
-            glVertex3f(w/scale,-h/scale,z/scale);
-            glVertex3f(0,0,0);
-            glVertex3f(-w/scale,-h/scale,z/scale);
-            glVertex3f(0,0,0);
-            glVertex3f(-w/scale,h/scale,z/scale);
+                glVertex3f(-w/scale,h/scale,z/scale);
+                glVertex3f(-w/scale,-h/scale,z/scale);
 
-            glVertex3f(w/scale,h/scale,z/scale);
-            glVertex3f(w/scale,-h/scale,z/scale);
+                glVertex3f(-w/scale,h/scale,z/scale);
+                glVertex3f(w/scale,h/scale,z/scale);
 
-            glVertex3f(-w/scale,h/scale,z/scale);
-            glVertex3f(-w/scale,-h/scale,z/scale);
+                glVertex3f(-w/scale,-h/scale,z/scale);
+                glVertex3f(w/scale,-h/scale,z/scale);
+                glEnd();
 
-            glVertex3f(-w/scale,h/scale,z/scale);
-            glVertex3f(w/scale,h/scale,z/scale);
+                glPopMatrix();
+            }
 
-            glVertex3f(-w/scale,-h/scale,z/scale);
-            glVertex3f(w/scale,-h/scale,z/scale);
-            glEnd();
-
-            glPopMatrix();
         }
     }
 

@@ -15,6 +15,8 @@
 
 #include<mutex>
 
+#include "debug_utils/debug_utils.h"
+
 namespace ORB_SLAM2
 {
     //****************************************
@@ -47,6 +49,9 @@ namespace ORB_SLAM2
         for(vector<MapPoint*>::iterator vit=mvpLocalMapPoints.begin(), vend=mvpLocalMapPoints.end(); vit!=vend; vit++)
         {
             MapPoint* pMP = *vit;
+
+            pMP->mvbTrackInView = std::vector<bool>(mNcameras,false);
+
             if(pMP->mnLastFrameSeen == mCurrentFrame.mnId)
                 continue;
             if(pMP->isBad())
@@ -56,6 +61,9 @@ namespace ORB_SLAM2
             {
                 pMP->IncreaseVisible();
                 nToMatch++;
+            }
+            else
+            {
             }
         }
 
@@ -77,18 +85,20 @@ namespace ORB_SLAM2
 
     void Tracking::MontageImagesKeypoints(const std::vector<cv::Mat>& images, cv::Mat& montage, Frame& frame)
     {
-        std::vector<cv::KeyPoint>& keys = frame.mvKeysUn;
+        std::vector<cv::KeyPoint>& keys = frame.mvKeys;
         std::vector<int>& ids = frame.mvCamera_Id_KeysUn;
-        int rows_of_image_group = images.size() / 2;
+        int rows_of_image_group = ceil((float)images.size() / 2);
         int width = images[0].cols;
         int height = images[0].rows;
-        montage = cv::Mat(height*rows_of_image_group, width * 2, images[0].type());
+        montage = cv::Mat::zeros(height*rows_of_image_group, width * 2, images[0].type());
         std::vector<int> offset_x(images.size());
         std::vector<int> offset_y(images.size());
         for (int i = 0; i < rows_of_image_group; i++)
         {
             for (int j = 0; j < 2; j++)
             {
+                if(i*2+j>=images.size())
+                    break;
                 images[i * 2 + j].copyTo(montage(cv::Range(height*i, height*(i + 1)), cv::Range(width*j, width*(j + 1))));
                 offset_x[i * 2 + j] = width*j;
                 offset_y[i * 2 + j] = height*i;
@@ -99,6 +109,7 @@ namespace ORB_SLAM2
             int idx = ids[i];
             keys[i].pt.x += offset_x[idx];
             keys[i].pt.y += offset_y[idx];
+
         }
     }
 
@@ -131,9 +142,8 @@ namespace ORB_SLAM2
             mCurrentFrame = Frame(ims, timestamp, mpORBextractorLeft, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth, mvTcg);
 
         MontageImagesKeypoints(ims, mImGray, mCurrentFrame);
-        mpFrameDrawer->Update(this);
 
-        /* TrackGroupCamera();*/
+        TrackGroupCamera();
 
         return mCurrentFrame.mTcw.clone();
     }
@@ -157,8 +167,10 @@ namespace ORB_SLAM2
         {
             if(mSensor==System::STEREO || mSensor==System::RGBD)
                 StereoInitialization();
-            else
+            else if(mSensor == System::GROUPCAMERA)
                 MonocularInitializationGroupCamera();
+            else if(mSensor == System::MONOCULAR)
+                MonocularInitialization();
 
             mpFrameDrawer->Update(this);
 
@@ -287,10 +299,13 @@ namespace ORB_SLAM2
                 }*/
 
                 if(mState==OK)
-                    bOK |= TrackLocalMapGroupCamera();
+                    bOK = TrackLocalMapGroupCamera();
 
                 if (!bOK)
+                {
                     std::cout << "trackWithLocalMap fail" << std::endl;
+                    cv::waitKey(0);
+                }
             }
             else
             {
@@ -410,6 +425,7 @@ namespace ORB_SLAM2
 
     bool Tracking::TrackWithMotionModelGroupCamera()
     {
+        std::cout<<__FUNCTION__<<std::endl;
         ORBmatcher matcher(0.9,true);
 
         // Update last frame pose according to its reference keyframe
@@ -434,6 +450,7 @@ namespace ORB_SLAM2
             fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
             nmatches = matcher.SearchByProjectionGroupCamera(mCurrentFrame,mLastFrame,2*th,mSensor==System::MONOCULAR);
         }
+        print_value(nmatches,true);
 
         if(nmatches<20)
             return false;
@@ -461,17 +478,18 @@ namespace ORB_SLAM2
                     nmatchesMap++;
             }
         }
+        print_value(nmatches,true);
 
         if(mbOnlyTracking)
         {
             mbVO = nmatchesMap<10;
             return nmatches>20;
         }
-
         return nmatchesMap>=10;
     }
     bool Tracking::TrackReferenceKeyFrameGroupCamera()
     {
+        std::cout<<__FUNCTION__<<std::endl;
         // Compute Bag of Words vector
         mCurrentFrame.ComputeBoW();
 
@@ -481,7 +499,7 @@ namespace ORB_SLAM2
         vector<MapPoint*> vpMapPointMatches;
 
         int nmatches = matcher.SearchByBoW(mpReferenceKF,mCurrentFrame,vpMapPointMatches);
-        //std::cout << "TrackReferenceKeyFrame SearchByBoW nmatches: " << nmatches << std::endl;
+        std::cout << "TrackReferenceKeyFrame SearchByBoW nmatches: " << nmatches << std::endl;
         //mCurrentFrame.SetPose(mLastFrame.mTcw);//edit-by-wx 2016-12-09 If tracking on reference frame is lost, we still want to try to track on local map. Then the pose must be set.
 
         mCurrentFrame.SetPose(mLastFrame.mTcw);
@@ -513,13 +531,14 @@ namespace ORB_SLAM2
                     nmatchesMap++;
             }
         }
-        //std::cout << "TrackReferenceKeyFrame after optimization" << nmatchesMap << std::endl;
+        std::cout << "TrackReferenceKeyFrame after optimization" << nmatchesMap << std::endl;
         return nmatchesMap>=10;
     }
 
 
     bool Tracking::TrackLocalMapGroupCamera()
     {
+        std::cout<<__FUNCTION__<<std::endl;
         // We have an estimation of the camera pose and some map points tracked in the frame.
         // We retrieve the local map and try to find matches to points in the local map.
 
@@ -570,6 +589,7 @@ namespace ORB_SLAM2
     // Map initialization for monocular
     void Tracking::MonocularInitializationGroupCamera()
     {
+        std::cout<<__FUNCTION__<<std::endl;
         std::cout << "mCurrentFrame.mvKeys.size() " << mCurrentFrame.mvKeys.size() << std::endl;
         if(!mpInitializerGroupCamera)
         {
@@ -729,8 +749,27 @@ namespace ORB_SLAM2
         // Scale initial baseline
         cv::Mat Tc2w = pKFcur->GetPose();
         Tc2w.col(3).rowRange(0,3) = Tc2w.col(3).rowRange(0,3)*invMedianDepth;
-        pKFcur->SetPose(Tc2w);
+        for(int c = 0;c<pKFcur->Ncameras;c++)
+        {
+            pKFcur->mvTcg[c].col(3).rowRange(0,3) = pKFcur->mvTcg[c].col(3).rowRange(0,3)*invMedianDepth;
 
+        }
+
+        for(int c = 0;c<pKFcur->Ncameras;c++)
+        {
+            pKFini->mvTcg[c].col(3).rowRange(0,3) = pKFini->mvTcg[c].col(3).rowRange(0,3)*invMedianDepth;
+        }
+
+        mDepthScale = 1/invMedianDepth;
+        for(int c = 0;c<pKFcur->Ncameras;c++)
+        {
+            mvTcg[c].col(3).rowRange(0,3) = mvTcg[c].col(3).rowRange(0,3)*invMedianDepth;
+            mvTgc[c].col(3).rowRange(0,3) = mvTgc[c].col(3).rowRange(0,3)*invMedianDepth;
+        }
+
+
+        pKFcur->SetPose(Tc2w);
+        pKFini->SetPose(pKFini->GetPose());
         // Scale points
         vector<MapPoint*> vpAllMapPoints = pKFini->GetMapPointMatches();
         for(size_t iMP=0; iMP<vpAllMapPoints.size(); iMP++)

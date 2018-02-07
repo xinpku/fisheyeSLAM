@@ -96,6 +96,20 @@ ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
 ${BOOST_SERIALIZATION}
 )
 
+add_library(debug_utils SHARED
+        debug_utils/debug_utils.cpp
+        debug_utils/MatrixVisualizer.cpp
+        )
+
+target_link_libraries(${PROJECT_NAME}
+        ${OpenCV_LIBS}
+        ${EIGEN3_LIBS}
+        ${Pangolin_LIBRARIES}
+        ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
+        ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
+        ${BOOST_SERIALIZATION}
+        )
+
 # Build examples
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/RGB-D)
@@ -138,4 +152,4 @@ target_link_libraries(mono_video ${PROJECT_NAME})
 
 add_executable(group_camera
         mono_video/group_camera.cpp mono_video/group_camera.cpp)
-target_link_libraries(group_camera ${PROJECT_NAME})
+target_link_libraries(group_camera ${PROJECT_NAME} debug_utils)

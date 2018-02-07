@@ -95,7 +95,7 @@ cv::Mat FrameDrawer::DrawFrame()
         const float r = 5;
         for(int i=0;i<N;i++)
         {
-            if(vbVO[i] || vbMap[i])
+            //if(vbVO[i] || vbMap[i])
             {
                 cv::Point2f pt1,pt2;
                 pt1.x=vCurrentKeys[i].pt.x-r;
