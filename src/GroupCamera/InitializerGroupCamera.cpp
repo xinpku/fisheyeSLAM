@@ -1,6 +1,7 @@
 #include "InitializerGroupCamera.h"
 #include "Initializer.h"
 #include<thread>
+#include "debug_utils/debug_utils.h"
 namespace ORB_SLAM2
 {
     InitializerGroupCamera::InitializerGroupCamera(const Frame &ReferenceFrame, float sigma, int iterations)
@@ -51,7 +52,6 @@ namespace ORB_SLAM2
                 {
                     if(vbTriangulated[i])
                     {
-
                         cv::Mat point = cv::Mat::ones(4,1,CV_32F);
                         cv::Mat(vP3D[i]).copyTo(point.rowRange(0,3));
                         cv::Mat p = CurrentFrame.mvTgc[c]*point;
@@ -157,13 +157,15 @@ namespace ORB_SLAM2
 
         // Compute ratio of scores
         float RH = SH/(SH+SF);
-        std::cout << "SH:" << SH << std::endl;
-        std::cout << "SF:" << SF << std::endl;
-        std::cout << "RH:" << RH << std::endl;
+
+
+        if(SH+SF==0)
+            return false;
+
         // Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
-        if(RH>0.40)
+     /*   if(RH>0.40)
             return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
-        else //if(pF_HF>0.6)
+        else //if(pF_HF>0.6)*/
             return ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,0.15,30);
 
         return false;

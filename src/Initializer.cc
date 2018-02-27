@@ -26,6 +26,7 @@
 #include "ORBmatcher.h"
 
 #include<thread>
+#include "debug_utils/debug_utils.h"
 
 namespace ORB_SLAM2
 {
@@ -164,7 +165,6 @@ void Initializer::FindHomography(vector<bool> &vbMatchesInliers, float &score, c
         cv::Mat Hn = ComputeH21(vPn1i,vPn2i);
         H21i = T2inv*Hn*T1;
         H12i = H21i.inv();
-
         currentScore = CheckHomography(H21i, H12i, vbCurrentInliers, mSigma);
 
         if(currentScore>score)
@@ -174,6 +174,7 @@ void Initializer::FindHomography(vector<bool> &vbMatchesInliers, float &score, c
             score = currentScore;
         }
     }
+
 }
 
 
@@ -308,7 +309,7 @@ cv::Mat Initializer::ComputeF21(const vector<cv::Point2f> &vP1,const vector<cv::
 }
 
 float Initializer::CheckHomography(const cv::Mat &H21, const cv::Mat &H12, vector<bool> &vbMatchesInliers, float sigma)
-{   
+{
     const int N = mvMatches12.size();
 
     const float h11 = H21.at<float>(0,0);

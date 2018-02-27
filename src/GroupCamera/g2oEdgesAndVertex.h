@@ -63,7 +63,7 @@ namespace ORB_SLAM2
         bool isDepthPositive()
         {
             const g2o::VertexSE3Expmap *v1 = static_cast<const g2o::VertexSE3Expmap *>(_vertices[0]);
-            return (v1->estimate().map(Xw))(2) > 0.0;
+            return ((Tcg_*v1->estimate()).map(Xw))(2) > 0.0;
         }
 
 

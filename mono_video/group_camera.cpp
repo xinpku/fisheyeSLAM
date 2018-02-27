@@ -63,7 +63,7 @@ int main(int argc, char **argv)
     std::cout << pixel_height << std::endl;
     std::cout << f_image_ << std::endl;
 
-    FisheyeCorrector corrector(correction_table, videos[0].get(CV_CAP_PROP_FRAME_HEIGHT), videos[0].get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 36, 36);;
+    FisheyeCorrector corrector(correction_table, videos[0].get(CV_CAP_PROP_FRAME_HEIGHT), videos[0].get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 60, 60);;
 
     corrector.setAxisDirection(0, 0, 0);//30,35,-7
     //corrector.setSizeScale(0.5);

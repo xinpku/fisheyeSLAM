@@ -79,7 +79,7 @@ namespace ORB_SLAM2
                 z_g,0,-x_g,0,-1,0,
                 -y_g,x_g,0,0,0,-1;
 
-        _jacobianOplusXi = dp_dXc*Tcg_.rotation().toRotationMatrix().transpose()*dXg_dXi;
+        _jacobianOplusXi = dp_dXc*Tcg_.rotation().toRotationMatrix()*dXg_dXi;
     }
 
 

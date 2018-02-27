@@ -667,6 +667,7 @@ namespace ORB_SLAM2
     }
     void Tracking::CreateInitialMapMonocularGroupCamera()
     {
+        printON
         // Create KeyFrames
         KeyFrame* pKFini = new KeyFrame(mInitialFrame,mpMap,mpKeyFrameDB);
         KeyFrame* pKFcur = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
@@ -737,8 +738,10 @@ namespace ORB_SLAM2
         // Set median depth to 1
         float medianDepth = pKFini->ComputeSceneMedianDepthGroupCamera(2);
         float invMedianDepth = 1.0f/medianDepth;
-        //std::cout << "medianDepth  " << medianDepth << std::endl;
-        //std::cout << "pKFcur->TrackedMapPoints(1)  " << pKFcur->TrackedMapPoints(1) << std::endl;
+        print_value(medianDepth);
+        print_value(pKFcur->TrackedMapPoints(1))
+
+
         if(medianDepth<0 || pKFcur->TrackedMapPoints(1)<100)//wx-adjust-parameter original value is 100
         {
             cout << "Wrong initialization, reseting..." << endl;

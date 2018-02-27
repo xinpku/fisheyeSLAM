@@ -116,7 +116,10 @@ public:
     // Used in loop detection (Loop Closing)
     int SearchByProjectionGroupCamera(KeyFrame* pKF, cv::Mat Scw, const std::vector<MapPoint*> &vpPoints, std::vector<MapPoint*> &vpMatched, int th);
 
-
+    // Search matches between MapPoints in a KeyFrame and ORB in a Frame.
+    // Brute force constrained to ORB that belong to the same vocabulary node (at a certain level)
+    // Used in Relocalisation and Loop Detection
+    int SearchByBoWGroupCamera(KeyFrame *pKF, Frame &F, std::vector<MapPoint*> &vpMapPointMatches);
 
 
     int SearchForTriangulationGroupCamera(KeyFrame *pKF1, KeyFrame *pKF2, std::vector < std::vector<cv::Mat>> F12,
