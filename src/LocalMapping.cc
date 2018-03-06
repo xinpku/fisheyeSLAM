@@ -193,13 +193,13 @@ void LocalMapping::MapPointCulling()
         }
         else if(pMP->GetFoundRatio()<0.25f )
         {
-            print_value(pMP->GetFoundRatio());
+            //print_value(pMP->GetFoundRatio());
             pMP->SetBadFlag();
             lit = mlpRecentAddedMapPoints.erase(lit);
         }
         else if(((int)nCurrentKFid-(int)pMP->mnFirstKFid)>=2 && pMP->Observations()<=cnThObs)
         {
-            print_value(pMP->Observations());
+            //print_value(pMP->Observations());
             pMP->SetBadFlag();
             lit = mlpRecentAddedMapPoints.erase(lit);
         }

@@ -365,7 +365,7 @@ namespace ORB_SLAM2
         const int its[4]={10,20,10,30};
 
         int nBad=0;
-        print_value(nInitialCorrespondences-nBad,true);
+        //print_value(nInitialCorrespondences-nBad,true);
         for(size_t it=0; it<4; it++)
         {
 
@@ -407,7 +407,7 @@ namespace ORB_SLAM2
                     e->setRobustKernel(0);
             }
             std::cout<<std::endl;
-            print_value(nInitialCorrespondences-nBad,true);
+            //print_value(nInitialCorrespondences-nBad,true);
 
             for(size_t i=0, iend=vpEdgesStereo.size(); i<iend; i++)
             {

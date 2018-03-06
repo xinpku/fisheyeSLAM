@@ -63,11 +63,11 @@ int main(int argc, char **argv)
     std::cout << pixel_height << std::endl;
     std::cout << f_image_ << std::endl;
 
-    FisheyeCorrector corrector(correction_table, videos[0].get(CV_CAP_PROP_FRAME_HEIGHT), videos[0].get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 60, 60);;
+    FisheyeCorrector corrector(correction_table, videos[0].get(CV_CAP_PROP_FRAME_HEIGHT), videos[0].get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 60, 50);;
 
     corrector.setAxisDirection(0, 0, 0);//30,35,-7
     //corrector.setSizeScale(0.5);
-    corrector.setClipRegion(cv::Rect(cv::Point2f(0, 0), cv::Point2f(corrector.getCorrectedSize().width, corrector.getCorrectedSize().height)));
+    corrector.setClipRegion(cv::Rect(cv::Point2f(0, 0), cv::Point2f(corrector.getCorrectedSize().width, corrector.getCorrectedSize().height-450)));
     corrector.updateMap();
 
     std::cout<<corrector.getIntrinsicMatrix()<<std::endl;

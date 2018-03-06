@@ -44,6 +44,8 @@ public:
     void SetCurrentCameraPose(const cv::Mat &Tcw);
     void SetReferenceKeyFrame(KeyFrame *pKF);
     void GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M);
+    void GetCurrentOpenGLCameraMatrixSubCamera(pangolin::OpenGlMatrix &M,int c);
+
 
 private:
 
@@ -57,6 +59,10 @@ private:
     cv::Mat mCameraPose;
 
     std::mutex mMutexCamera;
+
+
+public:
+    std::vector<cv::Mat> mGroupCameraPose;
 };
 
 } //namespace ORB_SLAM

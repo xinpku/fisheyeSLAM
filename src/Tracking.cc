@@ -106,28 +106,7 @@ printON;
         mNcameras = fSettings["GroupCamera.n_frame"];
         mvTgc.resize(mNcameras);
         mvTcg.resize(mNcameras);
-
-/*        cv::Mat R1 = (cv::Mat_<float>(3,3)<<0.99703,0.034958,-0.068614,
-                0.076935,-0.41411,0.90697,
-                0.0032915,-0.90955,-0.41557)
-        ;
-        cv::Mat R2 = (cv::Mat_<float>(3,3)<<
-        -0.10028,0.62835,-0.77144,
-        0.99091,-0.0068373,-0.13438,
-        -0.089711,-0.7779,-0.62195)
-                ;
-        cv::Mat R3 = (cv::Mat_<float>(3,3)<<0.022938,-0.46176,0.88671,
-        -0.99954,-0.028394,0.011071,
-        0.020065,-0.88655,-0.46219)
-                ;
-
-        cv::Mat r1,r2,r3;
-        cv::Rodrigues(R1, r1);
-        cv::Rodrigues(R2, r2);
-        cv::Rodrigues(R3, r3);
-        print_vect_cv(r1);
-        print_vect_cv(r2);
-        print_vect_cv(r3);*/
+        mpMapDrawer->mGroupCameraPose.resize(mNcameras);
 
         for (int i = 0; i < mNcameras; i++)
         {
@@ -149,7 +128,6 @@ printON;
             mvTcg[i] = mvTgc[i].inv();
         }
     }
-
 
 
     int nRGB = fSettings["Camera.RGB"];

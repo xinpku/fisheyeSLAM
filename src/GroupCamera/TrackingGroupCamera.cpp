@@ -344,7 +344,11 @@ namespace ORB_SLAM2
                     mVelocity = cv::Mat();
 
                 mpMapDrawer->SetCurrentCameraPose(mCurrentFrame.mTcw);
-
+                mpMapDrawer->mGroupCameraPose.resize(mNcameras);
+                for(int c = 0;c<mNcameras;c++)
+                {
+                    mpMapDrawer->mGroupCameraPose[c]  = mCurrentFrame.mvTcwSubcamera[c].clone();
+                }
                 // Clean temporal point matches
                 for(int i=0; i<mCurrentFrame.N; i++)
                 {
@@ -802,6 +806,13 @@ namespace ORB_SLAM2
         mpMap->SetReferenceMapPoints(mvpLocalMapPoints);
 
         mpMapDrawer->SetCurrentCameraPose(pKFcur->GetPose());
+
+        mpMapDrawer->mGroupCameraPose.resize(mNcameras);
+        for(int c = 0;c<mNcameras;c++)
+        {
+            mpMapDrawer->mGroupCameraPose[c]  = pKFcur->mvTcwSubcamera[c].clone();
+        }
+
 
         mpMap->mvpKeyFrameOrigins.push_back(pKFini);
 
