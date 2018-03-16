@@ -145,7 +145,12 @@ void Viewer::Run()
 
 
         if(menuShowKeyFrames || menuShowGraph)
-            mpMapDrawer->DrawKeyFrames(menuShowKeyFrames,menuShowGraph);
+        {
+            if(mpTracker->mSensor==System::eSensor::GROUPCAMERA)
+                mpMapDrawer->DrawKeyFramesGroupCamera(menuShowKeyFrames,menuShowGraph);
+            else
+                mpMapDrawer->DrawKeyFrames(menuShowKeyFrames,menuShowGraph);
+        }
         if(menuShowPoints)
             mpMapDrawer->DrawMapPoints();
 		//cv::waitKey(10);

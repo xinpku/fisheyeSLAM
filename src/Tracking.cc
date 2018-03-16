@@ -697,7 +697,8 @@ void Tracking::StereoInitialization()
 
 void Tracking::MonocularInitialization()
 {
-	std::cout << "mCurrentFrame.mvKeys.size() " << mCurrentFrame.mvKeys.size() << std::endl;
+    printON
+    print_value(mCurrentFrame.mvKeys.size());
     if(!mpInitializer)
     {
         // Set Reference Frame
@@ -711,7 +712,7 @@ void Tracking::MonocularInitialization()
 
             if(mpInitializer)
                 delete mpInitializer;
-
+            print_value(mCurrentFrame.mnId);
             mpInitializer =  new Initializer(mCurrentFrame,1.0,200);
 
             fill(mvIniMatches.begin(),mvIniMatches.end(),-1);
@@ -728,7 +729,7 @@ void Tracking::MonocularInitialization()
             delete mpInitializer;
             mpInitializer = static_cast<Initializer*>(NULL);
             fill(mvIniMatches.begin(),mvIniMatches.end(),-1);
-			std::cout << "mCurrentFrame.mvKeys.size()<=15 return  ---  mpInitializer deleted" << std::endl;
+            print_string("mCurrentFrame.mvKeys.size()<=15 return  ---  mpInitializer deleted");
             return;
         }
 
@@ -737,12 +738,12 @@ void Tracking::MonocularInitialization()
         int nmatches = matcher.SearchForInitialization(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,100);
 
         // Check if there are enough correspondences
-		std::cout << "nmatches " << nmatches << std::endl;
+		print_value(nmatches)
         if(nmatches<100)
         {
             delete mpInitializer;
             mpInitializer = static_cast<Initializer*>(NULL);
-			std::cout << "nmatches<9 return --- mpInitializer deleted" << std::endl;
+            print_string("nmatches<100 return --- mpInitializer deleted")
             return;
         }
 
@@ -768,6 +769,8 @@ void Tracking::MonocularInitialization()
             tcw.copyTo(Tcw.rowRange(0,3).col(3));
             mCurrentFrame.SetPose(Tcw);
 
+            print_mat(Tcw)
+
             CreateInitialMapMonocular();
         }
     }
@@ -775,6 +778,7 @@ void Tracking::MonocularInitialization()
 
 void Tracking::CreateInitialMapMonocular()
 {
+    printON
     // Create KeyFrames
     KeyFrame* pKFini = new KeyFrame(mInitialFrame,mpMap,mpKeyFrameDB);
     KeyFrame* pKFcur = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
@@ -786,7 +790,7 @@ void Tracking::CreateInitialMapMonocular()
     // Insert KFs in the map
     mpMap->AddKeyFrame(pKFini);
     mpMap->AddKeyFrame(pKFcur);
-    std::cout<<"CreateInitialMapMonocular"<<std::endl;
+
     // Create MapPoints and asscoiate to keyframes
 
     for(size_t i=0; i<mvIniMatches.size();i++)
@@ -797,7 +801,7 @@ void Tracking::CreateInitialMapMonocular()
         //Create MapPoint.
         cv::Mat worldPos(mvIniP3D[i]);
         MapPoint* pMP = new MapPoint(worldPos,pKFcur,mpMap);
-
+        print_vect_cv(pMP->GetWorldPos(),i<30)
         //****initialize semantic information
         KeyFrame* semantic_source;
         int semantic_idx;
@@ -842,11 +846,20 @@ void Tracking::CreateInitialMapMonocular()
 
     Optimizer::GlobalBundleAdjustemnt(mpMap,20);
 
+
+    for(int i = 0;i<pKFini->GetMapPointMatches().size();i++)
+    {
+        if(!pKFini->GetMapPointMatches()[i])
+            continue;
+        print_vect_cv(pKFini->GetMapPointMatches()[i]->GetWorldPos(),i<30)
+    }
+
     // Set median depth to 1
     float medianDepth = pKFini->ComputeSceneMedianDepth(2);
     float invMedianDepth = 1.0f/medianDepth;
-	//std::cout << "medianDepth  " << medianDepth << std::endl;
-	//std::cout << "pKFcur->TrackedMapPoints(1)  " << pKFcur->TrackedMapPoints(1) << std::endl;
+    print_value(medianDepth);
+    print_value(pKFcur->TrackedMapPoints(1))
+
     if(medianDepth<0 || pKFcur->TrackedMapPoints(1)<100)//wx-adjust-parameter original value is 100
     {
         cout << "Wrong initialization, reseting..." << endl;
@@ -858,6 +871,8 @@ void Tracking::CreateInitialMapMonocular()
     cv::Mat Tc2w = pKFcur->GetPose();
     Tc2w.col(3).rowRange(0,3) = Tc2w.col(3).rowRange(0,3)*invMedianDepth;
     pKFcur->SetPose(Tc2w);
+
+    print_mat(pKFcur->GetPose())
 
     // Scale points
     vector<MapPoint*> vpAllMapPoints = pKFini->GetMapPointMatches();
@@ -1504,6 +1519,7 @@ void Tracking::UpdateLocalKeyFrames()
         }
 
     }
+   // mvpLocalKeyFrames.push_back(mpReferenceKF);
 
     print_value(mvpLocalKeyFrames.size(),true);
     if(pKFmax)
@@ -1715,6 +1731,12 @@ void Tracking::Reset()
         delete mpInitializer;
         mpInitializer = static_cast<Initializer*>(NULL);
     }
+
+    if(mpInitializerGroupCamera)
+    {
+            delete mpInitializerGroupCamera;
+        mpInitializerGroupCamera = static_cast<InitializerGroupCamera*>(NULL);
+    };
 
     for(int c = 0;c<mNcameras;c++)
     {

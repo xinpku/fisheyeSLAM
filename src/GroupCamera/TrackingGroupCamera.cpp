@@ -593,8 +593,8 @@ namespace ORB_SLAM2
     // Map initialization for monocular
     void Tracking::MonocularInitializationGroupCamera()
     {
-        std::cout<<__FUNCTION__<<std::endl;
-        std::cout << "mCurrentFrame.mvKeys.size() " << mCurrentFrame.mvKeys.size() << std::endl;
+        printON
+        print_value(mCurrentFrame.mvKeys.size());
         if(!mpInitializerGroupCamera)
         {
             // Set Reference Frame
@@ -608,7 +608,7 @@ namespace ORB_SLAM2
 
                 if(mpInitializerGroupCamera)
                     delete mpInitializerGroupCamera;
-
+                print_value(mCurrentFrame.mnId);
                 mpInitializerGroupCamera =  new InitializerGroupCamera(mCurrentFrame,1.0,200);
 
                 fill(mvIniMatches.begin(),mvIniMatches.end(),-1);
@@ -625,7 +625,7 @@ namespace ORB_SLAM2
                 delete mpInitializerGroupCamera;
                 mpInitializerGroupCamera = static_cast<InitializerGroupCamera*>(NULL);
                 fill(mvIniMatches.begin(),mvIniMatches.end(),-1);
-                std::cout << "mCurrentFrame.mvKeys.size()<=15 return  ---  mpInitializer deleted" << std::endl;
+                print_string("mCurrentFrame.mvKeys.size()<=15 return  ---  mpInitializer deleted");
                 return;
             }
 
@@ -634,12 +634,13 @@ namespace ORB_SLAM2
             int nmatches = matcher.SearchForInitialization(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,100);
 
             // Check if there are enough correspondences
-            std::cout << "nmatches " << nmatches << std::endl;
+            print_value(nmatches)
+
             if(nmatches<100)
             {
                 delete mpInitializerGroupCamera;
                 mpInitializerGroupCamera = static_cast<InitializerGroupCamera*>(NULL);
-                std::cout << "nmatches<9 return --- mpInitializer deleted" << std::endl;
+                print_string("nmatches<100 return --- mpInitializer deleted")
                 return;
             }
 
@@ -665,6 +666,10 @@ namespace ORB_SLAM2
                 tcw.copyTo(Tcw.rowRange(0,3).col(3));
                 mCurrentFrame.SetPose(Tcw);
 
+                print_value(init_camera_ID)
+
+                print_mat(Tcw)
+
                 CreateInitialMapMonocularGroupCamera();
             }
         }
@@ -683,7 +688,6 @@ namespace ORB_SLAM2
         // Insert KFs in the map
         mpMap->AddKeyFrame(pKFini);
         mpMap->AddKeyFrame(pKFcur);
-        std::cout<<"CreateInitialMapMonocular"<<std::endl;
         // Create MapPoints and asscoiate to keyframes
 
         for(size_t i=0; i<mvIniMatches.size();i++)
@@ -694,6 +698,7 @@ namespace ORB_SLAM2
             //Create MapPoint.
             cv::Mat worldPos(mvIniP3D[i]);
             MapPoint* pMP = new MapPoint(worldPos,pKFcur,mpMap);
+            print_vect_cv(pMP->GetWorldPos(),i<30)
 
             //****initialize semantic information
             KeyFrame* semantic_source;
@@ -739,6 +744,12 @@ namespace ORB_SLAM2
 
         Optimizer::GlobalBundleAdjustemntGroupCamera(mpMap,20);
 
+        for(int i = 0;i<pKFini->GetMapPointMatches().size();i++)
+        {
+            if(!pKFini->GetMapPointMatches()[i])
+                continue;
+            print_vect_cv(pKFini->GetMapPointMatches()[i]->GetWorldPos(),i<30)
+        }
         // Set median depth to 1
         float medianDepth = pKFini->ComputeSceneMedianDepthGroupCamera(2);
         float invMedianDepth = 1.0f/medianDepth;
@@ -767,7 +778,6 @@ namespace ORB_SLAM2
             pKFini->mvTcg[c].col(3).rowRange(0,3) = pKFini->mvTcg[c].col(3).rowRange(0,3)*invMedianDepth;
         }
 
-        mDepthScale = 1/invMedianDepth;
         for(int c = 0;c<pKFcur->Ncameras;c++)
         {
             mvTcg[c].col(3).rowRange(0,3) = mvTcg[c].col(3).rowRange(0,3)*invMedianDepth;
@@ -775,8 +785,14 @@ namespace ORB_SLAM2
         }
 
 
+        mDepthScale = 1/invMedianDepth;
+
         pKFcur->SetPose(Tc2w);
         pKFini->SetPose(pKFini->GetPose());
+        for(int i = 0;i<pKFcur->Ncameras;i++)
+        {
+            print_mat(pKFcur->mvTcwSubcamera[i])
+        }
         // Scale points
         vector<MapPoint*> vpAllMapPoints = pKFini->GetMapPointMatches();
         for(size_t iMP=0; iMP<vpAllMapPoints.size(); iMP++)
@@ -785,6 +801,7 @@ namespace ORB_SLAM2
             {
                 MapPoint* pMP = vpAllMapPoints[iMP];
                 pMP->SetWorldPos(pMP->GetWorldPos()*invMedianDepth);
+                print_vect_cv(pMP->GetWorldPos(),iMP<100)
             }
         }
 
@@ -808,6 +825,8 @@ namespace ORB_SLAM2
         mpMapDrawer->SetCurrentCameraPose(pKFcur->GetPose());
 
         mpMapDrawer->mGroupCameraPose.resize(mNcameras);
+
+
         for(int c = 0;c<mNcameras;c++)
         {
             mpMapDrawer->mGroupCameraPose[c]  = pKFcur->mvTcwSubcamera[c].clone();

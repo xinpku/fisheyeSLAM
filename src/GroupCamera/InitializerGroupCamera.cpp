@@ -16,7 +16,7 @@ namespace ORB_SLAM2
     }
 
     bool InitializerGroupCamera::Initialize(const Frame& InitialFrame,const Frame &CurrentFrame, const vector<int> &vMatches12,
-                    cv::Mat &R21, cv::Mat &t21, vector<cv::Point3f> &vP3D, vector<bool> &vbTriangulated,int cameraID)
+                    cv::Mat &R21, cv::Mat &t21, vector<cv::Point3f> &vP3D, vector<bool> &vbTriangulated,int& cameraID)
     {
 
 
@@ -89,7 +89,7 @@ namespace ORB_SLAM2
         // Fill structures with current keypoints and matches with reference frame
         // Reference Frame: 1, Current Frame: 2
         mvKeys2 = vKeys;
-
+        print_value(mvKeys2.size())
         mvMatches12.clear();
         mvMatches12.reserve(mvKeys2.size());
         mvbMatched1.resize(mvKeys1.size());
@@ -106,11 +106,6 @@ namespace ORB_SLAM2
 
         const int N = mvMatches12.size();
 
-        if(N<8)
-        {
-            std::cout<<"N: "<<N<<std::endl;
-            return false;
-        }
         // Indices for minimum set selection
         vector<size_t> vAllIndices;
         vAllIndices.reserve(N);
@@ -163,7 +158,7 @@ namespace ORB_SLAM2
             return false;
 
         // Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
-     /*   if(RH>0.40)
+       if(RH>0.40)
             return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
         else //if(pF_HF>0.6)*/
             return ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,0.15,30);

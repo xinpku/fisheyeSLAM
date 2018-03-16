@@ -50,6 +50,7 @@ Initializer::Initializer(const Frame &ReferenceFrame, float sigma, int iteration
     // Fill structures with current keypoints and matches with reference frame
     // Reference Frame: 1, Current Frame: 2
     mvKeys2 = CurrentFrame.mvKeysUn;
+    print_value(mvKeys2.size())
 
     mvMatches12.clear();
     mvMatches12.reserve(mvKeys2.size());
@@ -113,14 +114,17 @@ Initializer::Initializer(const Frame &ReferenceFrame, float sigma, int iteration
 
     // Compute ratio of scores
     float RH = SH/(SH+SF);
+
+    if(SH+SF==0)
+        return false;
 	//std::cout << "SH:" << SH << std::endl;
 	//std::cout << "SF:" << SF << std::endl;
 	//std::cout << "RH:" << RH << std::endl;
     // Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
     if(RH>0.40)
-    return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
+        return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
     else //if(pF_HF>0.6)
-    return ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,0.15,30);
+        return ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,0.15,30);
 
     return false;
 }

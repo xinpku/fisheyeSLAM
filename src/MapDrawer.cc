@@ -201,11 +201,8 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph)
     {
         for(size_t i=0; i<vpKFs.size(); i++)
         {
-            for(int c = 0;c<vpKFs[i]->Ncameras;c++)
-            {
                 KeyFrame* pKF = vpKFs[i];
-                //cv::Mat Twc = pKF->GetPoseInverse().t();
-                cv::Mat Twc = pKF->mvTcwSubcamera[c].inv().t();
+                cv::Mat Twc = pKF->GetPoseInverse().t();
                 glPushMatrix();
 
                 glMultMatrixf(Twc.ptr<GLfloat>(0));
@@ -251,8 +248,6 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph)
                 glEnd();
 
                 glPopMatrix();
-            }
-
         }
     }
 

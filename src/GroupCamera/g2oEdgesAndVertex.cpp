@@ -165,7 +165,7 @@ namespace ORB_SLAM2
         std::cout<<"dp_dXc"<<std::endl<<dp_dXc<<std::endl;
   */
 
-        _jacobianOplusXi =  dp_dXc*Tcw.rotation().toRotationMatrix();
+        _jacobianOplusXi =  -dp_dXc*Tcw.rotation().toRotationMatrix();
         Eigen::Matrix<double,3,6> dXg_dXi;
         dXg_dXi<<
                0,-z_g,y_g,-1,0,0,

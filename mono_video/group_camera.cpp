@@ -36,6 +36,8 @@ int main(int argc, char **argv)
         video_name[i] = std::string(fSettings[videoName.str()]);
 
         videos[i].open(video_path+video_name[i]);
+        if(!videos[i].isOpened())
+            std::cout<<"Open video fail "<<i<<std::endl;
     }
 
 
@@ -63,14 +65,15 @@ int main(int argc, char **argv)
     std::cout << pixel_height << std::endl;
     std::cout << f_image_ << std::endl;
 
-    FisheyeCorrector corrector(correction_table, videos[0].get(CV_CAP_PROP_FRAME_HEIGHT), videos[0].get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 60, 50);;
+    FisheyeCorrector corrector(correction_table, videos[0].get(CV_CAP_PROP_FRAME_HEIGHT), videos[0].get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 60, 40);;
 
-    corrector.setAxisDirection(0, 0, 0);//30,35,-7
-    //corrector.setSizeScale(0.5);
-    corrector.setClipRegion(cv::Rect(cv::Point2f(0, 0), cv::Point2f(corrector.getCorrectedSize().width, corrector.getCorrectedSize().height-450)));
+    corrector.setAxisDirection(0, 40, 0);//30,35,-7
     corrector.updateMap();
+    corrector.setClipRegion(cv::Rect(cv::Point(0, 475), cv::Point(corrector.getCorrectedSize().width, corrector.getCorrectedSize().height - 500)));
+    //correctors[0].setSizeScale(0.5);
 
-    std::cout<<corrector.getIntrinsicMatrix()<<std::endl;
+
+    std::cout<<"K:"<<std::endl<<corrector.getIntrinsicMatrix()<<std::endl;
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
     vTimesTrack.resize(nImages);

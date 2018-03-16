@@ -19,7 +19,7 @@ namespace ORB_SLAM2
         // Computes in parallel a fundamental matrix and a homography
         // Selects a model and tries to recover the motion and the structure from motion
         bool Initialize(const Frame& InitialFrame,const Frame &CurrentFrame, const vector<int> &vMatches12,
-                        cv::Mat &R21, cv::Mat &t21, vector<cv::Point3f> &vP3D, vector<bool> &vbTriangulated,int cameraID);
+                        cv::Mat &R21, cv::Mat &t21, vector<cv::Point3f> &vP3D, vector<bool> &vbTriangulated,int& cameraID);
 
 
     private:

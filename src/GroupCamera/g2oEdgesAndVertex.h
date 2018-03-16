@@ -21,6 +21,8 @@ namespace ORB_SLAM2
             const g2o::VertexSBAPointXYZ* v2 = static_cast<const g2o::VertexSBAPointXYZ*>(_vertices[0]);
             Eigen::Vector2d obs(_measurement);
             _error = obs-cam_project((Tcg_*v1->estimate()).map(v2->estimate()));
+            //_error = obs-cam_project((Tcg_*v1->estimate()).map(v2->estimate()));
+
         }
 
         bool isDepthPositive() {
