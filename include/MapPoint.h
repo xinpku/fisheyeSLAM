@@ -181,7 +181,8 @@ public:
     bool dealed_by_current_frame; //Record if current frame have processed this point.
                                     // It's used to deal with the situation that a map point is observed by different view points of the same frame
 
-
+    int created_by_kf1 = 0;
+    int created_by_kf2 = 0;
 };
 
 } //namespace ORB_SLAM

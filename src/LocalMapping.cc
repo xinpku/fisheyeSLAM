@@ -51,7 +51,7 @@ void LocalMapping::Run()
 {
 
     mbFinished = false;
-
+    printON;
     while(1)
     {
         // Tracking will see that Local Mapping is busy
@@ -62,6 +62,7 @@ void LocalMapping::Run()
         {
             // BoW conversion and insertion in Map
             ProcessNewKeyFrame();
+            print_string("MapPointCulling<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
             // Check recent MapPoints
             MapPointCulling();
@@ -441,6 +442,7 @@ void LocalMapping::CreateNewMapPoints()
 
             // Triangulation is succesfull
             MapPoint* pMP = new MapPoint(x3D,mpCurrentKeyFrame,mpMap);
+            print_vect_cv(x3D,nnew<10);
             //wx-debug we simply set the semantic class of the map point the same as current keyframe. But it should be a fusion processing according the probability of every class type.
             KeyFrame* semantic_source;
             int semantic_idx;
@@ -474,6 +476,7 @@ void LocalMapping::CreateNewMapPoints()
             nnew++;
         }
     }
+    print_value(nnew);
 }
 
 void LocalMapping::SearchInNeighbors()

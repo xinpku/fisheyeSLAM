@@ -5,10 +5,10 @@
 #--------------------------------------------------------------------------------------------
 
 # Camera calibration and distortion parameters (OpenCV) 
-Camera.fx: 349.56
-Camera.fy: 349.56
-Camera.cx: 293
-Camera.cy: 130
+Camera.fx: 306.60
+Camera.fy: 306.60
+Camera.cx: 257
+Camera.cy: 331
 
 Camera.k1: 0
 Camera.k2: 0
@@ -67,7 +67,7 @@ Viewer.ViewpointF: 500
 # MultiFrame Parameters
 #--------------------------------------------------------------------------------------------
 
-GroupCamera.n_frame: 2
+GroupCamera.n_frame: 3
 #front
 GroupCamera.VideoName.0: "front.avi"
 camera0.R: [ -1.9981, -0.079093, 0.046174 ]

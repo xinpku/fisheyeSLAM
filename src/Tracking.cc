@@ -562,7 +562,8 @@ void Tracking::Track()
                 mVelocity = cv::Mat();
 
             mpMapDrawer->SetCurrentCameraPose(mCurrentFrame.mTcw);
-
+            print_value(mCurrentFrame.mnId);
+            print_mat(mCurrentFrame.mTcw);
             // Clean temporal point matches
             for(int i=0; i<mCurrentFrame.N; i++)
             {
@@ -929,6 +930,7 @@ void Tracking::CheckReplacedInLastFrame()
 
 bool Tracking::TrackReferenceKeyFrame()
 {
+    printON
     // Compute Bag of Words vector
     mCurrentFrame.ComputeBoW();
 
@@ -936,10 +938,11 @@ bool Tracking::TrackReferenceKeyFrame()
     // If enough matches are found we setup a PnP solver
     ORBmatcher matcher(0.7,true);
     vector<MapPoint*> vpMapPointMatches;
-
+    print_value(mpReferenceKF->mnId)
     int nmatches = matcher.SearchByBoW(mpReferenceKF,mCurrentFrame,vpMapPointMatches);
 	//std::cout << "TrackReferenceKeyFrame SearchByBoW nmatches: " << nmatches << std::endl;
 	//mCurrentFrame.SetPose(mLastFrame.mTcw);//edit-by-wx 2016-12-09 If tracking on reference frame is lost, we still want to try to track on local map. Then the pose must be set.
+    print_value(nmatches)
 
     mCurrentFrame.SetPose(mLastFrame.mTcw);
     if(nmatches<15)//wx-2016-12-09 original value is 15
@@ -971,6 +974,7 @@ bool Tracking::TrackReferenceKeyFrame()
         }
     }
 	//std::cout << "TrackReferenceKeyFrame after optimization" << nmatchesMap << std::endl;
+    print_value(nmatchesMap)
     return nmatchesMap>=10;
 }
 
@@ -1042,6 +1046,7 @@ void Tracking::UpdateLastFrame()
 
 bool Tracking::TrackWithMotionModel()
 {
+    printON
     ORBmatcher matcher(0.9,true);
 
     // Update last frame pose according to its reference keyframe
@@ -1066,6 +1071,7 @@ bool Tracking::TrackWithMotionModel()
         fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
         nmatches = matcher.SearchByProjection(mCurrentFrame,mLastFrame,2*th,mSensor==System::MONOCULAR);
     }
+    print_value(nmatches);
 
     if(nmatches<20)
         return false;
@@ -1092,7 +1098,8 @@ bool Tracking::TrackWithMotionModel()
             else if(mCurrentFrame.mvpMapPoints[i]->Observations()>0)
                 nmatchesMap++;
         }
-    }    
+    }
+    print_value(nmatches);
 
     if(mbOnlyTracking)
     {
@@ -1105,6 +1112,8 @@ bool Tracking::TrackWithMotionModel()
 
 bool Tracking::TrackLocalMap()
 {
+    printON
+
     // We have an estimation of the camera pose and some map points tracked in the frame.
     // We retrieve the local map and try to find matches to points in the local map.
 
@@ -1252,7 +1261,7 @@ void Tracking::CreateNewKeyFrame()
         return;
 
     KeyFrame* pKF = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
-
+    print_string("createNewKeyFrame>>>>>>>>>>>>>>>>>>")
     mpReferenceKF = pKF;
     mCurrentFrame.mpReferenceKF = pKF;
 

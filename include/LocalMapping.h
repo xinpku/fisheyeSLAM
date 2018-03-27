@@ -105,7 +105,7 @@ protected:
     Tracking* mpTracker;
 
     std::list<KeyFrame*> mlNewKeyFrames;
-
+public:
     KeyFrame* mpCurrentKeyFrame;
 
     std::list<MapPoint*> mlpRecentAddedMapPoints;

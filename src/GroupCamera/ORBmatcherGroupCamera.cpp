@@ -25,6 +25,7 @@ namespace ORB_SLAM2
                 if (pMP->isBad())
                     continue;
 
+                print_value(pMP->mvbTrackInView[c],c==0&&pMP->created_by_kf1==-1)
 
                 const int &nPredictedLevel = pMP->mvnTrackScaleLevel[c];
 
@@ -90,11 +91,12 @@ namespace ORB_SLAM2
                         continue;
 
                     F.mvpMapPoints[bestIdx] = pMP;
+
                     nmatches++;
                 }
             }
 
-        print_value(nmatches, true);
+        print_value(nmatches);
         }
 
         return nmatches;
@@ -211,6 +213,7 @@ namespace ORB_SLAM2
                         if (bestDist <= TH_HIGH)
                         {
                             CurrentFrame.mvpMapPoints[bestIdx2] = pMP;
+
 
                             nmatches++;
 
@@ -579,6 +582,7 @@ namespace ORB_SLAM2
     int ORBmatcher::SearchForTriangulationGroupCamera(KeyFrame *pKF1, KeyFrame *pKF2, int subCameraIDKF1,int subCameraIDKF2, cv::Mat vF12subcamera,
                                                       vector<pair<size_t, size_t> > &vMatchedPairs, const bool bOnlyStereo)
     {
+        printON
         const DBoW2::FeatureVector &vFeatVec1 = pKF1->mFeatVec;
         const DBoW2::FeatureVector &vFeatVec2 = pKF2->mFeatVec;
 
@@ -752,7 +756,7 @@ namespace ORB_SLAM2
                 continue;
             vMatchedPairs.push_back(make_pair(i,vMatches12[i]));
         }
-
+        print_value(nmatches);
         return nmatches;
     }
 

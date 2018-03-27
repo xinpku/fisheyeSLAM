@@ -28,7 +28,7 @@
 #include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
 
 #include<stdint.h>
-
+#include "debug_utils/debug_utils.h"
 using namespace std;
 
 namespace ORB_SLAM2
@@ -45,6 +45,7 @@ ORBmatcher::ORBmatcher(float nnratio, bool checkOri): mfNNratio(nnratio), mbChec
 int ORBmatcher::SearchByProjection(Frame &F, const vector<MapPoint*> &vpMapPoints, const float th)
 {
     int nmatches=0;
+    printON
 
     const bool bFactor = th!=1.0;
 
@@ -124,6 +125,7 @@ int ORBmatcher::SearchByProjection(Frame &F, const vector<MapPoint*> &vpMapPoint
             nmatches++;
         }
     }
+    print_value(nmatches);
 
     return nmatches;
 }
@@ -147,23 +149,24 @@ bool ORBmatcher::CheckDistEpipolarLine(const cv::KeyPoint &kp1,const cv::KeyPoin
     const float num = a*kp2.pt.x+b*kp2.pt.y+c;
 
     const float den = a*a+b*b;
-
+    //print_value(num,kp1.class_id==0)
     if(den==0)
         return false;
 
     const float dsqr = num*num/den;
+    //print_value(dsqr,kp1.class_id==0)
 
     return dsqr<3.84*pKF2->mvLevelSigma2[kp2.octave];
 }
 
 int ORBmatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPointMatches)
 {
+    printON
     const vector<MapPoint*> vpMapPointsKF = pKF->GetMapPointMatches();
 
     vpMapPointMatches = vector<MapPoint*>(F.N,static_cast<MapPoint*>(NULL));
 
     const DBoW2::FeatureVector &vFeatVecKF = pKF->mFeatVec;
-
     int nmatches=0;
 
     vector<int> rotHist[HISTO_LENGTH];
@@ -233,6 +236,7 @@ int ORBmatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPoin
 
                         const cv::KeyPoint &kp = pKF->mvKeysUn[realIdxKF];
 
+
                         if(mbCheckOrientation)
                         {
                             float rot = kp.angle-F.mvKeys[bestIdxF].angle;
@@ -244,6 +248,7 @@ int ORBmatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPoin
                             assert(bin>=0 && bin<HISTO_LENGTH);
                             rotHist[bin].push_back(bestIdxF);
                         }
+
                         nmatches++;
                     }
                 }
@@ -289,6 +294,7 @@ int ORBmatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPoin
 
 int ORBmatcher::SearchByProjection(KeyFrame* pKF, cv::Mat Scw, const vector<MapPoint*> &vpPoints, vector<MapPoint*> &vpMatched, int th)
 {
+
     // Get Calibration Parameters for later projection
     const float &fx = pKF->fx;
     const float &fy = pKF->fy;
@@ -1330,7 +1336,6 @@ int ORBmatcher::SearchBySim3(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint*> &
 int ORBmatcher::SearchByProjection(Frame &CurrentFrame, const Frame &LastFrame, const float th, const bool bMono)
 {
     int nmatches = 0;
-
     // Rotation Histogram (to check rotation consistency)
     vector<int> rotHist[HISTO_LENGTH];
     for(int i=0;i<HISTO_LENGTH;i++)

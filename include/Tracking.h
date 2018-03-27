@@ -265,6 +265,9 @@ public:
     void MonocularInitializationGroupCamera();
     void CreateInitialMapMonocularGroupCamera();
 
+
+    bool NeedNewKeyFrameGroupCamera();
+    void CreateNewKeyFrameGroupCamera();
     };
 
 } //namespace ORB_SLAM

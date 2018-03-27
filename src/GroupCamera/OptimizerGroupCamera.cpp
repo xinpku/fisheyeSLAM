@@ -406,7 +406,7 @@ namespace ORB_SLAM2
                 if(it==2)
                     e->setRobustKernel(0);
             }
-            std::cout<<std::endl;
+            //std::cout<<std::endl;
             //print_value(nInitialCorrespondences-nBad,true);
 
             for(size_t i=0, iend=vpEdgesStereo.size(); i<iend; i++)

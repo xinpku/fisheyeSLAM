@@ -26,6 +26,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include<mutex>
+#include "debug_utils/debug_utils.h"
 
 namespace ORB_SLAM2
 {
@@ -95,24 +96,45 @@ cv::Mat FrameDrawer::DrawFrame()
         const float r = 5;
         for(int i=0;i<N;i++)
         {
-            //if(vbVO[i] || vbMap[i])
+            if(vbVO[i] || vbMap[i])
             {
+
+
+
                 cv::Point2f pt1,pt2;
                 pt1.x=vCurrentKeys[i].pt.x-r;
                 pt1.y=vCurrentKeys[i].pt.y-r;
                 pt2.x=vCurrentKeys[i].pt.x+r;
                 pt2.y=vCurrentKeys[i].pt.y+r;
 
+/*//TODO: wx-debug-test\
+                Only for the tracking of front camera
+                if(vCurrentKeys[i].class_id==0)
+                {
+                    cv::rectangle(im,pt1,pt2,cv::Scalar(255,0,0));
+                }
+                if(vCurrentKeys[i].class_id==1)
+                {
+                    cv::rectangle(im,pt1,pt2,cv::Scalar(0,255,0));
+                }
+                if(vCurrentKeys[i].class_id==2)
+                {
+                    cv::rectangle(im,pt1,pt2,cv::Scalar(0,0,255));
+                }*/
+
+
+
                 // This is a match to a MapPoint in the map
                 if(vbMap[i])
                 {
-                    cv::rectangle(im,pt1,pt2,cv::Scalar(0,255,0));
+                    cv::rectangle(im,pt1,pt2,cv::Scalar(255,0,0));
                     //cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(0,255,0),-1);
                     mnTracked++;
+
                 }
                 else // This is match to a "visual odometry" MapPoint created in the last frame
                 {
-                    cv::rectangle(im,pt1,pt2,cv::Scalar(255,0,0));
+                    cv::rectangle(im,pt1,pt2,cv::Scalar(0,255,0));
                     //cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(255,0,0),-1);
                     mnTrackedVO++;
                 }

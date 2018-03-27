@@ -387,6 +387,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
     else
         (*mpORBextractorRight)(im,cv::Mat(),mvKeysRight,mDescriptorsRight);
 
+    print_value(mvKeys.size())
 
     mvSemanticClass = std::vector<SemanticClass>(mvKeys.size(),SemanticClass::nBackground);
     mvSemanticProbability =  std::vector<uchar>(mvKeys.size(),100);
