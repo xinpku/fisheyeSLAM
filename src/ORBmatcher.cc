@@ -434,7 +434,6 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
             continue;
 
         cv::Mat d1 = F1.mDescriptors.row(i1);
-
         int bestDist = INT_MAX;
         int bestDist2 = INT_MAX;
         int bestIdx2 = -1;
@@ -446,6 +445,8 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
             cv::Mat d2 = F2.mDescriptors.row(i2);
 
             int dist = DescriptorDistance(d1,d2);
+
+
 
             if(vMatchedDistance[i2]<=dist)
                 continue;

@@ -268,6 +268,13 @@ public:
 
     bool NeedNewKeyFrameGroupCamera();
     void CreateNewKeyFrameGroupCamera();
+
+
+
+    int mNview;
+    std::vector<FisheyeCorrector> mvCorrectors;
+    void generateCorrector(const std::string& setting_file_path);
+
     };
 
 } //namespace ORB_SLAM

@@ -54,26 +54,6 @@ int main(int argc, char **argv)
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::GROUPCAMERA, true);
 
-
-    float pixel_height = 0.0042;
-    float f_image_ = 306.605;
-
-    std::string correction_table = argv[4];
-    std::cout << "generate corrector" << std::endl;
-    std::cout << videos[0].get(CV_CAP_PROP_FRAME_HEIGHT) << std::endl;
-    std::cout << videos[0].get(CV_CAP_PROP_FRAME_WIDTH) << std::endl;
-    std::cout << pixel_height << std::endl;
-    std::cout << f_image_ << std::endl;
-
-    FisheyeCorrector corrector(correction_table, videos[0].get(CV_CAP_PROP_FRAME_HEIGHT), videos[0].get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 60, 40);;
-
-    corrector.setAxisDirection(0, 0, 0);//30,35,-7
-    corrector.updateMap();
-    corrector.setClipRegion(cv::Rect(cv::Point(0, 200), cv::Point(corrector.getCorrectedSize().width, corrector.getCorrectedSize().height - 600)));
-    //correctors[0].setSizeScale(0.5);
-
-
-    std::cout<<"K:"<<std::endl<<corrector.getIntrinsicMatrix()<<std::endl;
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
     vTimesTrack.resize(nImages);
@@ -85,7 +65,6 @@ int main(int argc, char **argv)
     long vTimeCount = 0;
     // Main loop
     std::vector<cv::Mat> fisheye_ims(Ncameras);
-    std::vector<cv::Mat> ims(Ncameras);
     std::stringstream sst;
     sst << argv[6];
     int start_frame;
@@ -105,7 +84,6 @@ int main(int argc, char **argv)
             }
 
             cv::cvtColor(fisheye_ims[c], fisheye_ims[c], cv::COLOR_BGR2GRAY);
-            corrector.correct(fisheye_ims[c],ims[c]);
         }
 
 
@@ -133,7 +111,7 @@ int main(int argc, char **argv)
 #endif
 
         // Pass the image to the SLAM system
-        SLAM.TrackGroupCamera(ims,tframe);
+        SLAM.TrackGroupCamera(fisheye_ims,tframe);
 
 
         if (SLAM.GetTrackingState() == 3 || (ni>=30&&ni%30==0))

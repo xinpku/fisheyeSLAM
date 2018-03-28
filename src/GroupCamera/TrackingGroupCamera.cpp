@@ -137,9 +137,9 @@ namespace ORB_SLAM2
 
 
        if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET)
-            mCurrentFrame = Frame(ims, timestamp, mpIniORBextractor, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth, mvTcg);
+            mCurrentFrame = Frame(ims,mvCorrectors, timestamp, mpIniORBextractor, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth, mvTcg);
         else
-            mCurrentFrame = Frame(ims, timestamp, mpORBextractorLeft, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth, mvTcg);
+            mCurrentFrame = Frame(ims,mvCorrectors, timestamp, mpORBextractorLeft, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth, mvTcg);
 
         MontageImagesKeypoints(ims, mImGray, mCurrentFrame);
 
@@ -147,6 +147,51 @@ namespace ORB_SLAM2
 
         return mCurrentFrame.mTcw.clone();
     }
+
+
+    void Tracking::generateCorrector(const std::string& setting_file_path)
+    {
+        cv::FileStorage fSettings(setting_file_path, cv::FileStorage::READ);
+        mNview = fSettings["FisheyeCamera.n_view"];
+        mvCorrectors.resize(3);
+
+        float pixel_height = fSettings["FisheyeCamera.pixel_height"];
+        float f_image_ = fSettings["FisheyeCamera.f"];
+        float image_width = fSettings["FisheyeCamera.image_width"];
+        float image_height = fSettings["FisheyeCamera.image_height"];
+
+
+        std::string correction_table_name = fSettings["FisheyeCamera.correction_table"];
+
+        for(int v = 0;v<mNview;v++)
+        {
+            std::stringstream v_prefix;
+            v_prefix<<"FisheyeCamera.view"<<v<<".";
+
+
+            float yaw = fSettings[v_prefix.str()+"yaw"];
+            float pitch = fSettings[v_prefix.str()+"pitch"];
+            float raw = fSettings[v_prefix.str()+"raw"];
+
+            std::vector<float> crop_size;
+            fSettings[v_prefix.str()+"crop_size"] >> crop_size;
+            float scale = fSettings[v_prefix.str()+"scale"];
+
+            float vertical_range = fSettings[v_prefix.str()+"vertical_range"];
+            float horizontal_range = fSettings[v_prefix.str()+"horizontal_range"];
+
+
+            mvCorrectors[v] = FisheyeCorrector(correction_table_name, image_height, image_width, pixel_height, f_image_,vertical_range , horizontal_range);
+            mvCorrectors[v].setAxisDirection(yaw, pitch, raw);//30,35,-7
+            mvCorrectors[v].updateMap();
+            mvCorrectors[v].setClipRegion(cv::Rect(cv::Point(crop_size[0], crop_size[1]), cv::Point(mvCorrectors[v].getCorrectedSize().width-crop_size[2], mvCorrectors[v].getCorrectedSize().height -crop_size[3])));
+            print_vector(crop_size,true);
+            if(scale!=1)
+            mvCorrectors[v].setSizeScale(scale);
+        }
+
+    }
+
 
 
 

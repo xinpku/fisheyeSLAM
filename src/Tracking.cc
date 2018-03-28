@@ -127,6 +127,9 @@ printON;
             t.copyTo(mvTgc[i](cv::Range(0, 3), cv::Range(3, 4)));
             mvTcg[i] = mvTgc[i].inv();
         }
+
+        generateCorrector(strSettingPath);
+
     }
 
 

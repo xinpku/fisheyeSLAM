@@ -5,10 +5,10 @@
 #--------------------------------------------------------------------------------------------
 
 # Camera calibration and distortion parameters (OpenCV) 
-Camera.fx: 306.60
-Camera.fy: 306.60
-Camera.cx: 257
-Camera.cy: 331
+Camera.fx: 200
+Camera.fy: 200
+Camera.cx: 1028
+Camera.cy: 1028
 
 Camera.k1: 0
 Camera.k2: 0
@@ -16,8 +16,8 @@ Camera.p1: 0
 Camera.p2: 0
 Camera.k3: 0
 
-Camera.width: 445
-Camera.height: 445
+Camera.width: 3000
+Camera.height: 3000
 
 # Camera frames per second 
 Camera.fps: 15.0
@@ -85,3 +85,42 @@ camera2.C: [ 100.62, -146.16, 102.08 ]
 #rear
 camera3.R: [ 1.76027, 1.5948, -0.83195 ]
 camera3.C: [ 1.40618, 4.45921, 1.01059 ]
+
+
+#--------------------------------------------------------------------------------------------
+# Fisheye MultiView Parameters
+#--------------------------------------------------------------------------------------------
+
+FisheyeCamera.n_view: 3
+FisheyeCamera.pixel_height: 0.0042
+FisheyeCamera.f: 306.605
+FisheyeCamera.image_width: 1280
+FisheyeCamera.image_height: 720
+FisheyeCamera.correction_table: "calib_data/sw4066.txt"
+
+#View0
+FisheyeCamera.view0.yaw: 0
+FisheyeCamera.view0.pitch: 40
+FisheyeCamera.view0.raw: 0
+FisheyeCamera.view0.scale: 1
+FisheyeCamera.view0.vertical_range: 60
+FisheyeCamera.view0.horizontal_range: 40
+FisheyeCamera.view0.crop_size: [ 0, 475, 0, 500 ]
+
+#View1
+FisheyeCamera.view1.yaw: 80
+FisheyeCamera.view1.pitch: 40
+FisheyeCamera.view1.raw: -15
+FisheyeCamera.view1.scale: 1
+FisheyeCamera.view1.vertical_range: 50
+FisheyeCamera.view1.horizontal_range: 30
+FisheyeCamera.view1.crop_size: [ 0, 605, 0, 0 ]
+
+#View2
+FisheyeCamera.view2.yaw: -80
+FisheyeCamera.view2.pitch: 40
+FisheyeCamera.view2.raw: 15
+FisheyeCamera.view2.scale: 1
+FisheyeCamera.view2.vertical_range: 50
+FisheyeCamera.view2.horizontal_range: 30
+FisheyeCamera.view2.crop_size: [ 0, 605, 0, 0 ]

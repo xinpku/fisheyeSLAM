@@ -231,8 +231,8 @@ public:
     std::vector<cv::Mat> mvRcwSubcamera;
     std::vector<cv::Mat> mvtcwSubcamera;
     // Constructor for multiple Monocular cameras.
-    Frame(const std::vector<cv::Mat> &imGrays, const double &timeStamp, ORBextractor* extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth, std::vector<cv::Mat>& Tcm);
-    void ExtractORBGroupCamera(const std::vector<cv::Mat> &ims);
+    Frame(const std::vector<cv::Mat> &imGrays, std::vector<FisheyeCorrector> &correctors, const double &timeStamp, ORBextractor* extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth, std::vector<cv::Mat>& Tcm);
+    void ExtractORBGroupCamera(const std::vector<cv::Mat> &imGrays, std::vector<FisheyeCorrector> &correctors);
     // Compute Bag of Words representation.
 
 
