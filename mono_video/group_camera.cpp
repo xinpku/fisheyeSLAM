@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 
         // Pass the image to the SLAM system
         SLAM.TrackGroupCamera(fisheye_ims,tframe);
-
+        SLAM.updateDrawer();
 
         if (SLAM.GetTrackingState() == 3 || (ni>=30&&ni%30==0))
         {

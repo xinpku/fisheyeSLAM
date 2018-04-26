@@ -862,6 +862,13 @@ void System::SaveMapClouds(const string &filename)
         vocabularyKeyFrame.saveToBinFile("keyframeVoc.bin");
     }
 
-
+    int System::updateDrawer()
+    {
+        cv::namedWindow("Frame",0);
+        cv::Mat im = mpFrameDrawer->DrawFrame();
+        cv::imshow("Frame",im);
+        /*debugDrawer.draw();
+        debugDrawer.clear_draw();*/
+    }
 
 } //namespace ORB_SLAM

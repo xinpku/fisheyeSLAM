@@ -60,3 +60,26 @@ Viewer.ViewpointY: -0.7
 Viewer.ViewpointZ: -1.8
 Viewer.ViewpointF: 500
 
+
+
+#front
+GroupCamera.VideoName.0: "front.avi"
+camera0.R: [ -1.9981, -0.079093, 0.046174 ]
+camera0.C: [ 0, 0, 65.242 ]
+#camera0.R: [ 0, 0, 0 ]
+#camera0.C: [ 0, 0, 0 ]
+#left
+GroupCamera.VideoName.1: "left.avi"
+camera1.R: [ -1.6742, -1.7736, 0.94324 ]
+camera1.C: [ -79.129, -162.15, 103.56 ]
+#right
+GroupCamera.VideoName.2: "right.avi"
+camera2.R: [ -1.5821, 1.5275, -0.94786 ]
+camera2.C: [ 100.62, -146.16, 102.08 ]
+#rear
+GroupCamera.VideoName.3: "rear.avi"
+camera3.R: [ -0.12629,      2.7658,       -1.4447 ]
+camera3.C: [ 39.606,      -417.83,       152.65]
+
+#camera3.R: [ 1.76027, 1.5948, -0.83195 ]
+#camera3.C: [ 1.40618, 4.45921, 1.01059 ]

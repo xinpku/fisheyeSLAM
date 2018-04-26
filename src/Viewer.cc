@@ -87,7 +87,7 @@ void Viewer::Run()
     pangolin::OpenGlMatrix Twc;
     Twc.SetIdentity();
 
-    cv::namedWindow("ORB-SLAM2: Current Frame",0);
+    //cv::namedWindow("ORB-SLAM2: Current Frame",0);
 
     bool bFollow = true;
     bool bLocalizationMode = false;
@@ -169,12 +169,12 @@ void Viewer::Run()
 		//sst.clear();
 		//sst.str("");
 		//sst << "frame\\frame" << setfill('0') << setw(7) << mpFrameDrawer->frame_time_stamp<<".png";
-		cv::Mat im = mpFrameDrawer->DrawFrame();
-		cv::imshow("ORB-SLAM2: Current Frame",im);
+		//cv::Mat im = mpFrameDrawer->DrawFrame();
+		//cv::imshow("ORB-SLAM2: Current Frame",im);
 		//if (!im.empty())
 		//	cv::imwrite(sst.str(), im);
 		//
-        cv::waitKey(mT);
+        //cv::waitKey(mT);
 
         if(menuReset)
         {
