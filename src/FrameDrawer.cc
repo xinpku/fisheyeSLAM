@@ -46,6 +46,16 @@ cv::Mat FrameDrawer::DrawFrame()
     vector<bool> vbVO, vbMap; // Tracked MapPoints in current frame
     int state; // Tracking state
 
+
+
+    std::vector<cv::Scalar> colors;
+    colors.push_back(cv::Scalar(0,0,255));
+    colors.push_back(cv::Scalar(0,255,0));
+    colors.push_back(cv::Scalar(255,0,0));
+    colors.push_back(cv::Scalar(255,0,255));
+
+
+
     //Copy variables within scoped mutex
     {
         unique_lock<mutex> lock(mMutex);
@@ -127,14 +137,14 @@ cv::Mat FrameDrawer::DrawFrame()
                 // This is a match to a MapPoint in the map
                 if(vbMap[i])
                 {
-                    cv::rectangle(im,pt1,pt2,cv::Scalar(255,0,0));
+                    cv::rectangle(im,pt1,pt2,colors[mvMapPointID[i]]);
                     //cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(0,255,0),-1);
                     mnTracked++;
 
                 }
                 else // This is match to a "visual odometry" MapPoint created in the last frame
                 {
-                    cv::rectangle(im,pt1,pt2,cv::Scalar(0,255,0));
+                    cv::rectangle(im,pt1,pt2,cv::Scalar(0,0,0));
                     //cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(255,0,0),-1);
                     mnTrackedVO++;
                 }
@@ -196,6 +206,7 @@ void FrameDrawer::Update(Tracking *pTracker)
     N = mvCurrentKeys.size();
     mvbVO = vector<bool>(N,false);
     mvbMap = vector<bool>(N,false);
+    mvMapPointID = vector<int>(N,-1);
     mbOnlyTracking = pTracker->mbOnlyTracking;
 
 
@@ -217,6 +228,7 @@ void FrameDrawer::Update(Tracking *pTracker)
                         mvbMap[i]=true;
                     else
                         mvbVO[i]=true;
+                    mvMapPointID[i] = pMP->created_by_kf1;
                 }
             }
         }

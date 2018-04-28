@@ -153,7 +153,7 @@ namespace ORB_SLAM2
     {
         cv::FileStorage fSettings(setting_file_path, cv::FileStorage::READ);
         mNview = fSettings["FisheyeCamera.n_view"];
-        mvCorrectors.resize(3);
+        mvCorrectors.resize(mNview);
 
         float pixel_height = fSettings["FisheyeCamera.pixel_height"];
         float f_image_ = fSettings["FisheyeCamera.f"];
@@ -750,7 +750,7 @@ namespace ORB_SLAM2
             //Create MapPoint.
             cv::Mat worldPos(mvIniP3D[i]);
             MapPoint* pMP = new MapPoint(worldPos,pKFcur,mpMap);
-            print_vect_cv(pMP->GetWorldPos(),i<30)
+            //print_vect_cv(pMP->GetWorldPos(),i<30)
             pMP->created_by_kf1 = pKFini->mvCamera_Id_KeysUn[i];
             //****initialize semantic information
             KeyFrame* semantic_source;

@@ -57,6 +57,7 @@ protected:
     int N;
     vector<cv::KeyPoint> mvCurrentKeys;
     vector<bool> mvbMap, mvbVO;
+    std::vector<int> mvMapPointID;
     bool mbOnlyTracking;
     int mnTracked, mnTrackedVO;
     vector<cv::KeyPoint> mvIniKeys;

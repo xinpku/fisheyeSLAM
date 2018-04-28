@@ -254,6 +254,7 @@ public:
 
     vector<size_t> GetFeaturesInAreaSubCamera(const float &x, const float  &y, const float  &r, const int minLevel, const int maxLevel,int cameraID) const;
 
+    void ComputeStereoGroupCamera();
 };
 
 }// namespace ORB_SLAM

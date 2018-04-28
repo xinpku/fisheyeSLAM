@@ -123,7 +123,7 @@ printON;
             R.copyTo(mvTgc[i](cv::Range(0, 3), cv::Range(0, 3)));
             //cv::Mat t = -R.t()*cv::Mat(C);
             cv::Mat t = cv::Mat(C);
-            //t *= 0.1;
+            t *= 10;
             t.copyTo(mvTgc[i](cv::Range(0, 3), cv::Range(3, 4)));
             mvTcg[i] = mvTgc[i].inv();
         }

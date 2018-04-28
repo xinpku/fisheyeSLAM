@@ -25,7 +25,7 @@ namespace ORB_SLAM2
                 if (pMP->isBad())
                     continue;
 
-                print_value(pMP->mvbTrackInView[c],c==0&&pMP->created_by_kf1==-1)
+
 
                 const int &nPredictedLevel = pMP->mvnTrackScaleLevel[c];
 
@@ -139,6 +139,10 @@ namespace ORB_SLAM2
             for (int i = 0; i<LastFrame.N; i++)
             {
                 MapPoint* pMP = LastFrame.mvpMapPoints[i];
+
+                if(LastFrame.mvCamera_Id_KeysUn[i]!=c)
+                    continue;
+
 
                 if (pMP)
                 {

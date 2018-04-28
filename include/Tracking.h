@@ -246,6 +246,8 @@ public:
         //Functions and variables related to the groupCamera
     std::vector<cv::Mat> mvTgc;
     std::vector<cv::Mat> mvTcg;
+    std::vector<cv::pair<int,int>> mvRelatedCamera;
+    std::vector<cv::Mat> mvFCameras;
     int mNcameras;
     float mDepthScale = 1;
 

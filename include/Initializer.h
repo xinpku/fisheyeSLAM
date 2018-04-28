@@ -108,6 +108,7 @@ public:
 
 };
 
+    cv::Mat ComputeF12(const cv::Mat& R12,const cv::Mat& t12,const cv::Mat& K1,const cv::Mat& K2);
 } //namespace ORB_SLAM
 
 #endif // INITIALIZER_H

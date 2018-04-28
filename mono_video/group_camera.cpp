@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 
         videos[i].open(video_path+video_name[i]);
         if(!videos[i].isOpened())
-            std::cout<<"Open video fail "<<i<<std::endl;
+            std::cout<<"Open video fail "<<i<<":"<<std::endl<<video_path+video_name[i]<<std::endl;
     }
 
 

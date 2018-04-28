@@ -1,0 +1,68 @@
+#You
+
+GroupCamera.n_frame: 4
+#front
+GroupCamera.VideoName.0: "front.avi"
+camera0.R: [ 0 ,     0.46436,      -3.1071 ]
+camera0.C: [ 0,         0.65,         1.45 ]
+#camera0.R: [ 0, 0, 0 ]
+#camera0.C: [ 0, 0, 0 ]
+#left
+GroupCamera.VideoName.1: "left.avi"
+camera1.R: [ 1.9046,     -0.67445,       1.8433 ]
+camera1.C: [ 0.92499 ,      1.0444,     -0.13112 ]
+#right
+GroupCamera.VideoName.2: "right.avi"
+camera2.R: [ 1.9706,      0.50994,      -1.9093 ]
+camera2.C: [ -0.99729,      0.99494,    -0.094336 ]
+#rear
+GroupCamera.VideoName.3: "rear.avi"
+camera3.R: [ 2.4007,     0.031287,    0.0031779 ]
+camera3.C: [ -0.076303,      0.96447,      -2.8249]
+
+#camera3.R: [ 1.76027, 1.5948, -0.83195 ]
+#camera3.C: [ 1.40618, 4.45921, 1.01059 ]
+
+
+
+#mine
+
+
+#front
+GroupCamera.VideoName.0: "front.avi"
+camera0.R: [ -1.9981, -0.079093, 0.046174 ]
+camera0.C: [ 0, 0, 65.242 ]
+#camera0.R: [ 0, 0, 0 ]
+#camera0.C: [ 0, 0, 0 ]
+#left
+GroupCamera.VideoName.1: "left.avi"
+camera1.R: [ -1.6742, -1.7736, 0.94324 ]
+camera1.C: [ -79.129, -162.15, 103.56 ]
+#right
+GroupCamera.VideoName.2: "right.avi"
+camera2.R: [ -1.5821, 1.5275, -0.94786 ]
+camera2.C: [ 100.62, -146.16, 102.08 ]
+#rear
+GroupCamera.VideoName.3: "rear.avi"
+camera3.R: [ -0.12629,      2.7658,       -1.4447 ]
+camera3.C: [ 39.606,      -417.83,       152.65]
+
+#camera3.R: [ 1.76027, 1.5948, -0.83195 ]
+#camera3.C: [ 1.40618, 4.45921, 1.01059 ]
+
+
+
+#test
+2.2680,-0.06843,0.0758
+2.4367,6.0826,0.6390
+
+1.7602,1.594,-0.831
+ 1.4061,4.459,1.0105
+
+
+1.782,-1.588,0.7853
+3.323,4.339,1.024
+
+
+0.0317,2.874,-1.153
+2.3068,1.656,1.074
