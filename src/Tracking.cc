@@ -108,6 +108,14 @@ printON;
         mvTcg.resize(mNcameras);
         mpMapDrawer->mGroupCameraPose.resize(mNcameras);
 
+        std::vector<float> relation;
+        fSettings["GroupCamera.Relation"] >> relation;
+        for(int i = 0;i<relation.size();i+=2)
+        {
+            mvRelatedCamera.push_back(std::pair<int,int>(relation[i],relation[i+1]));
+        }
+        mvF_relatedCameras.resize(mvRelatedCamera.size());
+
         for (int i = 0; i < mNcameras; i++)
         {
             std::stringstream sst;
@@ -123,9 +131,19 @@ printON;
             R.copyTo(mvTgc[i](cv::Range(0, 3), cv::Range(0, 3)));
             //cv::Mat t = -R.t()*cv::Mat(C);
             cv::Mat t = cv::Mat(C);
-            t *= 10;
+            //t *= 10;
             t.copyTo(mvTgc[i](cv::Range(0, 3), cv::Range(3, 4)));
             mvTcg[i] = mvTgc[i].inv();
+
+        }
+
+
+        for(int i = 0;i<mvRelatedCamera.size();i++)
+        {
+            int cam1 = mvRelatedCamera[i].first;
+            int cam2 = mvRelatedCamera[i].second;
+            cv::Mat T12 = mvTcg[cam1]*mvTgc[cam2];
+            mvF_relatedCameras[i] = ComputeF12(T12.colRange(0,3).rowRange(0,3),T12.rowRange(0,3).col(3),mK,mK);
         }
 
         generateCorrector(strSettingPath);

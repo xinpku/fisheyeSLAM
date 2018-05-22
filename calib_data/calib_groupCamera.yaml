@@ -89,11 +89,18 @@ camera3.C: [ -0.076303,      0.96447,      -2.8249]
 #camera3.R: [ 1.76027, 1.5948, -0.83195 ]
 #camera3.C: [ 1.40618, 4.45921, 1.01059 ]
 
+#camera3.R: [ 1.76027, 1.5948, -0.83195 ]
+#camera3.C: [ 1.40618, 4.45921, 1.01059 ]
+
+
+GroupCamera.Relation: []
+#GroupCamera.Relation: [0, 1, 0, 2]
+
 #--------------------------------------------------------------------------------------------
 # Fisheye MultiView Parameters
 #--------------------------------------------------------------------------------------------
 
-FisheyeCamera.n_view: 3
+FisheyeCamera.n_view: 1
 FisheyeCamera.pixel_height: 0.0042
 FisheyeCamera.f: 306.605
 FisheyeCamera.image_width: 1280
@@ -110,19 +117,21 @@ FisheyeCamera.view0.horizontal_range: 40
 FisheyeCamera.view0.crop_size: [ 0, 475, 0, 500 ]
 
 #View1
-FisheyeCamera.view1.yaw: 80
-FisheyeCamera.view1.pitch: 40
-FisheyeCamera.view1.raw: -15
-FisheyeCamera.view1.scale: 1
-FisheyeCamera.view1.vertical_range: 50
-FisheyeCamera.view1.horizontal_range: 30
-FisheyeCamera.view1.crop_size: [ 0, 605, 0, 0 ]
+#FisheyeCamera.view1.yaw: 80
+#FisheyeCamera.view1.pitch: 40
+#FisheyeCamera.view1.raw: -15
+#FisheyeCamera.view1.scale: 1
+#FisheyeCamera.view1.vertical_range: 50
+#FisheyeCamera.view1.horizontal_range: 30
+#FisheyeCamera.view1.crop_size: [ 0, 605, 0, 0 ]
 
 #View2
-FisheyeCamera.view2.yaw: -80
-FisheyeCamera.view2.pitch: 40
-FisheyeCamera.view2.raw: 15
-FisheyeCamera.view2.scale: 1
-FisheyeCamera.view2.vertical_range: 50
-FisheyeCamera.view2.horizontal_range: 30
-FisheyeCamera.view2.crop_size: [ 0, 605, 0, 0 ]
+#FisheyeCamera.view2.yaw: -80
+#FisheyeCamera.view2.pitch: 40
+#FisheyeCamera.view2.raw: 15
+#FisheyeCamera.view2.scale: 1
+#FisheyeCamera.view2.vertical_range: 50
+#FisheyeCamera.view2.horizontal_range: 30
+#FisheyeCamera.view2.crop_size: [ 0, 605, 0, 0 ]
+
+

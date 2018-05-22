@@ -39,6 +39,7 @@
 #include "System.h"
 #include "GroupCamera/InitializerGroupCamera.h"
 #include <mutex>
+#include <map>
 
 namespace ORB_SLAM2
 {
@@ -246,8 +247,10 @@ public:
         //Functions and variables related to the groupCamera
     std::vector<cv::Mat> mvTgc;
     std::vector<cv::Mat> mvTcg;
-    std::vector<cv::pair<int,int>> mvRelatedCamera;
-    std::vector<cv::Mat> mvFCameras;
+
+    //TODO stereo between group cameras
+    std::vector<std::pair<int,int>> mvRelatedCamera;
+    std::vector<cv::Mat> mvF_relatedCameras;
     int mNcameras;
     float mDepthScale = 1;
 
@@ -267,6 +270,8 @@ public:
     void MonocularInitializationGroupCamera();
     void CreateInitialMapMonocularGroupCamera();
 
+    // Map initialization for stereo and RGB-D
+    void StereoInitializationGroupCamera();
 
     bool NeedNewKeyFrameGroupCamera();
     void CreateNewKeyFrameGroupCamera();

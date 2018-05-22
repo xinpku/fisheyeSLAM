@@ -185,6 +185,7 @@ namespace ORB_SLAM2
             mvCorrectors[v].setAxisDirection(yaw, pitch, raw);//30,35,-7
             mvCorrectors[v].updateMap();
             mvCorrectors[v].setClipRegion(cv::Rect(cv::Point(crop_size[0], crop_size[1]), cv::Point(mvCorrectors[v].getCorrectedSize().width-crop_size[2], mvCorrectors[v].getCorrectedSize().height -crop_size[3])));
+
             print_vector(crop_size,true);
             if(scale!=1)
             mvCorrectors[v].setSizeScale(scale);
@@ -214,6 +215,7 @@ namespace ORB_SLAM2
                 StereoInitialization();
             else if(mSensor == System::GROUPCAMERA)
                 MonocularInitializationGroupCamera();
+                //StereoInitializationGroupCamera();
             else if(mSensor == System::MONOCULAR)
                 MonocularInitialization();
 
@@ -388,14 +390,8 @@ namespace ORB_SLAM2
                 else
                     mVelocity = cv::Mat();
 
-                mpMapDrawer->SetCurrentCameraPose(mCurrentFrame.mTcw);
-                mpMapDrawer->mGroupCameraPose.resize(mNcameras);
-                print_value(mCurrentFrame.mnId);
-                print_mat(mCurrentFrame.mTcw);
-                for(int c = 0;c<mNcameras;c++)
-                {
-                    mpMapDrawer->mGroupCameraPose[c]  = mCurrentFrame.mvTcwSubcamera[c].clone();
-                }
+                mpMapDrawer->SetCurrentCameraPose(mCurrentFrame.mTcw,mCurrentFrame.mvTcwSubcamera);
+
                 // Clean temporal point matches
                 for(int i=0; i<mCurrentFrame.N; i++)
                 {
@@ -737,6 +733,8 @@ namespace ORB_SLAM2
         pKFini->ComputeBoW();
         pKFcur->ComputeBoW();
 
+        pKFini->ComputeStereoGroupCamera(mvRelatedCamera,mvF_relatedCameras);
+        pKFcur->ComputeStereoGroupCamera(mvRelatedCamera,mvF_relatedCameras);
         // Insert KFs in the map
         mpMap->AddKeyFrame(pKFini);
         mpMap->AddKeyFrame(pKFcur);
@@ -863,6 +861,8 @@ namespace ORB_SLAM2
             }
         }
 
+
+
         mpLocalMapper->InsertKeyFrame(pKFini);
         mpLocalMapper->InsertKeyFrame(pKFcur);
 
@@ -880,21 +880,58 @@ namespace ORB_SLAM2
 
         mpMap->SetReferenceMapPoints(mvpLocalMapPoints);
 
-        mpMapDrawer->SetCurrentCameraPose(pKFcur->GetPose());
-
-        mpMapDrawer->mGroupCameraPose.resize(mNcameras);
-
-
-        for(int c = 0;c<mNcameras;c++)
-        {
-            mpMapDrawer->mGroupCameraPose[c]  = pKFcur->mvTcwSubcamera[c].clone();
-        }
-
+        mpMapDrawer->SetCurrentCameraPose(pKFcur->GetPose(),pKFcur->mvTcwSubcamera);
 
         mpMap->mvpKeyFrameOrigins.push_back(pKFini);
 
         mState=OK;
     }
+
+
+    void Tracking::StereoInitializationGroupCamera()
+    {
+        if(mCurrentFrame.N>500)
+        {
+            // Set Frame pose to the origin
+            mCurrentFrame.SetPose(cv::Mat::eye(4,4,CV_32F));
+
+            // Create KeyFrame
+            KeyFrame* pKFini = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
+            pKFini->ComputeBoW();
+            // Insert KeyFrame in the map
+            mpMap->AddKeyFrame(pKFini);
+
+            // Create MapPoints and asscoiate to KeyFrame
+            pKFini->ComputeStereoGroupCamera(mvRelatedCamera,mvF_relatedCameras);
+
+            if(mpMap->MapPointsInMap()<100)
+                return;
+            cout << "New map created with " << mpMap->MapPointsInMap() << " points" << endl;
+
+            mpLocalMapper->InsertKeyFrame(pKFini);
+
+            mLastFrame = Frame(mCurrentFrame);
+            mnLastKeyFrameId=mCurrentFrame.mnId;
+            mpLastKeyFrame = pKFini;
+
+            mvpLocalKeyFrames.push_back(pKFini);
+            mvpLocalMapPoints=mpMap->GetAllMapPoints();
+            mpReferenceKF = pKFini;
+            mCurrentFrame.mpReferenceKF = pKFini;
+
+            mpMap->SetReferenceMapPoints(mvpLocalMapPoints);
+
+            mpMap->mvpKeyFrameOrigins.push_back(pKFini);
+
+            mpMapDrawer->SetCurrentCameraPose(pKFini->GetPose(),pKFini->mvTcwSubcamera);
+
+
+            mState=OK;
+        }
+    }
+
+
+
 
 
     bool Tracking::NeedNewKeyFrameGroupCamera()
@@ -1002,68 +1039,8 @@ namespace ORB_SLAM2
         mpReferenceKF = pKF;
         mCurrentFrame.mpReferenceKF = pKF;
 
-        if(mSensor!=System::MONOCULAR&&mSensor!=System::GROUPCAMERA)
-        {
-            mCurrentFrame.UpdatePoseMatrices();
-
-            // We sort points by the measured depth by the stereo/RGBD sensor.
-            // We create all those MapPoints whose depth < mThDepth.
-            // If there are less than 100 close points we create the 100 closest.
-            vector<pair<float,int> > vDepthIdx;
-            vDepthIdx.reserve(mCurrentFrame.N);
-            for(int i=0; i<mCurrentFrame.N; i++)
-            {
-                float z = mCurrentFrame.mvDepth[i];
-                if(z>0)
-                {
-                    vDepthIdx.push_back(make_pair(z,i));
-                }
-            }
-
-            if(!vDepthIdx.empty())
-            {
-                sort(vDepthIdx.begin(),vDepthIdx.end());
-
-                int nPoints = 0;
-                for(size_t j=0; j<vDepthIdx.size();j++)
-                {
-                    int i = vDepthIdx[j].second;
-
-                    bool bCreateNew = false;
-
-                    MapPoint* pMP = mCurrentFrame.mvpMapPoints[i];
-                    if(!pMP)
-                        bCreateNew = true;
-                    else if(pMP->Observations()<1)
-                    {
-                        bCreateNew = true;
-                        mCurrentFrame.mvpMapPoints[i] = static_cast<MapPoint*>(NULL);
-                    }
-
-                    if(bCreateNew)
-                    {
-                        cv::Mat x3D = mCurrentFrame.UnprojectStereo(i);
-                        MapPoint* pNewMP = new MapPoint(x3D,pKF,mpMap);
-                        pNewMP->mSemanticClass = mCurrentFrame.mvSemanticClass[i];
-                        pNewMP->AddObservation(pKF,i);
-                        pKF->AddMapPoint(pNewMP,i);
-                        pNewMP->ComputeDistinctiveDescriptors();
-                        pNewMP->UpdateNormalAndDepth();
-                        mpMap->AddMapPoint(pNewMP);
-
-                        mCurrentFrame.mvpMapPoints[i]=pNewMP;
-                        nPoints++;
-                    }
-                    else
-                    {
-                        nPoints++;
-                    }
-
-                    if(vDepthIdx[j].first>mThDepth && nPoints>100)
-                        break;
-                }
-            }
-        }
+        pKF->ComputeBoW();
+        pKF->ComputeStereoGroupCamera(mvRelatedCamera,mvF_relatedCameras);
 
         mpLocalMapper->InsertKeyFrame(pKF);
         mpLocalMapper->SetNotStop(false);

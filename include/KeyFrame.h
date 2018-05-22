@@ -269,7 +269,8 @@ public:
     float ComputeSceneMedianDepthGroupCamera(const int q);
     void UpdateConnectionsGroupCamera();
     vector<size_t> GetFeaturesInAreaSubCamera(const float &x, const float &y, const float &r,int cameraID) const;
-
+    void ComputeStereoGroupCamera(std::vector<std::pair<int,int>> mvRelatedCamera,
+                                  std::vector<cv::Mat> mvF_relatedCameras);
 };
 
 } //namespace ORB_SLAM

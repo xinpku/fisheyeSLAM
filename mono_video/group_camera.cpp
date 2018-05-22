@@ -82,14 +82,15 @@ int main(int argc, char **argv)
                 cerr << endl << "Failed to load image at: " << vTimeCount << endl;
                 return 1;
             }
-
-            cv::cvtColor(fisheye_ims[c], fisheye_ims[c], cv::COLOR_BGR2GRAY);
         }
 
 
         if (ni < start_frame)
             continue;
-
+        for(int c =0;c<Ncameras;c++)
+        {
+            cv::cvtColor(fisheye_ims[c], fisheye_ims[c], cv::COLOR_BGR2GRAY);
+        }
 
         double tframe = vTimeCount;
 

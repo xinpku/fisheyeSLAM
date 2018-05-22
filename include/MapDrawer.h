@@ -64,6 +64,8 @@ private:
 
 public:
     std::vector<cv::Mat> mGroupCameraPose;
+    void SetCurrentCameraPose(const cv::Mat &Tcw,const std::vector<cv::Mat>& groupCameraPose);
+
 };
 
 } //namespace ORB_SLAM

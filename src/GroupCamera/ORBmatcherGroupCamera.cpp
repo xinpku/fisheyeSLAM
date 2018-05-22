@@ -924,7 +924,4 @@ namespace ORB_SLAM2
         return nFused;
     }
 
-
-
-
 }

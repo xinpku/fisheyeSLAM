@@ -456,6 +456,22 @@ void MapDrawer::SetCurrentCameraPose(const cv::Mat &Tcw)
     mCameraPose = Tcw.clone();
 }
 
+
+void MapDrawer::SetCurrentCameraPose(const cv::Mat &Tcw,const std::vector<cv::Mat>& groupCameraPose)
+{
+    unique_lock<mutex> lock(mMutexCamera);
+    mCameraPose = Tcw.clone();
+    mGroupCameraPose.resize(groupCameraPose.size());
+
+
+    for(int c = 0;c<mGroupCameraPose.size();c++)
+    {
+        mGroupCameraPose[c]  = groupCameraPose[c].clone();
+    }
+}
+
+
+
 void MapDrawer::GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M)
 {
     if(!mCameraPose.empty())
