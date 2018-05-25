@@ -142,6 +142,14 @@ protected:
 
 
     bool mnFullBAIdx;
+
+
+
+    //***********Variables and functions related to groupCamera
+    void RunGroupCamera();
+    bool ComputeSim3GroupCamera();
+    void CorrectLoopGroupCamera();
+    void SearchAndFuseGroupCamera(const KeyFrameAndPose &CorrectedPosesMap);
 };
 
 } //namespace ORB_SLAM

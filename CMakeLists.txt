@@ -101,7 +101,7 @@ src/fisheye_corrector/fisheye_corrector.cpp
         src/GroupCamera/InitializerGroupCamera.cpp
         src/GroupCamera/OptimizerGroupCamera.cpp
         src/GroupCamera/g2oEdgesAndVertex.cpp
-        src/GroupCamera/LocalMappingGroupCamera.cpp src/GroupCamera/MapDrawerGroupCamera.cpp)
+        src/GroupCamera/LocalMappingGroupCamera.cpp src/GroupCamera/MapDrawerGroupCamera.cpp src/GroupCamera/LoopClosingGroupCamera.cpp)
 
 target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}

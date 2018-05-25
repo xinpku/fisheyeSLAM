@@ -112,9 +112,6 @@ public:
     // Used in relocalization (Tracking)
     int SearchByProjectionGroupCamera(Frame &CurrentFrame, KeyFrame* pKF, const std::set<MapPoint*> &sAlreadyFound, const float th, const int ORBdist);
 
-    // Project MapPoints using a Similarity Transformation and search matches.
-    // Used in loop detection (Loop Closing)
-    int SearchByProjectionGroupCamera(KeyFrame* pKF, cv::Mat Scw, const std::vector<MapPoint*> &vpPoints, std::vector<MapPoint*> &vpMatched, int th);
 
     // Search matches between MapPoints in a KeyFrame and ORB in a Frame.
     // Brute force constrained to ORB that belong to the same vocabulary node (at a certain level)
@@ -130,6 +127,13 @@ public:
 
     // Project MapPoints into KeyFrame and search for duplicated MapPoints.
     int FuseGroupCamera(KeyFrame* pKF, const vector<MapPoint *> &vpMapPoints, const float th=3.0);
+    int SearchBySim3GroupCamera(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint*> &vpMatches12,
+                                            const float &s12, const cv::Mat &R12, const cv::Mat &t12, const float th);
+
+    // Project MapPoints using a Similarity Transformation and search matches.
+    // Used in loop detection (Loop Closing)
+    int SearchByProjectionGroupCamera(KeyFrame* pKF, cv::Mat Scw, const std::vector<MapPoint*> &vpPoints, std::vector<MapPoint*> &vpMatched, int th);
+
 
 };
 

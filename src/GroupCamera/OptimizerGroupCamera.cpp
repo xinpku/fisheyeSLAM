@@ -783,6 +783,11 @@ namespace ORB_SLAM2
     }
 
 
+
+
+
+    //Functions used by loop closing
+
     void Optimizer::OptimizeEssentialGraphGroupCamera(Map* pMap, KeyFrame* pLoopKF, KeyFrame* pCurKF,
                                            const LoopClosing::KeyFrameAndPose &NonCorrectedSim3,
                                            const LoopClosing::KeyFrameAndPose &CorrectedSim3,
