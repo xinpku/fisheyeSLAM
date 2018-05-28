@@ -1,0 +1,24 @@
+%  -*- coding: utf-8 -*-
+% !TEX program = xelatex
+
+\documentclass{article}
+
+\newtheorem{thm}{Theorem}
+
+\begin{document}
+
+\title{A Simple LaTeX Article}
+$$ \frac{\partial (p_i-\omega(X_w,\xi))}{\partial  \xi }$$
+$$=- \frac{\partial \omega }{\partial X_c }  \frac{\partial X_c }{\partial \xi}$$
+$$=- \frac{\partial (K\cdot X_c)_{cart}}{\partial X_c }  \frac{\partial X_c }{\partial \xi}$$
+$$=-\frac{\partial (K\cdot X_c)_{cart}}{\partial X_c }\frac{\partial (T_{cw}\cdot X_w) }{\partial \xi}$$
+$$=-\frac{\partial (K\cdot X_c)_{cart}}{\partial X_c }\cdot(-(X_c)_\times\,|I )$$
+$$=-\frac{\partial \begin{pmatrix}  \frac{f_x \cdot x_c}{z_c}+c_x  \\  \frac{f_y \cdot y_c}{z_c}+c_y   \end{pmatrix}}{\partial X_c }\cdot(-(X_c)_\times\,|I )$$
+
+
+$$=
+-
+\begin{pmatrix}  \frac{f_x}{z_c}&0&\frac{-f_x\cdot x_c}{z_c^2}  \\ 0& \frac{f_y }{z_c}  & \frac{-f_y\cdot y_c}{z_c^2} \end{pmatrix}\cdot(-(X_c)_\times\,|I )$$
+$$=
+\begin{pmatrix}  \frac{f_x}{z_c}&0&\frac{-f_x\cdot x_c}{z_c^2}  \\ 0& \frac{f_y }{z_c}  & \frac{-f_y\cdot y_c}{z_c^2} \end{pmatrix}\cdot(\begin{pmatrix} 0&-z_c&y_c\\z_c&0&-x_c\\-y_c&x_c&0\end{pmatrix}\,|-I )$$
+\end{document}

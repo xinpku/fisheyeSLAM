@@ -1,0 +1,76 @@
+%  -*- coding: utf-8 -*-
+% !TEX program = xelatex
+
+\documentclass{beamer}
+
+\usetheme{Boadilla} % AnnArbor, Boadilla, CambridgeUS, Madrid, Rochester
+
+\newtheorem{thm}{Theorem}
+
+\begin{document}
+
+\begin{frame}
+\frametitle {Current State}
+The program works well in monocular model. When add a new camera to the system, tracking fail. Noting that in the map drawed in the window, only the points observed by left camera, the initial camera, can be see. But the log shows that there are 200+ points created in localMapping thread and front camera can track many points.
+
+
+The relative poses of left and right camera are derived from front camera, so it's strange that none mappoints are created by front camera while the left and right camera are normal.
+
+I added many output code in Local Mapping. It's shows that the cosParallaxRays are too large, so there is no points created in front camera.
+
+I found that the parallax checking is not reasonable in group camera case. Please refer to TODO in LocalMappingGroupCamera for next step.
+
+There are some feature correspondence crossing the cameras and is wrong. Please check out.
+\frametitle {Finished all functions in ORBmatcher}
+\item $\quad$ Functions about relocalization and loopclosing need to be implemented 
+
+\frametitle {Finished all functions in Tracking}
+\item $\quad$ The Initilization needs refactor. Only c <-> c correspondences are searched. May we change the framework to create a schema like searchForTriangular. Notice that SearchForInitialization the correspondence points may from different camera(The problem is partialy solved.)
+\item $\quad$Now, we use the view point that first successfully initilized. It's more reasonable to use the best initial view point.
+\frametitle {Finished all functions in LocalMapping}
+
+\frametitle {Finished all functions in Optimizer}
+\frametitle {Finished all functions about loopclosure}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Implementation notes}
+\item The creation of key frame should be adjust for group camera.
+\item The construction function of frame create the inverse of Tcg
+\item The initialization has the forward direction assumption.
+\item The initial map may have many redundent points if all the view points are used.
+\item UpdateConnections may effect by replicated map points. Replace with groupCamera version.
+\item Because the keypoints of different cameras are save in the same vector, a map point may have many correspondences belonging to different camera, which means that the map point can be seen by different camera. Consider the situation that the map points may have duplicated correspondence candidates in searchByProjection which from different cameras. We may should deal the origin of the keypoints in search correspondences. Change the loop form of SearchByProjectionGroupCamera(Frame, MapPoints) to allow the multi observation of map points.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Work notes}
+\item The frame size of each camera should be the same now. Mainly used in IsInFrustum and SearchByProjection.
+\item In the construction function of Frame for load map, the image size should set to 2*cx etc.
+\item Finished the adjustments of Frame and keyframe
+\item Need to synclize the mapPoint, LocalMapping and ORBmatcher
+\item Tracking for group camera needs to be implemented
+\item Optimzation for group camera needs to be implemented
+\end{frame}
+
+\begin{frame}
+\frametitle{Work Logs}
+\item The member variables in MapPoint should prepare for every camera.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{InitializerGroupCamera}
+\item The initialize has been finished.
+\item Now, we use the view point that first successfully initilized. It's more reasonable to use the best initial view point.
+\item To suppress the difficulty, only use the initial map points of initialized view points. Then the mapping thread will add new map points to other view points.
+
+\end{frame}
+
+
+\end{document}

@@ -1,0 +1,526 @@
+/home/xin/Projects/FisheyeSLAM/mono_video/mono_video Vocabulary/ORBvoc.txt calib_data/calib_fisheye_mono.yaml /media/xin/data/data_parking/front.avi calib_data/sw4066.txt None 300
+
+ORB-SLAM2 Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza.
+This program comes with ABSOLUTELY NO WARRANTY;
+This is free software, and you are welcome to redistribute it
+under certain conditions. See LICENSE.txt.
+
+Input sensor was set to: Monocular
+
+Loading ORB Vocabulary. This could take a while...
+Vocabulary loaded!
+
+
+Camera Parameters: 
+- fx: 349.56
+- fy: 349.56
+- cx: 293
+- cy: 130
+- k1: 0
+- k2: 0
+- p1: 0
+- p2: 0
+- fps: 15
+begin print------------(Tracking)
+- color order: RGB (ignored if grayscale)
+
+ORB Extractor Parameters: 
+- Number of Features: 2000
+- Scale Levels: 8
+- Scale Factor: 1.2
+- Initial Fast Threshold: 35
+- Minimum Fast Threshold: 20
+end print ------------
+
+generate corrector
+720
+1280
+0.0042
+306.605
+input_width 1280input_height 720
+read distortion list
+1001
+Size of corrected imageis  width:586 height:1210
+Size of corrected imageis  width:586 height:235
+K:
+[349.5673217773438, 0, 293;
+ 0, 349.5673217773438, 130;
+ 0, 0, 1]
+
+-------
+Start processing sequence ...
+Images in the sequence: 8679
+
+start_frame300
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1351   (MonocularInitialization701)
+mCurrentFrame.mvKeys.size()>15  --- mpInitializer initialize
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1323   (MonocularInitialization701)
+  nmatches: 241   (MonocularInitialization741)
+secondBestGood 221
+bestParallax 0.582155 minParallax 1
+bestGood 221 minTriangulated 50 N 221
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1314   (MonocularInitialization701)
+  nmatches: 221   (MonocularInitialization741)
+secondBestGood 193
+bestParallax 4.20822 minParallax 1
+bestGood 193 minTriangulated 50 N 193
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1303   (MonocularInitialization701)
+  nmatches: 189   (MonocularInitialization741)
+secondBestGood 148
+bestParallax 4.60726 minParallax 1
+bestGood 148 minTriangulated 50 N 148
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1258   (MonocularInitialization701)
+  nmatches: 139   (MonocularInitialization741)
+secondBestGood 112
+bestParallax 8.61032 minParallax 1
+bestGood 112 minTriangulated 50 N 112
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1265   (MonocularInitialization701)
+  nmatches: 120   (MonocularInitialization741)
+secondBestGood 95
+bestParallax 0.672894 minParallax 1
+bestGood 95 minTriangulated 50 N 95
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1275   (MonocularInitialization701)
+  nmatches: 82   (MonocularInitialization741)
+  nmatches<100 return --- mpInitializer deleted   (MonocularInitialization746)
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1292   (MonocularInitialization701)
+mCurrentFrame.mvKeys.size()>15  --- mpInitializer initialize
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1313   (MonocularInitialization701)
+  nmatches: 233   (MonocularInitialization741)
+secondBestGood 212
+bestParallax 3.24184 minParallax 1
+bestGood 212 minTriangulated 50 N 212
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1239   (MonocularInitialization701)
+  nmatches: 215   (MonocularInitialization741)
+secondBestGood 183
+bestParallax 6.88726 minParallax 1
+bestGood 183 minTriangulated 50 N 183
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1273   (MonocularInitialization701)
+  nmatches: 168   (MonocularInitialization741)
+secondBestGood 140
+bestParallax 0.926196 minParallax 1
+bestGood 140 minTriangulated 50 N 140
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1272   (MonocularInitialization701)
+  nmatches: 142   (MonocularInitialization741)
+secondBestGood 118
+bestParallax 0.9417 minParallax 1
+bestGood 118 minTriangulated 50 N 118
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1216   (MonocularInitialization701)
+  nmatches: 125   (MonocularInitialization741)
+secondBestGood 100
+bestParallax 0.776321 minParallax 1
+bestGood 100 minTriangulated 50 N 100
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1272   (MonocularInitialization701)
+  nmatches: 109   (MonocularInitialization741)
+nsimilar 1 maxGood 105 nMinGood 30
+nGood: 105 0 26 0
+parallaxs: 1.19665 0 nan 0
+  (MonocularInitialization772) Tcw:
+[0.99996644, -0.00050601439, -0.0081864428, 7.5961516e-06;
+ 0.00049122272, 0.99999827, -0.0018221587, -0.2298094;
+ 0.0081873145, 0.0018180311, 0.99996471, -0.97323561;
+ 0, 0, 0, 1]
+
+    begin print------------(CreateInitialMapMonocular)
+New Map created with 79 points
+      medianDepth: 10.4011   (CreateInitialMapMonocular852)
+      pKFcur->TrackedMapPoints(1): 79   (CreateInitialMapMonocular853)
+Wrong initialization, reseting...
+System Reseting
+Reseting Local Mapper... done
+Reseting Loop Closing... done
+Reseting Database... done
+clear done
+waiting reset
+    end print ------------
+
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1231   (MonocularInitialization701)
+mCurrentFrame.mvKeys.size()>15  --- mpInitializer initialize
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1226   (MonocularInitialization701)
+  nmatches: 224   (MonocularInitialization741)
+secondBestGood 213
+bestParallax 0.428415 minParallax 1
+bestGood 213 minTriangulated 50 N 213
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1232   (MonocularInitialization701)
+  nmatches: 171   (MonocularInitialization741)
+secondBestGood 144
+bestParallax 3.72231 minParallax 1
+bestGood 144 minTriangulated 50 N 144
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1234   (MonocularInitialization701)
+  nmatches: 155   (MonocularInitialization741)
+secondBestGood 135
+bestParallax 0.964286 minParallax 1
+bestGood 135 minTriangulated 50 N 135
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1283   (MonocularInitialization701)
+  nmatches: 126   (MonocularInitialization741)
+secondBestGood 107
+bestParallax 0.863661 minParallax 1
+bestGood 107 minTriangulated 50 N 107
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1276   (MonocularInitialization701)
+  nmatches: 106   (MonocularInitialization741)
+secondBestGood 90
+bestParallax 0.882487 minParallax 1
+bestGood 90 minTriangulated 50 N 90
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1343   (MonocularInitialization701)
+  nmatches: 89   (MonocularInitialization741)
+  nmatches<100 return --- mpInitializer deleted   (MonocularInitialization746)
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1384   (MonocularInitialization701)
+mCurrentFrame.mvKeys.size()>15  --- mpInitializer initialize
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1443   (MonocularInitialization701)
+  nmatches: 223   (MonocularInitialization741)
+secondBestGood 198
+bestParallax 0.526004 minParallax 1
+bestGood 198 minTriangulated 50 N 198
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1415   (MonocularInitialization701)
+  nmatches: 194   (MonocularInitialization741)
+secondBestGood 162
+bestParallax 1.04624 minParallax 1
+bestGood 162 minTriangulated 50 N 162
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1457   (MonocularInitialization701)
+  nmatches: 149   (MonocularInitialization741)
+secondBestGood 116
+bestParallax 1.01722 minParallax 1
+bestGood 116 minTriangulated 50 N 116
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1569   (MonocularInitialization701)
+  nmatches: 119   (MonocularInitialization741)
+secondBestGood 98
+bestParallax 0.660864 minParallax 1
+bestGood 98 minTriangulated 50 N 98
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1527   (MonocularInitialization701)
+  nmatches: 117   (MonocularInitialization741)
+nsimilar 1 maxGood 109 nMinGood 30
+nGood: 109 0 37 0
+parallaxs: 1.35869 0 0 0
+  (MonocularInitialization772) Tcw:
+[0.99994022, 0.0048689921, -0.0097775962, 0.013490963;
+ -0.0048961798, 0.99998415, -0.0027487576, -0.18586698;
+ 0.0097640734, 0.0027965009, 0.99994838, -0.98248231;
+ 0, 0, 0, 1]
+
+    begin print------------(CreateInitialMapMonocular)
+New Map created with 73 points
+      medianDepth: 5.66698   (CreateInitialMapMonocular852)
+      pKFcur->TrackedMapPoints(1): 73   (CreateInitialMapMonocular853)
+Wrong initialization, reseting...
+System Reseting
+Reseting Local Mapper... done
+Reseting Loop Closing... done
+Reseting Database... done
+clear done
+waiting reset
+    end print ------------
+
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1545   (MonocularInitialization701)
+mCurrentFrame.mvKeys.size()>15  --- mpInitializer initialize
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1546   (MonocularInitialization701)
+  nmatches: 248   (MonocularInitialization741)
+secondBestGood 214
+bestParallax 2.64049 minParallax 1
+bestGood 214 minTriangulated 50 N 214
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1528   (MonocularInitialization701)
+  nmatches: 213   (MonocularInitialization741)
+secondBestGood 175
+bestParallax 5.41551 minParallax 1
+bestGood 175 minTriangulated 50 N 175
+ reconstruct Homography false return
+end print ------------
+
+begin print------------(MonocularInitialization)
+  mCurrentFrame.mvKeys.size(): 1544   (MonocularInitialization701)
+  nmatches: 177   (MonocularInitialization741)
+nsimilar 1 maxGood 169 nMinGood 30
+nGood: 0 42 0 169
+parallaxs: 0 0 0 1.89041
+  (MonocularInitialization772) Tcw:
+[0.99997884, -0.0055343397, -0.0034123212, -0.038252223;
+ 0.0055379625, 0.99998409, 0.001044184, -0.30567491;
+ 0.0034064911, -0.0010629892, 0.99999368, -0.95136726;
+ 0, 0, 0, 1]
+
+    begin print------------(CreateInitialMapMonocular)
+New Map created with 127 points
+      medianDepth: 15.1768   (CreateInitialMapMonocular852)
+      pKFcur->TrackedMapPoints(1): 127   (CreateInitialMapMonocular853)
+      (CreateInitialMapMonocular867) pKFcur->GetPose():
+[0.99997854, -0.0049190465, -0.0043221451, -0.00073470623;
+ 0.0049160402, 0.99998766, -0.00070591085, -0.017665131;
+ 0.004325564, 0.00068464788, 0.9999904, -0.061717331;
+ 0, 0, 0, 1]
+      pMP->GetWorldPos(): [1.3962622, 0.49467933, 2.9957256]
+      pMP->GetWorldPos(): [0.55968577, 0.34629941, 1.5170184]
+      pMP->GetWorldPos(): [0.41379532, -0.022939321, 0.78663588]
+      pMP->GetWorldPos(): [0.49085483, 0.010773995, 0.92226869]
+      pMP->GetWorldPos(): [0.71256101, 0.12537341, 1.1272491]
+      pMP->GetWorldPos(): [1.2268465, 0.37194315, 2.2110996]
+      pMP->GetWorldPos(): [0.52066976, -0.071889997, 0.72194225]
+      pMP->GetWorldPos(): [0.25043851, -0.10409365, 0.75589663]
+      pMP->GetWorldPos(): [0.076565661, 0.17858309, 0.93531579]
+      pMP->GetWorldPos(): [-0.35762939, 0.25312263, 1.8175592]
+      pMP->GetWorldPos(): [-0.1274199, -0.068969481, 0.99814928]
+      pMP->GetWorldPos(): [-0.084113672, -0.062349997, 0.94786161]
+      pMP->GetWorldPos(): [-0.70222372, 0.29581532, 1.2460443]
+      pMP->GetWorldPos(): [-0.24368718, 0.034110766, 0.63128966]
+    end print ------------
+
+end print ------------
+
+  keyframeCounter.size(): 2   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 2   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 301   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 3   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 3   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 348   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 4   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 4   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 503   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 4   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 4   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 432   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 5   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 5   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 498   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 5   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 5   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 484   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 5   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 5   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 484   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 6   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 6   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 546   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 6   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 6   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 524   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 6   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 6   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 524   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 7   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 7   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 605   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 7   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 7   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 557   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 7   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 7   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 557   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 8   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 8   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 631   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 8   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 8   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 600   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 8   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 8   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 596   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 8   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 8   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 596   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 9   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 9   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 667   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 9   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 9   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 609   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 9   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 9   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 609   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 8   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 8   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 582   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 9   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 9   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 641   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 9   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 9   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 610   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 9   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 9   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 606   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 9   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 9   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 606   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 9   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 9   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 606   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 10   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 10   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 667   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 10   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 10   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 635   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 10   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 10   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 635   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 10   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 10   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 635   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 11   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 11   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 659   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 11   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 11   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 656   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 11   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 11   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 654   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 11   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 11   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 654   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 12   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 12   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 751   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 12   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 12   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 734   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 12   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 12   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 734   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 12   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 12   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 734   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 12   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 12   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 734   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 13   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 13   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 822   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 13   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 13   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 785   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 13   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 13   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 785   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 14   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 14   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 870   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 14   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 14   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 879   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 14   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 14   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 867   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 14   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 14   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 866   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 14   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 14   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 866   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 15   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 15   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 813   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 15   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 15   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 950   (UpdateLocalPoints1407)
+  keyframeCounter.size(): 15   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 15   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 910   (UpdateLocalPoints1407)
+
+Process finished with exit code 15
+

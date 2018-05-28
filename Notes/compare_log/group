@@ -1,0 +1,906 @@
+/home/xin/Projects/FisheyeSLAM/mono_video/group_camera Vocabulary/ORBvoc.txt calib_data/calib_groupCamera.yaml /media/xin/data/data_parking/ calib_data/sw4066.txt None 300
+
+ORB-SLAM2 Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza.
+This program comes with ABSOLUTELY NO WARRANTY;
+This is free software, and you are welcome to redistribute it
+under certain conditions. See LICENSE.txt.
+
+Input sensor was set to: 
+Loading ORB Vocabulary. This could take a while...
+Vocabulary loaded!
+
+
+Camera Parameters: 
+- fx: 349.56
+- fy: 349.56
+- cx: 293
+- cy: 130
+- k1: 0
+- k2: 0
+- p1: 0
+- p2: 0
+- fps: 15
+begin print------------(Tracking)
+- color order: RGB (ignored if grayscale)
+
+ORB Extractor Parameters: 
+- Number of Features: 2000
+- Scale Levels: 8
+- Scale Factor: 1.2
+- Initial Fast Threshold: 35
+- Minimum Fast Threshold: 20
+end print ------------
+
+begin print------------(RunGroupCamera)
+generate corrector
+720
+1280
+0.0042
+306.605
+input_width 1280input_height 720
+read distortion list
+1001
+Size of corrected imageis  width:586 height:1210
+Size of corrected imageis  width:586 height:235
+K:
+[349.5673217773438, 0, 293;
+ 0, 349.5673217773438, 130;
+ 0, 0, 1]
+
+-------
+Start processing sequence ...
+Images in the sequence: 8679
+
+start_frame300
+  mvKeys.size(): 1351   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1351   (MonocularInitializationGroupCamera597)
+mCurrentFrame.mvKeys.size()>15  --- mpInitializer initialize
+    end print ------------
+
+  mvKeys.size(): 1323   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1323   (MonocularInitializationGroupCamera597)
+      nmatches: 241   (MonocularInitializationGroupCamera637)
+secondBestGood 221
+bestParallax 0.582155 minParallax 1
+bestGood 221 minTriangulated 50 N 221
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1314   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1314   (MonocularInitializationGroupCamera597)
+      nmatches: 221   (MonocularInitializationGroupCamera637)
+secondBestGood 193
+bestParallax 4.20822 minParallax 1
+bestGood 193 minTriangulated 50 N 193
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1303   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1303   (MonocularInitializationGroupCamera597)
+      nmatches: 189   (MonocularInitializationGroupCamera637)
+secondBestGood 148
+bestParallax 4.60726 minParallax 1
+bestGood 148 minTriangulated 50 N 148
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1258   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1258   (MonocularInitializationGroupCamera597)
+      nmatches: 139   (MonocularInitializationGroupCamera637)
+secondBestGood 112
+bestParallax 8.61032 minParallax 1
+bestGood 112 minTriangulated 50 N 112
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1265   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1265   (MonocularInitializationGroupCamera597)
+      nmatches: 120   (MonocularInitializationGroupCamera637)
+secondBestGood 95
+bestParallax 0.672894 minParallax 1
+bestGood 95 minTriangulated 50 N 95
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1275   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1275   (MonocularInitializationGroupCamera597)
+      nmatches: 82   (MonocularInitializationGroupCamera637)
+      nmatches<100 return --- mpInitializer deleted   (MonocularInitializationGroupCamera643)
+    end print ------------
+
+  mvKeys.size(): 1292   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1292   (MonocularInitializationGroupCamera597)
+mCurrentFrame.mvKeys.size()>15  --- mpInitializer initialize
+    end print ------------
+
+  mvKeys.size(): 1313   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1313   (MonocularInitializationGroupCamera597)
+      nmatches: 233   (MonocularInitializationGroupCamera637)
+secondBestGood 212
+bestParallax 3.24184 minParallax 1
+bestGood 212 minTriangulated 50 N 212
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1239   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1239   (MonocularInitializationGroupCamera597)
+      nmatches: 215   (MonocularInitializationGroupCamera637)
+secondBestGood 183
+bestParallax 6.88726 minParallax 1
+bestGood 183 minTriangulated 50 N 183
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1273   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1273   (MonocularInitializationGroupCamera597)
+      nmatches: 168   (MonocularInitializationGroupCamera637)
+secondBestGood 140
+bestParallax 0.926196 minParallax 1
+bestGood 140 minTriangulated 50 N 140
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1272   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1272   (MonocularInitializationGroupCamera597)
+      nmatches: 142   (MonocularInitializationGroupCamera637)
+secondBestGood 118
+bestParallax 0.9417 minParallax 1
+bestGood 118 minTriangulated 50 N 118
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1216   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1216   (MonocularInitializationGroupCamera597)
+      nmatches: 125   (MonocularInitializationGroupCamera637)
+secondBestGood 100
+bestParallax 0.776321 minParallax 1
+bestGood 100 minTriangulated 50 N 100
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1272   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1272   (MonocularInitializationGroupCamera597)
+      nmatches: 109   (MonocularInitializationGroupCamera637)
+nsimilar 1 maxGood 105 nMinGood 30
+nGood: 105 0 26 0
+parallaxs: 1.19665 0 nan 0
+      init_camera_ID: -1   (MonocularInitializationGroupCamera669)
+      (MonocularInitializationGroupCamera671) Tcw:
+[0.99996644, -0.00050601439, -0.0081864428, 7.5961516e-06;
+ 0.00049122272, 0.99999827, -0.0018221587, -0.2298094;
+ 0.0081873145, 0.0018180311, 0.99996471, -0.97323561;
+ 0, 0, 0, 1]
+
+        begin print------------(CreateInitialMapMonocularGroupCamera)
+New Map created with 79 points
+          medianDepth: 9.9824   (CreateInitialMapMonocularGroupCamera749)
+          pKFcur->TrackedMapPoints(1): 79   (CreateInitialMapMonocularGroupCamera750)
+Wrong initialization, reseting...
+System Reseting
+Reseting Local Mapper... done
+Reseting Loop Closing... done
+Reseting Database... done
+clear done
+waiting reset
+        end print ------------
+
+    end print ------------
+
+  mvKeys.size(): 1231   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1231   (MonocularInitializationGroupCamera597)
+      nmatches: 93   (MonocularInitializationGroupCamera637)
+      nmatches<100 return --- mpInitializer deleted   (MonocularInitializationGroupCamera643)
+    end print ------------
+
+  mvKeys.size(): 1226   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1226   (MonocularInitializationGroupCamera597)
+mCurrentFrame.mvKeys.size()>15  --- mpInitializer initialize
+    end print ------------
+
+  mvKeys.size(): 1232   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1232   (MonocularInitializationGroupCamera597)
+      nmatches: 223   (MonocularInitializationGroupCamera637)
+secondBestGood 202
+bestParallax 3.40703 minParallax 1
+bestGood 202 minTriangulated 50 N 202
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1234   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1234   (MonocularInitializationGroupCamera597)
+      nmatches: 183   (MonocularInitializationGroupCamera637)
+secondBestGood 157
+bestParallax 5.62727 minParallax 1
+bestGood 157 minTriangulated 50 N 157
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1283   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1283   (MonocularInitializationGroupCamera597)
+      nmatches: 155   (MonocularInitializationGroupCamera637)
+secondBestGood 124
+bestParallax 0.701929 minParallax 1
+bestGood 124 minTriangulated 50 N 124
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1276   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1276   (MonocularInitializationGroupCamera597)
+      nmatches: 142   (MonocularInitializationGroupCamera637)
+secondBestGood 119
+bestParallax 1.00619 minParallax 1
+bestGood 119 minTriangulated 50 N 119
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1343   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1343   (MonocularInitializationGroupCamera597)
+      nmatches: 107   (MonocularInitializationGroupCamera637)
+secondBestGood 85
+bestParallax 12.2085 minParallax 1
+bestGood 85 minTriangulated 50 N 85
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1384   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1384   (MonocularInitializationGroupCamera597)
+      nmatches: 77   (MonocularInitializationGroupCamera637)
+      nmatches<100 return --- mpInitializer deleted   (MonocularInitializationGroupCamera643)
+    end print ------------
+
+  mvKeys.size(): 1443   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1443   (MonocularInitializationGroupCamera597)
+mCurrentFrame.mvKeys.size()>15  --- mpInitializer initialize
+    end print ------------
+
+  mvKeys.size(): 1415   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1415   (MonocularInitializationGroupCamera597)
+      nmatches: 227   (MonocularInitializationGroupCamera637)
+secondBestGood 203
+bestParallax 0.592813 minParallax 1
+bestGood 203 minTriangulated 50 N 203
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1457   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1457   (MonocularInitializationGroupCamera597)
+      nmatches: 182   (MonocularInitializationGroupCamera637)
+secondBestGood 159
+bestParallax 0.922385 minParallax 1
+bestGood 159 minTriangulated 50 N 159
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1569   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1569   (MonocularInitializationGroupCamera597)
+      nmatches: 161   (MonocularInitializationGroupCamera637)
+secondBestGood 132
+bestParallax 0.729005 minParallax 1
+bestGood 132 minTriangulated 50 N 132
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1527   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1527   (MonocularInitializationGroupCamera597)
+      nmatches: 133   (MonocularInitializationGroupCamera637)
+nsimilar 1 maxGood 129 nMinGood 30
+nGood: 0 42 0 129
+parallaxs: 0 0 0 1.30716
+      init_camera_ID: -1   (MonocularInitializationGroupCamera669)
+      (MonocularInitializationGroupCamera671) Tcw:
+[0.99988121, 0.012297276, -0.009301113, 0.031405337;
+ -0.012295019, 0.99992448, 0.00029867887, -0.2172121;
+ 0.0093040485, -0.00018426776, 0.99995685, -0.97561908;
+ 0, 0, 0, 1]
+
+        begin print------------(CreateInitialMapMonocularGroupCamera)
+New Map created with 87 points
+          medianDepth: 12.476   (CreateInitialMapMonocularGroupCamera749)
+          pKFcur->TrackedMapPoints(1): 87   (CreateInitialMapMonocularGroupCamera750)
+Wrong initialization, reseting...
+System Reseting
+Reseting Local Mapper... done
+Reseting Loop Closing... done
+Reseting Database... done
+clear done
+waiting reset
+        end print ------------
+
+    end print ------------
+
+  mvKeys.size(): 1545   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1545   (MonocularInitializationGroupCamera597)
+      nmatches: 122   (MonocularInitializationGroupCamera637)
+nsimilar 1 maxGood 116 nMinGood 30
+nGood: 116 0 41 0
+parallaxs: 1.21176 0 0 0
+      init_camera_ID: -1   (MonocularInitializationGroupCamera669)
+      (MonocularInitializationGroupCamera671) Tcw:
+[0.99993938, 0.0059321672, -0.0092760678, 0.004498126;
+ -0.0059283599, 0.99998236, 0.00043711066, -0.30912718;
+ 0.0092784893, -0.00038212538, 0.99995691, -0.95101005;
+ 0, 0, 0, 1]
+
+        begin print------------(CreateInitialMapMonocularGroupCamera)
+New Map created with 75 points
+          medianDepth: 11.834   (CreateInitialMapMonocularGroupCamera749)
+          pKFcur->TrackedMapPoints(1): 75   (CreateInitialMapMonocularGroupCamera750)
+Wrong initialization, reseting...
+System Reseting
+Reseting Local Mapper... done
+Reseting Loop Closing... done
+Reseting Database... done
+clear done
+waiting reset
+        end print ------------
+
+    end print ------------
+
+  mvKeys.size(): 1546   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1546   (MonocularInitializationGroupCamera597)
+      nmatches: 92   (MonocularInitializationGroupCamera637)
+      nmatches<100 return --- mpInitializer deleted   (MonocularInitializationGroupCamera643)
+    end print ------------
+
+  mvKeys.size(): 1528   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1528   (MonocularInitializationGroupCamera597)
+mCurrentFrame.mvKeys.size()>15  --- mpInitializer initialize
+    end print ------------
+
+  mvKeys.size(): 1544   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1544   (MonocularInitializationGroupCamera597)
+      nmatches: 275   (MonocularInitializationGroupCamera637)
+secondBestGood 239
+bestParallax 2.94164 minParallax 1
+bestGood 239 minTriangulated 50 N 239
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1636   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1636   (MonocularInitializationGroupCamera597)
+      nmatches: 224   (MonocularInitializationGroupCamera637)
+secondBestGood 180
+bestParallax 5.98124 minParallax 1
+bestGood 180 minTriangulated 50 N 180
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1596   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1596   (MonocularInitializationGroupCamera597)
+      nmatches: 171   (MonocularInitializationGroupCamera637)
+secondBestGood 134
+bestParallax 7.22167 minParallax 1
+bestGood 134 minTriangulated 50 N 134
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1506   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1506   (MonocularInitializationGroupCamera597)
+      nmatches: 121   (MonocularInitializationGroupCamera637)
+secondBestGood 101
+bestParallax 12.4984 minParallax 1
+bestGood 101 minTriangulated 50 N 101
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1492   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1492   (MonocularInitializationGroupCamera597)
+      nmatches: 101   (MonocularInitializationGroupCamera637)
+secondBestGood 75
+bestParallax 13.8001 minParallax 1
+bestGood 75 minTriangulated 50 N 75
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1524   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1524   (MonocularInitializationGroupCamera597)
+      nmatches: 84   (MonocularInitializationGroupCamera637)
+      nmatches<100 return --- mpInitializer deleted   (MonocularInitializationGroupCamera643)
+    end print ------------
+
+  mvKeys.size(): 1511   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1511   (MonocularInitializationGroupCamera597)
+mCurrentFrame.mvKeys.size()>15  --- mpInitializer initialize
+    end print ------------
+
+  mvKeys.size(): 1505   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1505   (MonocularInitializationGroupCamera597)
+      nmatches: 232   (MonocularInitializationGroupCamera637)
+secondBestGood 205
+bestParallax 3.4647 minParallax 1
+bestGood 205 minTriangulated 50 N 205
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1446   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1446   (MonocularInitializationGroupCamera597)
+      nmatches: 192   (MonocularInitializationGroupCamera637)
+secondBestGood 164
+bestParallax 6.77839 minParallax 1
+bestGood 164 minTriangulated 50 N 164
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1434   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1434   (MonocularInitializationGroupCamera597)
+      nmatches: 158   (MonocularInitializationGroupCamera637)
+secondBestGood 129
+bestParallax 0.801619 minParallax 1
+bestGood 129 minTriangulated 50 N 129
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1494   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1494   (MonocularInitializationGroupCamera597)
+      nmatches: 112   (MonocularInitializationGroupCamera637)
+secondBestGood 91
+bestParallax 0.565445 minParallax 1
+bestGood 91 minTriangulated 50 N 91
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1424   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1424   (MonocularInitializationGroupCamera597)
+      nmatches: 103   (MonocularInitializationGroupCamera637)
+nsimilar 1 maxGood 93 nMinGood 30
+nGood: 93 0 25 0
+parallaxs: 0.578446 0 0.0625573 0
+      init_camera_ID: -1   (MonocularInitializationGroupCamera669)
+      (MonocularInitializationGroupCamera671) Tcw:
+[0.99991769, 0.0077307215, -0.010223821, 0.046977267;
+ -0.0077410126, 0.99996942, -0.00096774101, -0.32246491;
+ 0.010216061, 0.0010467768, 0.99994719, -0.94541496;
+ 0, 0, 0, 1]
+
+        begin print------------(CreateInitialMapMonocularGroupCamera)
+New Map created with 68 points
+          medianDepth: 14.6004   (CreateInitialMapMonocularGroupCamera749)
+          pKFcur->TrackedMapPoints(1): 68   (CreateInitialMapMonocularGroupCamera750)
+Wrong initialization, reseting...
+System Reseting
+Reseting Local Mapper... done
+Reseting Loop Closing... done
+Reseting Database... done
+clear done
+waiting reset
+        end print ------------
+
+    end print ------------
+
+  mvKeys.size(): 1452   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1452   (MonocularInitializationGroupCamera597)
+      nmatches: 79   (MonocularInitializationGroupCamera637)
+      nmatches<100 return --- mpInitializer deleted   (MonocularInitializationGroupCamera643)
+    end print ------------
+
+  mvKeys.size(): 1431   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1431   (MonocularInitializationGroupCamera597)
+mCurrentFrame.mvKeys.size()>15  --- mpInitializer initialize
+    end print ------------
+
+  mvKeys.size(): 1453   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1453   (MonocularInitializationGroupCamera597)
+      nmatches: 280   (MonocularInitializationGroupCamera637)
+secondBestGood 248
+bestParallax 2.75264 minParallax 1
+bestGood 248 minTriangulated 50 N 248
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1439   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1439   (MonocularInitializationGroupCamera597)
+      nmatches: 199   (MonocularInitializationGroupCamera637)
+secondBestGood 164
+bestParallax 0.637351 minParallax 1
+bestGood 164 minTriangulated 50 N 164
+ reconstruct Homography false return
+    end print ------------
+
+  mvKeys.size(): 1446   (ExtractORBGroupCamera94)
+
+    begin print------------(MonocularInitializationGroupCamera)
+      mCurrentFrame.mvKeys.size(): 1446   (MonocularInitializationGroupCamera597)
+      nmatches: 167   (MonocularInitializationGroupCamera637)
+nsimilar 1 maxGood 160 nMinGood 30
+nGood: 0 55 0 160
+parallaxs: 0 0.059347 0 1.16432
+      init_camera_ID: -1   (MonocularInitializationGroupCamera669)
+      (MonocularInitializationGroupCamera671) Tcw:
+[0.99995852, -0.0088813435, -0.0020136982, -0.10390414;
+ 0.0088710561, 0.99994791, -0.0050451905, -0.21463402;
+ 0.0020584315, 0.0050271451, 0.99998516, -0.97115195;
+ 0, 0, 0, 1]
+
+        begin print------------(CreateInitialMapMonocularGroupCamera)
+New Map created with 106 points
+          medianDepth: 16.5552   (CreateInitialMapMonocularGroupCamera749)
+          pKFcur->TrackedMapPoints(1): 106   (CreateInitialMapMonocularGroupCamera750)
+          (CreateInitialMapMonocularGroupCamera787) pKFcur->mvTcwSubcamera[i]:
+[0.99996388, -0.0077175386, -0.0035558089, -0.0045164698;
+ 0.007707193, 0.99996603, -0.0029140904, -0.014635923;
+ 0.0035781779, 0.0028865798, 0.99998945, -0.057635728;
+ 0, 0, 0, 1]
+          pMP->GetWorldPos(): [-0.79923433, 0.42540908, 2.4924858]
+          pMP->GetWorldPos(): [-0.16487515, -0.15679306, 0.69976646]
+          pMP->GetWorldPos(): [-0.086214408, -0.1244998, 0.56378812]
+          pMP->GetWorldPos(): [-0.55626702, 0.15156412, 2.1547906]
+          pMP->GetWorldPos(): [0.24339461, 0.13400967, 0.66412103]
+          pMP->GetWorldPos(): [0.30503878, 0.12608512, 0.62314719]
+          pMP->GetWorldPos(): [0.34505734, 0.15832928, 0.70921642]
+          pMP->GetWorldPos(): [0.36976612, 0.16656418, 0.7646386]
+          pMP->GetWorldPos(): [-0.56800699, 0.36378324, 2.2263069]
+          pMP->GetWorldPos(): [-0.36933568, 0.010039683, 1.2996064]
+          pMP->GetWorldPos(): [-0.3426607, 0.0097646518, 1.1810018]
+          pMP->GetWorldPos(): [-0.68184388, 0.27812678, 1.5565921]
+          pMP->GetWorldPos(): [-0.64995044, 0.54931402, 2.2507889]
+          pMP->GetWorldPos(): [-0.60471427, 0.22799523, 1.9194306]
+          pMP->GetWorldPos(): [-0.88891208, 0.43806165, 2.6091089]
+        end print ------------
+
+    end print ------------
+
+  MapPointCulling<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   (RunGroupCamera449)
+  nnew: 135   (CreateNewMapPointsGroupCamera283)
+  MapPointCulling<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   (RunGroupCamera449)
+  nnew: 1   (CreateNewMapPointsGroupCamera283)
+  mvKeys.size(): 1314   (ExtractORBGroupCamera94)
+TrackReferenceKeyFrameGroupCamera
+TrackReferenceKeyFrame SearchByBoW nmatches: 80
+
+
+
+
+TrackReferenceKeyFrame after optimization60
+TrackLocalMapGroupCamera
+  keyframeCounter.size(): 2   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 2   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 242   (UpdateLocalPoints1407)
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 110   (SearchByProjectionGroupCamera97)
+    end print ------------
+
+
+
+
+
+  MapPointCulling<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   (RunGroupCamera449)
+  nnew: 51   (CreateNewMapPointsGroupCamera283)
+  mvKeys.size(): 1311   (ExtractORBGroupCamera94)
+TrackWithMotionModelGroupCamera
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 98   (SearchByProjectionGroupCamera254)
+    end print ------------
+
+  nmatches: 98   (TrackWithMotionModelGroupCamera457)
+
+
+
+
+  nmatches: 57   (TrackWithMotionModelGroupCamera485)
+TrackLocalMapGroupCamera
+  keyframeCounter.size(): 3   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 3   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 235   (UpdateLocalPoints1407)
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 73   (SearchByProjectionGroupCamera97)
+    end print ------------
+
+
+
+
+
+  MapPointCulling<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   (RunGroupCamera449)
+  nnew: 124   (CreateNewMapPointsGroupCamera283)
+  mvKeys.size(): 1300   (ExtractORBGroupCamera94)
+TrackWithMotionModelGroupCamera
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 70   (SearchByProjectionGroupCamera254)
+    end print ------------
+
+  nmatches: 70   (TrackWithMotionModelGroupCamera457)
+
+
+
+
+  nmatches: 45   (TrackWithMotionModelGroupCamera485)
+TrackLocalMapGroupCamera
+  keyframeCounter.size(): 4   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 4   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 296   (UpdateLocalPoints1407)
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 130   (SearchByProjectionGroupCamera97)
+    end print ------------
+
+
+
+
+
+  MapPointCulling<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   (RunGroupCamera449)
+  nnew: 101   (CreateNewMapPointsGroupCamera283)
+  mvKeys.size(): 1297   (ExtractORBGroupCamera94)
+TrackWithMotionModelGroupCamera
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 80   (SearchByProjectionGroupCamera254)
+    end print ------------
+
+  nmatches: 80   (TrackWithMotionModelGroupCamera457)
+
+
+
+
+  nmatches: 44   (TrackWithMotionModelGroupCamera485)
+TrackLocalMapGroupCamera
+  keyframeCounter.size(): 5   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 5   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 334   (UpdateLocalPoints1407)
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 113   (SearchByProjectionGroupCamera97)
+    end print ------------
+
+
+
+
+
+  mvKeys.size(): 1318   (ExtractORBGroupCamera94)
+TrackWithMotionModelGroupCamera
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 66   (SearchByProjectionGroupCamera254)
+    end print ------------
+
+  nmatches: 66   (TrackWithMotionModelGroupCamera457)
+
+
+
+
+  nmatches: 39   (TrackWithMotionModelGroupCamera485)
+TrackLocalMapGroupCamera
+  keyframeCounter.size(): 5   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 5   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 331   (UpdateLocalPoints1407)
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 106   (SearchByProjectionGroupCamera97)
+    end print ------------
+
+
+
+
+
+  MapPointCulling<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   (RunGroupCamera449)
+  nnew: 137   (CreateNewMapPointsGroupCamera283)
+  mvKeys.size(): 1327   (ExtractORBGroupCamera94)
+TrackWithMotionModelGroupCamera
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 51   (SearchByProjectionGroupCamera254)
+    end print ------------
+
+  nmatches: 51   (TrackWithMotionModelGroupCamera457)
+
+
+
+
+  nmatches: 29   (TrackWithMotionModelGroupCamera485)
+TrackLocalMapGroupCamera
+  keyframeCounter.size(): 6   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 6   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 376   (UpdateLocalPoints1407)
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 129   (SearchByProjectionGroupCamera97)
+    end print ------------
+
+
+
+
+
+  mvKeys.size(): 1333   (ExtractORBGroupCamera94)
+TrackWithMotionModelGroupCamera
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 54   (SearchByProjectionGroupCamera254)
+    end print ------------
+
+  nmatches: 54   (TrackWithMotionModelGroupCamera457)
+
+
+
+
+  nmatches: 32   (TrackWithMotionModelGroupCamera485)
+TrackLocalMapGroupCamera
+  keyframeCounter.size(): 6   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 6   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 376   (UpdateLocalPoints1407)
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 110   (SearchByProjectionGroupCamera97)
+    end print ------------
+
+
+
+
+
+  MapPointCulling<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   (RunGroupCamera449)
+  nnew: 166   (CreateNewMapPointsGroupCamera283)
+  mvKeys.size(): 1292   (ExtractORBGroupCamera94)
+TrackWithMotionModelGroupCamera
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 40   (SearchByProjectionGroupCamera254)
+    end print ------------
+
+  nmatches: 40   (TrackWithMotionModelGroupCamera457)
+
+
+
+
+  nmatches: 22   (TrackWithMotionModelGroupCamera485)
+TrackLocalMapGroupCamera
+  keyframeCounter.size(): 7   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 7   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 455   (UpdateLocalPoints1407)
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 146   (SearchByProjectionGroupCamera97)
+    end print ------------
+
+
+
+
+
+  mvKeys.size(): 1372   (ExtractORBGroupCamera94)
+TrackWithMotionModelGroupCamera
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 69   (SearchByProjectionGroupCamera254)
+    end print ------------
+
+  nmatches: 69   (TrackWithMotionModelGroupCamera457)
+
+
+
+
+  nmatches: 40   (TrackWithMotionModelGroupCamera485)
+TrackLocalMapGroupCamera
+  keyframeCounter.size(): 7   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 7   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 437   (UpdateLocalPoints1407)
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 115   (SearchByProjectionGroupCamera97)
+    end print ------------
+
+
+
+
+
+  mvKeys.size(): 1381   (ExtractORBGroupCamera94)
+TrackWithMotionModelGroupCamera
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 56   (SearchByProjectionGroupCamera254)
+    end print ------------
+
+  nmatches: 56   (TrackWithMotionModelGroupCamera457)
+
+
+
+
+  nmatches: 27   (TrackWithMotionModelGroupCamera485)
+TrackLocalMapGroupCamera
+  keyframeCounter.size(): 7   (UpdateLocalKeyFrames1434)
+  mvpLocalKeyFrames.size(): 7   (UpdateLocalKeyFrames1517)
+  mvpLocalMapPoints.size(): 436   (UpdateLocalPoints1407)
+
+    begin print------------(SearchByProjectionGroupCamera)
+      nmatches: 93   (SearchByProjectionGroupCamera97)
+    end print ------------
+
+
+
+
+
+trackWithLocalMap fail
+
+Process finished with exit code 15
+
