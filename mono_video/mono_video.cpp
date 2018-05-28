@@ -26,8 +26,8 @@ int main(int argc, char **argv)
 	if(object_class_image_path=="None")
 		using_sematic = false;
 	cv::VideoCapture video(video_path);
-	int nImages = video.get(CV_CAP_PROP_FRAME_COUNT);
-	double fps = video.get(CV_CAP_PROP_FPS);
+	int nImages = video.get(cv::CAP_PROP_FRAME_COUNT);
+	double fps = video.get(cv::CAP_PROP_FPS);
 	// Create SLAM system. It initializes all system threads and gets ready to process frames.
 	ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::MONOCULAR, true);
 	//ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::MONOCULAR, true);
@@ -37,13 +37,13 @@ int main(int argc, char **argv)
 	
 	std::string correction_table = argv[4];
 	std::cout << "generate corrector" << std::endl;
-	std::cout << video.get(CV_CAP_PROP_FRAME_HEIGHT) << std::endl;
-	std::cout << video.get(CV_CAP_PROP_FRAME_WIDTH) << std::endl;
+	std::cout << video.get(cv::CAP_PROP_FRAME_HEIGHT) << std::endl;
+	std::cout << video.get(cv::CAP_PROP_FRAME_WIDTH) << std::endl;
 	std::cout << pixel_height << std::endl;
 	std::cout << f_image_ << std::endl;
 
 
-    FisheyeCorrector corrector(correction_table, video.get(CV_CAP_PROP_FRAME_HEIGHT), video.get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 60, 40);;
+    FisheyeCorrector corrector(correction_table, video.get(cv::CAP_PROP_FRAME_HEIGHT), video.get(cv::CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 60, 40);;
 
     corrector.setAxisDirection(0, 40, 0);//30,35,-7
     corrector.updateMap();

@@ -4,7 +4,7 @@
 #include<chrono>
 
 #include<opencv2/core/core.hpp>
-
+#include <opencv2/highgui/highgui.hpp>
 #include"System.h"
 #include <src/fisheye_corrector/fisheye_corrector.h>
 using namespace std;
@@ -26,8 +26,8 @@ int main(int argc, char **argv)
     if(object_class_image_path=="None")
         using_sematic = false;
     cv::VideoCapture video(video_path);
-    int nImages = video.get(CV_CAP_PROP_FRAME_COUNT);
-    double fps = video.get(CV_CAP_PROP_FPS);
+    int nImages = video.get(cv::CAP_PROP_FRAME_COUNT);
+    double fps = video.get(cv::CAP_PROP_FPS);
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::FISHEYE, true);
     //ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::MONOCULAR, true);
@@ -38,11 +38,11 @@ int main(int argc, char **argv)
     std::string correction_table = argv[4];
     std::cout << "generate corrector" << std::endl;
     std::vector<FisheyeCorrector> correctors(3);
-    std::cout << video.get(CV_CAP_PROP_FRAME_HEIGHT) << std::endl;
-    std::cout << video.get(CV_CAP_PROP_FRAME_WIDTH) << std::endl;
+    std::cout << video.get(cv::CAP_PROP_FRAME_HEIGHT) << std::endl;
+    std::cout << video.get(cv::CAP_PROP_FRAME_WIDTH) << std::endl;
     std::cout << pixel_height << std::endl;
     std::cout << f_image_ << std::endl;
-    correctors[2] = FisheyeCorrector(correction_table, video.get(CV_CAP_PROP_FRAME_HEIGHT), video.get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 30, 30);
+    correctors[2] = FisheyeCorrector(correction_table, video.get(cv::CAP_PROP_FRAME_HEIGHT), video.get(cv::CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 30, 30);
     correctors[2].setAxisDirection(65, 38, 0);//30,35,-7
     correctors[2].setClipRegion(cv::Rect(cv::Point2f(20, 34), cv::Point2f(correctors[2].getCorrectedSize().width-115, correctors[2].getCorrectedSize().height)));
     //correctors[2].setSizeScale(0.5);
@@ -50,13 +50,13 @@ int main(int argc, char **argv)
 
 
     std::cout << "*****************************1" << std::endl;
-    correctors[1] = FisheyeCorrector(correction_table, video.get(CV_CAP_PROP_FRAME_HEIGHT), video.get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 31, 31);
+    correctors[1] = FisheyeCorrector(correction_table, video.get(cv::CAP_PROP_FRAME_HEIGHT), video.get(cv::CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 31, 31);
     correctors[1].setAxisDirection(0, 30, 0);//30,35,-7
     //correctors[1].setSizeScale(0.5);
     //correctors[1].setClipRegion(cv::Rect(cv::Point2f(0, 0), cv::Point2f(correctors[1].getCorrectedSize().width, correctors[1].getCorrectedSize().height)));
     correctors[1].updateMap();
     std::cout << "*****************************0" << std::endl;
-    correctors[0] = FisheyeCorrector(correction_table, video.get(CV_CAP_PROP_FRAME_HEIGHT), video.get(CV_CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 30, 30);
+    correctors[0] = FisheyeCorrector(correction_table, video.get(cv::CAP_PROP_FRAME_HEIGHT), video.get(cv::CAP_PROP_FRAME_WIDTH), pixel_height, f_image_, 30, 30);
     correctors[0].setAxisDirection(-65, 38, 0);//30,35,-7
     //correctors[0].setSizeScale(0.5);
     correctors[0].setClipRegion(cv::Rect(cv::Point2f(115, 34), cv::Point2f(correctors[0].getCorrectedSize().width-20, correctors[0].getCorrectedSize().height)));

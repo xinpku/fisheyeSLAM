@@ -49,8 +49,8 @@ int main(int argc, char **argv)
 
 
 
-    int nImages = videos[0].get(CV_CAP_PROP_FRAME_COUNT);
-    double fps = videos[0].get(CV_CAP_PROP_FPS);
+    int nImages = videos[0].get(cv::CAP_PROP_FRAME_COUNT);
+    double fps = videos[0].get(cv::CAP_PROP_FPS);
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::GROUPCAMERA, true);
 
