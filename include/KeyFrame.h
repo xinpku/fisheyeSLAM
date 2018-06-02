@@ -155,7 +155,7 @@ public:
     long unsigned int mnBAGlobalForKF;
 
     // Calibration parameters
-    const float fx, fy, cx, cy, invfx, invfy, mbf, mb, mThDepth;
+    const float  mbf, mb, mThDepth;
 
     // Number of KeyPoints
     const int N;
@@ -189,7 +189,6 @@ public:
     const int mnMinY;
     const int mnMaxX;
     const int mnMaxY;
-    const cv::Mat mK;
 
 // MapPoints associated to keypoints
     std::vector<MapPoint*> mvpMapPoints;
@@ -271,6 +270,10 @@ public:
     vector<size_t> GetFeaturesInAreaSubCamera(const float &x, const float &y, const float &r,int cameraID) const;
     void ComputeStereoGroupCamera(std::vector<std::pair<int,int>> mvRelatedCamera,
                                   std::vector<cv::Mat> mvF_relatedCameras);
+    std::vector<cv::Mat> mvK;
+    std::vector<float> mvfx, mvfy, mvcx, mvcy, mvInvfx, mvInvfy;
+    cv::Mat mK;
+    float fx, fy, cx, cy, invfx, invfy;
 };
 
 } //namespace ORB_SLAM

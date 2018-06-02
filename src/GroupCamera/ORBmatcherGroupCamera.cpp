@@ -159,8 +159,8 @@ namespace ORB_SLAM2
                         if (invzc < 0)
                             continue;
 
-                        float u = CurrentFrame.fx*xc*invzc + CurrentFrame.cx;
-                        float v = CurrentFrame.fy*yc*invzc + CurrentFrame.cy;
+                        float u = CurrentFrame.mvfx[c]*xc*invzc + CurrentFrame.mvcx[c];
+                        float v = CurrentFrame.mvfy[c]*yc*invzc + CurrentFrame.mvcy[c];
 
 
                         if (u<CurrentFrame.mnMinX || u>CurrentFrame.mnMaxX)
@@ -422,8 +422,8 @@ namespace ORB_SLAM2
                 cv::Mat t2w = pKF2->GetTranslationSubCamera(j);
                 cv::Mat C2 = R2w*Cw + t2w;
                 const float invz = 1.0f / C2.at<float>(2);
-                ex_subcamera[i][j] = pKF2->fx*C2.at<float>(0)*invz + pKF2->cx;
-                ey_subcamera[i][j] = pKF2->fy*C2.at<float>(1)*invz + pKF2->cy;
+                ex_subcamera[i][j] = pKF2->mvfx[j]*C2.at<float>(0)*invz + pKF2->mvcx[j];
+                ey_subcamera[i][j] = pKF2->mvfy[j]*C2.at<float>(1)*invz + pKF2->mvcy[j];
             }
         }
 
@@ -596,8 +596,8 @@ namespace ORB_SLAM2
         cv::Mat t2w = pKF2->GetTranslationSubCamera(subCameraIDKF2);
         cv::Mat C2 = R2w*Cw+t2w;
         const float invz = 1.0f/C2.at<float>(2);
-        const float ex =pKF2->fx*C2.at<float>(0)*invz+pKF2->cx;
-        const float ey =pKF2->fy*C2.at<float>(1)*invz+pKF2->cy;
+        const float ex =pKF2->mvfx[subCameraIDKF2]*C2.at<float>(0)*invz+pKF2->mvcx[subCameraIDKF2];
+        const float ey =pKF2->mvfy[subCameraIDKF2]*C2.at<float>(1)*invz+pKF2->mvcy[subCameraIDKF2];
 
         // Find matches between not tracked keypoints
         // Matching speed-up by ORB Vocabulary
@@ -777,10 +777,10 @@ namespace ORB_SLAM2
             cv::Mat Rcw = pKF->GetRotationSubCamera(c);
             cv::Mat tcw = pKF->GetTranslationSubCamera(c);
 
-            const float &fx = pKF->fx;
-            const float &fy = pKF->fy;
-            const float &cx = pKF->cx;
-            const float &cy = pKF->cy;
+            const float &fx = pKF->mvfx[c];
+            const float &fy = pKF->mvfy[c];
+            const float &cx = pKF->mvcx[c];
+            const float &cy = pKF->mvcy[c];
             const float &bf = pKF->mbf;
 
             cv::Mat Ow = pKF->GetCameraCenterSubCamera(c);
@@ -932,10 +932,10 @@ namespace ORB_SLAM2
     int ORBmatcher::SearchBySim3GroupCamera(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint*> &vpMatches12,
                                             const float &s12, const cv::Mat &R12, const cv::Mat &t12, const float th)
     {
-        const float &fx = pKF1->fx;
-        const float &fy = pKF1->fy;
-        const float &cx = pKF1->cx;
-        const float &cy = pKF1->cy;
+        const std::vector<float> &fx = pKF1->mvfx;
+        const std::vector<float> &fy = pKF1->mvfy;
+        const std::vector<float> &cx = pKF1->mvcx;
+        const std::vector<float> &cy = pKF1->mvcy;
 
         // Camera 1 from world
         cv::Mat R1w = pKF1->GetRotation();
@@ -1002,8 +1002,8 @@ namespace ORB_SLAM2
                 const float x = p3Dc2.at<float>(0) * invz;
                 const float y = p3Dc2.at<float>(1) * invz;
 
-                const float u = fx * x + cx;
-                const float v = fy * y + cy;
+                const float u = fx[c] * x + cx[c];
+                const float v = fy[c] * y + cy[c];
 
                 // Point must be inside the image
                 if (!pKF2->IsInImage(u, v))
@@ -1091,8 +1091,8 @@ namespace ORB_SLAM2
                 const float x = p3Dc1.at<float>(0) * invz;
                 const float y = p3Dc1.at<float>(1) * invz;
 
-                const float u = fx * x + cx;
-                const float v = fy * y + cy;
+                const float u = fx[c] * x + cx[c];
+                const float v = fy[c] * y + cy[c];
 
                 // Point must be inside the image
                 if (!pKF1->IsInImage(u, v))
@@ -1176,7 +1176,7 @@ namespace ORB_SLAM2
     int ORBmatcher::SearchByProjectionGroupCamera(KeyFrame* pKF, cv::Mat Scw, const vector<MapPoint*> &vpPoints, vector<MapPoint*> &vpMatched, int th)
     {
 
-        // Get Calibration Parameters for later projection
+ /*       // Get Calibration Parameters for later projection
         const float &fx = pKF->fx;
         const float &fy = pKF->fy;
         const float &cx = pKF->cx;
@@ -1286,7 +1286,7 @@ namespace ORB_SLAM2
 
         }
 
-        return nmatches;
+        return nmatches;*/
     }
 
 

@@ -64,7 +64,8 @@ public:
     class Tracking
 {  
 
-public:
+    public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     Tracking(System* pSys, ORBVocabulary* pVoc, FrameDrawer* pFrameDrawer, MapDrawer* pMapDrawer, Map* pMap,
              KeyFrameDatabase* pKFDB, const string &strSettingPath, const int sensor);
 
@@ -73,7 +74,7 @@ public:
     cv::Mat GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const double &timestamp);
     cv::Mat GrabImageMonocular(const cv::Mat &im, const double &timestamp);
 	cv::Mat GrabImageFisheye(const cv::Mat &fisheyeIm, const std::vector<cv::Mat> &im, const cv::Mat &object_notation,
-                                 const double &timestamp, std::vector<FisheyeCorrector> &correctors);
+                                 const double &timestamp, std::vector<FisheyeCorrector,Eigen::aligned_allocator<FisheyeCorrector>> &correctors);
 
     void SetLocalMapper(LocalMapping* pLocalMapper);
     void SetLoopClosing(LoopClosing* pLoopClosing);
@@ -279,9 +280,9 @@ public:
 
 
     int mNview;
-    std::vector<FisheyeCorrector> mvCorrectors;
+    std::vector<FisheyeCorrector,Eigen::aligned_allocator<FisheyeCorrector>> mvCorrectors;
     void generateCorrector(const std::string& setting_file_path);
-
+    std::vector<cv::Mat> mvK;
     };
 
 } //namespace ORB_SLAM

@@ -80,7 +80,7 @@ public:
     cv::Mat TrackMonocular(const cv::Mat &im, const double &timestamp);
 
 	cv::Mat TrackFisheye(const cv::Mat &imFisheyeGray, const cv::Mat &object_class,
-                             const double &timestamp, std::vector<FisheyeCorrector> &correctors);
+                             const double &timestamp, std::vector<FisheyeCorrector,Eigen::aligned_allocator<FisheyeCorrector>> &correctors);
 
     // This stops local mapping thread (map building) and performs only camera tracking.
     void ActivateLocalizationMode();

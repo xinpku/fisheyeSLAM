@@ -33,7 +33,7 @@ class Initializer
     typedef pair<int,int> Match;
 
 public:
-
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     // Fix the reference frame
     Initializer(const Frame &ReferenceFrame, float sigma = 1.0, int iterations = 200);
     Initializer(const cv::Mat &K,const std::vector<cv::KeyPoint>& vKeys, float sigma = 1.0, int iterations = 200);

@@ -23,7 +23,7 @@ namespace ORB_SLAM2
 
 
     private:
-        std::vector<Initializer> mvInitializers;
+        std::vector<Initializer,Eigen::aligned_allocator<Initializer>> mvInitializers;
 
     };
 

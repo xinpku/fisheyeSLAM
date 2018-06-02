@@ -103,11 +103,13 @@ printON;
     //Multi-Camera settings
     if(mSensor==System::GROUPCAMERA)
     {
+        generateCorrector(strSettingPath);
+
         mNcameras = fSettings["GroupCamera.n_frame"];
         mvTgc.resize(mNcameras);
         mvTcg.resize(mNcameras);
         mpMapDrawer->mGroupCameraPose.resize(mNcameras);
-
+        mvK.resize(mNcameras);
         std::vector<float> relation;
         fSettings["GroupCamera.Relation"] >> relation;
         for(int i = 0;i<relation.size();i+=2)
@@ -133,8 +135,9 @@ printON;
             cv::Mat t = cv::Mat(C);
             //t *= 10;
             t.copyTo(mvTgc[i](cv::Range(0, 3), cv::Range(3, 4)));
+            mvTgc[i] = mvTgc[i]*(eigenMatrixToCvMat(mvCorrectors[i].TransformToCamera().cast<double>()));
             mvTcg[i] = mvTgc[i].inv();
-
+            mvK[i] = mvCorrectors[i].getIntrinsicMatrix();
         }
 
 
@@ -146,7 +149,6 @@ printON;
             mvF_relatedCameras[i] = ComputeF12(T12.colRange(0,3).rowRange(0,3),T12.rowRange(0,3).col(3),mK,mK);
         }
 
-        generateCorrector(strSettingPath);
 
     }
 
@@ -328,7 +330,7 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
 }
 
 cv::Mat Tracking::GrabImageFisheye(const cv::Mat &fisheyeIm, const std::vector<cv::Mat> &im, const cv::Mat &object_class,
-                                   const double &timestamp, std::vector<FisheyeCorrector> &correctors)
+                                   const double &timestamp, std::vector<FisheyeCorrector,Eigen::aligned_allocator<FisheyeCorrector>> &correctors)
 {
     if(!object_class.empty()) {
         cv::Mat fisheyeBGR, fisheyeHSV;

@@ -190,7 +190,7 @@ cv::Mat System::TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const
 
 
 cv::Mat System::TrackFisheye(const cv::Mat &imFisheyeGray, const cv::Mat &object_class,
-                             const double &timestamp, std::vector<FisheyeCorrector> &correctors)
+                             const double &timestamp, std::vector<FisheyeCorrector,Eigen::aligned_allocator<FisheyeCorrector>> &correctors)
 {
 	if (mSensor != FISHEYE)
 	{

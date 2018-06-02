@@ -47,13 +47,17 @@ class FisheyeCorrector
 	float f_image_;
 
 	float size_scale_;
-	Eigen::MatrixX4f transform_camera_to_originalplane_;
+	Eigen::Matrix4f transform_camera_to_originalplane_;
+	Eigen::Matrix4f T_camera_fisheye;
 	cv::Rect clip_region_;
 
 
 	Eigen::Vector3f new_camera_plane_center;
 	Eigen::Vector3f camera_center;
 	Eigen::Vector3f original_axis;
+
+
+
 private:
 	void readDistortionList(std::string file_name);
 
@@ -63,6 +67,7 @@ private:
 
 	
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	//Correction table and pixelHeight should provided by camera manufactor. focal length will infuence the size of the result image.
 	FisheyeCorrector(std::string correction_table_file, int input_height, int input_width, float pixelHeight, float f = 306.605, float VerticalDegeree = 60, float HorizontalDegree = 70);
 	FisheyeCorrector()
@@ -80,6 +85,7 @@ public:
 		new_camera_plane_center = Eigen::Vector3f(0, 0, 0);
 		camera_center = Eigen::Vector3f(0, 0, 0);
 		original_axis = Eigen::Vector3f(0, 0, 0);
+        T_camera_fisheye = Eigen::Matrix4f::Identity();
 	};
 	FisheyeCorrector(const FisheyeCorrector& f)
 	{
@@ -108,7 +114,7 @@ public:
 
 		size_scale_ = f.size_scale_;
 		clip_region_ =  f.clip_region_;
-
+		transform_camera_to_originalplane_ = f.transform_camera_to_originalplane_;
 		/*transform_camera_to_originalplane_ << f.transform_camera_to_originalplane_(0, 0), f.transform_camera_to_originalplane_(0, 1), f.transform_camera_to_originalplane_(0, 2), f.transform_camera_to_originalplane_(0,3),
 			f.transform_camera_to_originalplane_(1, 0), f.transform_camera_to_originalplane_(1, 1), f.transform_camera_to_originalplane_(1, 2), f.transform_camera_to_originalplane_(1, 3),
 			f.transform_camera_to_originalplane_(2, 0), f.transform_camera_to_originalplane_(2, 1), f.transform_camera_to_originalplane_(2, 2), f.transform_camera_to_originalplane_(2, 3),
@@ -117,6 +123,7 @@ public:
 		new_camera_plane_center = Eigen::Vector3f(f.new_camera_plane_center);
 		camera_center = Eigen::Vector3f(f.camera_center);
 		original_axis = Eigen::Vector3f(f.original_axis);
+		T_camera_fisheye = f.T_camera_fisheye;
 	}
 
 	FisheyeCorrector& operator=(const FisheyeCorrector& f)
@@ -158,7 +165,7 @@ public:
 		new_camera_plane_center = Eigen::Vector3f(f.new_camera_plane_center);
 		camera_center = Eigen::Vector3f(f.camera_center);
 		original_axis = Eigen::Vector3f(f.original_axis);
-
+		T_camera_fisheye = f.T_camera_fisheye;
 		return *this;
 	}
 	cv::Mat& correct(const cv::Mat& src, cv::Mat& dst)
@@ -206,20 +213,14 @@ public:
 		return K_;
 	}
 
-	Eigen::Matrix4f getExtrinsicMatrix()
+	Eigen::Matrix4f TransformToFisheye()
 	{
-		Eigen::Matrix4f image_to_imageplane, originalplane_to_camera;
-		image_to_imageplane <<
-			1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, -f_image_,
-			0, 0, 0, 1;
-		originalplane_to_camera<<
-			1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, f_camera_,
-			0, 0, 0, 1;
-		return (originalplane_to_camera*transform_camera_to_originalplane_*image_to_imageplane).inverse();
+		return T_camera_fisheye;
+	}
+
+	Eigen::Matrix4f TransformToCamera()
+	{
+		return T_camera_fisheye.transpose();
 	}
 
 	void setAxisDirection(float axis_direction_horizontal, float axis_direction_vertical, float axis_rotation)

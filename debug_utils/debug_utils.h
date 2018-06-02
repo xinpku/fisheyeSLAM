@@ -210,6 +210,8 @@ inline cv::Mat eigenMatrixToCvMat(const Eigen::MatrixXd& eigen_matrix)
     cv_matrix.convertTo(cv_matrix,CV_32F);
     return cv_matrix.clone();
 }
+
+
 inline Eigen::MatrixXd cvMatToEigenMatrix(const cv::Mat& cv_matrix)
 {
     Eigen::MatrixXf matrix = Eigen::Map<Eigen::MatrixXf>((float*)cv::Mat(cv_matrix.t()).data, cv_matrix.rows, cv_matrix.cols);

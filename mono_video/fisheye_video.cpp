@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 
 	std::string correction_table = argv[4];
 	std::cout << "generate corrector" << std::endl;
-	std::vector<FisheyeCorrector> correctors(3);
+	std::vector<FisheyeCorrector,Eigen::aligned_allocator<FisheyeCorrector>> correctors(3);
 	std::cout << video.get(cv::CAP_PROP_FRAME_HEIGHT) << std::endl;
 	std::cout << video.get(cv::CAP_PROP_FRAME_WIDTH) << std::endl;
 	std::cout << pixel_height << std::endl;

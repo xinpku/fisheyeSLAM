@@ -137,9 +137,9 @@ namespace ORB_SLAM2
 
 
        if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET)
-            mCurrentFrame = Frame(ims,mvCorrectors, timestamp, mpIniORBextractor, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth, mvTcg);
+            mCurrentFrame = Frame(ims,mvCorrectors, timestamp, mpIniORBextractor, mpORBVocabulary, mvK, mDistCoef, mbf, mThDepth, mvTcg);
         else
-            mCurrentFrame = Frame(ims,mvCorrectors, timestamp, mpORBextractorLeft, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth, mvTcg);
+            mCurrentFrame = Frame(ims,mvCorrectors, timestamp, mpORBextractorLeft, mpORBVocabulary, mvK, mDistCoef, mbf, mThDepth, mvTcg);
 
         MontageImagesKeypoints(ims, mImGray, mCurrentFrame);
 
@@ -183,12 +183,12 @@ namespace ORB_SLAM2
 
             mvCorrectors[v] = FisheyeCorrector(correction_table_name, image_height, image_width, pixel_height, f_image_,vertical_range , horizontal_range);
             mvCorrectors[v].setAxisDirection(yaw, pitch, raw);//30,35,-7
-            mvCorrectors[v].updateMap();
             mvCorrectors[v].setClipRegion(cv::Rect(cv::Point(crop_size[0], crop_size[1]), cv::Point(mvCorrectors[v].getCorrectedSize().width-crop_size[2], mvCorrectors[v].getCorrectedSize().height -crop_size[3])));
-
-            print_vector(crop_size,true);
             if(scale!=1)
-            mvCorrectors[v].setSizeScale(scale);
+                mvCorrectors[v].setSizeScale(scale);
+            mvCorrectors[v].updateMap();
+            print_vector(crop_size,true);
+
 
         }
 
@@ -640,7 +640,7 @@ namespace ORB_SLAM2
     // Map initialization for monocular
     void Tracking::MonocularInitializationGroupCamera()
     {
-        printON
+        printOFF
         print_value(mCurrentFrame.mvKeys.size());
         if(!mpInitializerGroupCamera)
         {
@@ -718,7 +718,7 @@ namespace ORB_SLAM2
                 print_mat(Tcw)
 
                 CreateInitialMapMonocularGroupCamera();
-                print_string("Init success")
+                print_string("Init success",true)
                 cv::waitKey(0);
             }
         }

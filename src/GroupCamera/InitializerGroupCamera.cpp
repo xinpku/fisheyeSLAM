@@ -10,7 +10,7 @@ namespace ORB_SLAM2
         for(int c = 0;c<ReferenceFrame.Ncameras;c++)
         {
 
-            Initializer initializer =  Initializer(ReferenceFrame.mK,ReferenceFrame.mvKeysUn,1.0,200);
+            Initializer initializer =  Initializer(ReferenceFrame.mvK[c],ReferenceFrame.mvKeysUn,1.0,200);
             mvInitializers.push_back(initializer);
         }
     }
@@ -18,7 +18,7 @@ namespace ORB_SLAM2
     bool InitializerGroupCamera::Initialize(const Frame& InitialFrame,const Frame &CurrentFrame, const vector<int> &vMatches12,
                     cv::Mat &R21, cv::Mat &t21, vector<cv::Point3f> &vP3D, vector<bool> &vbTriangulated,int& cameraID)
     {
-printON;
+printOFF;
         bool init_success = false;
         cv::Mat T21 = cv::Mat::eye(4,4,CV_32F);
 
@@ -133,6 +133,7 @@ printON;
     bool Initializer::Initialize(const std::vector<cv::KeyPoint>& vKeys, const vector<int> &vMatches12,
                                  cv::Mat &R21, cv::Mat &t21, vector<cv::Point3f> &vP3D, vector<bool> &vbTriangulated)
     {
+
         // Fill structures with current keypoints and matches with reference frame
         // Reference Frame: 1, Current Frame: 2
         mvKeys2 = vKeys;

@@ -9,9 +9,9 @@ namespace ORB_SLAM2
     //*********************************************
     //The functions related to the groupCamera
 
-    Frame::Frame(const std::vector<cv::Mat> &imGrays, std::vector<FisheyeCorrector> &correctors,const double &timeStamp, ORBextractor* extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth,std::vector<cv::Mat>& Tcg)
+    Frame::Frame(const std::vector<cv::Mat> &imGrays, std::vector<FisheyeCorrector,Eigen::aligned_allocator<FisheyeCorrector>> &correctors,const double &timeStamp, ORBextractor* extractor, ORBVocabulary* voc, std::vector<cv::Mat> &K, cv::Mat &distCoef, const float &bf, const float &thDepth,std::vector<cv::Mat>& Tcg)
             :mpORBvocabulary(voc),mpORBextractorLeft(extractor),mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
-             mTimeStamp(timeStamp), mK(K.clone()),mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth)
+             mTimeStamp(timeStamp),mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth)
     {
         // Frame ID
         mnId = nNextId++;
@@ -25,21 +25,33 @@ namespace ORB_SLAM2
         mvLevelSigma2 = mpORBextractorLeft->GetScaleSigmaSquares();
         mvInvLevelSigma2 = mpORBextractorLeft->GetInverseScaleSigmaSquares();
 
+        Ncameras = Tcg.size();
         // This is done only for the first Frame (or after a change in the calibration)
         if (mbInitialComputations)
         {
-            fx = K.at<float>(0, 0);
-            fy = K.at<float>(1, 1);
-            cx = K.at<float>(0, 2);
-            cy = K.at<float>(1, 2);
-            invfx = 1.0f / fx;
-            invfy = 1.0f / fy;
+            mvK.resize(Ncameras);
+            mvfx.resize(Ncameras);
+            mvfy.resize(Ncameras);
+            mvcx.resize(Ncameras);
+            mvcy.resize(Ncameras);
+            mvInvfx.resize(Ncameras);
+            mvInvfy.resize(Ncameras);
+            for(int c =0;c<Ncameras;c++)
+            {
+                mvK[c] = K[c].clone();
+                mvfx[c] = K[c].at<float>(0,0);
+                mvfy[c] = K[c].at<float>(1,1);
+                mvcx[c] = K[c].at<float>(0,2);
+                mvcy[c] = K[c].at<float>(1,2);
+                mvInvfx[c] = 1.0f/mvfx[c];
+                mvInvfy[c] = 1.0f/mvfy[c];
+            }
 
 
             mnMinX = 0.0f;
-            mnMaxX = cx*2;
+            mnMaxX = *(std::max_element(mvcx.begin(),mvcx.end()))*2;
             mnMinY = 0.0f;
-            mnMaxY = cy*2;
+            mnMaxY = *(std::max_element(mvcy.begin(),mvcy.end()))*2;
 
             mfGridElementWidthInv = static_cast<float>(FRAME_GRID_COLS) / static_cast<float>(mnMaxX - mnMinX);
             mfGridElementHeightInv = static_cast<float>(FRAME_GRID_ROWS) / static_cast<float>(mnMaxY - mnMinY);
@@ -47,7 +59,7 @@ namespace ORB_SLAM2
             mbInitialComputations = false;
         }
 
-        Ncameras = Tcg.size();
+
 
         kp_start_pos.resize(Ncameras);
         mvTcg.resize(Tcg.size());
@@ -56,13 +68,16 @@ namespace ORB_SLAM2
         mvOwSubcamera.resize(Tcg.size());
         mvRcwSubcamera.resize(Tcg.size());
         mvtcwSubcamera.resize(Tcg.size());
+        mvK.resize(Ncameras);
         for (int i = 0; i < Tcg.size(); i++)
         {
             Tcg[i].copyTo(mvTcg[i]);
             mvTgc[i] = Tcg[i].inv();
+            mvK[i] = K[i].clone();
         }
         // ORB extraction
         ExtractORBGroupCamera(imGrays, correctors);
+
 
 
         N = mvKeys.size();
@@ -81,30 +96,30 @@ namespace ORB_SLAM2
 
 
 
-        mb = mbf / fx;
+        //mb = mbf / fx;
 
         AssignFeaturesToGrid();
     }
 
 
-    void Frame::ExtractORBGroupCamera(const std::vector<cv::Mat> &imGrays, std::vector<FisheyeCorrector> &correctors)
+    void Frame::ExtractORBGroupCamera(const std::vector<cv::Mat> &imGrays, std::vector<FisheyeCorrector,Eigen::aligned_allocator<FisheyeCorrector>> &correctors)
     {
         for (int i = 0; i < imGrays.size(); i++)
         {
             kp_start_pos[i] = mvCamera_Id_KeysUn.size();
-            for(int v = 0;v<correctors.size();v++)
-            {
+            /*for(int v = 0;v<correctors.size();v++)
+            {*/
                 cv::Mat im_view;
-                correctors[v].correct(imGrays[i],im_view);
+                correctors[i].correct(imGrays[i],im_view);
                 std::vector<cv::KeyPoint> mvKeys_temp,mvfisheye_keys_current,mvundist_keys_current;
                 cv::Mat descriptors_temp;
                 (*mpORBextractorLeft)(im_view, cv::Mat(), mvKeys_temp, descriptors_temp);
 
                 for(auto& p:mvKeys_temp)
                     p.class_id = i;
-                correctors[v].mapToOriginalImage(mvKeys_temp, mvfisheye_keys_current);
-                correctors[v].mapFromCorrectedImageToCenterImagePlane(mvKeys_temp, mvundist_keys_current, cx, cy, fx);
-
+                correctors[i].mapToOriginalImage(mvKeys_temp, mvfisheye_keys_current);
+                //correctors[i].mapFromCorrectedImageToCenterImagePlane(mvKeys_temp, mvundist_keys_current, cx, cy, fx);
+                mvundist_keys_current = mvKeys_temp;
 
 
                 mvKeys.insert(mvKeys.end(),mvfisheye_keys_current.begin(),mvfisheye_keys_current.end());
@@ -117,12 +132,12 @@ namespace ORB_SLAM2
                 cv::Mat part;
 		cv::drawKeypoints(im_view, mvKeys_temp, part);
 		std::stringstream sst;
-		sst << "part" << v;
+		sst << "part" << i;
 		cv::namedWindow(sst.str(), 0);
         std::cout<<sst.str()<<"  "<<im_view.size()<<std::endl;
 		cv::imshow(sst.str(),part);
                 cv::waitKey(10);
-            }
+            //}
 
         }
 
@@ -171,8 +186,8 @@ namespace ORB_SLAM2
 
             // Project in image and check it is not outside
             const float invz = 1.0f/PcZ;
-            const float u=fx*PcX*invz+cx;
-            const float v=fy*PcY*invz+cy;
+            const float u=mvfx[c]*PcX*invz+mvcx[c];
+            const float v=mvfy[c]*PcY*invz+mvcy[c];
 
             if(u<mnMinX || u>mnMaxX)
             {

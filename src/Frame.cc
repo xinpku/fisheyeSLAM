@@ -33,7 +33,7 @@ bool Frame::mbInitialComputations=true;
 float Frame::cx, Frame::cy, Frame::fx, Frame::fy, Frame::invfx, Frame::invfy;
 float Frame::mnMinX, Frame::mnMinY, Frame::mnMaxX, Frame::mnMaxY;
 float Frame::mfGridElementWidthInv, Frame::mfGridElementHeightInv;
-
+std::vector<float> Frame::mvfx, Frame::mvfy, Frame::mvcx, Frame::mvcy, Frame::mvInvfx, Frame::mvInvfy;
 Frame::Frame()
 {}
 
@@ -105,12 +105,16 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
         mfGridElementWidthInv=static_cast<float>(FRAME_GRID_COLS)/(mnMaxX-mnMinX);
         mfGridElementHeightInv=static_cast<float>(FRAME_GRID_ROWS)/(mnMaxY-mnMinY);
 
-        fx = K.at<float>(0,0);
-        fy = K.at<float>(1,1);
-        cx = K.at<float>(0,2);
-        cy = K.at<float>(1,2);
-        invfx = 1.0f/fx;
-        invfy = 1.0f/fy;
+        for(int c =0;c<Ncameras;c++)
+        {
+            mvfx[c] = K.at<float>(0,0);
+            mvfy[c] = K.at<float>(1,1);
+            mvcx[c] = K.at<float>(0,2);
+            mvcy[c] = K.at<float>(1,2);
+            mvInvfx[c] = 1.0f/mvfx[c];
+            mvInvfy[c] = 1.0f/mvfy[c];
+        }
+
 
         mbInitialComputations=false;
     }
@@ -297,7 +301,7 @@ Frame::Frame(const cv::Size& imgSize,const cv::Mat& Tcw,const std::vector<cv::Ke
 
 
 
-    Frame::Frame(const std::vector<cv::Mat> &imGray,const cv::Mat& object_class, const double &timeStamp, std::vector<FisheyeCorrector> &correctors, std::vector<ORBextractor*>& extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
+    Frame::Frame(const std::vector<cv::Mat> &imGray,const cv::Mat& object_class, const double &timeStamp, std::vector<FisheyeCorrector,Eigen::aligned_allocator<FisheyeCorrector>> &correctors, std::vector<ORBextractor*>& extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
 	:mpORBvocabulary(voc), mpORBextractorLeft(extractor[0]), mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
 	mTimeStamp(timeStamp), mK(K.clone()), mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth)
 {
@@ -394,7 +398,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 
 }
 
-void Frame::ExtractORBFisheye(const std::vector<cv::Mat> &ims,const cv::Mat& object_class ,std::vector<FisheyeCorrector> &correctors, std::vector<ORBextractor*>& ORBextractor)
+void Frame::ExtractORBFisheye(const std::vector<cv::Mat> &ims,const cv::Mat& object_class ,std::vector<FisheyeCorrector,Eigen::aligned_allocator<FisheyeCorrector>> &correctors, std::vector<ORBextractor*>& ORBextractor)
 {
     //std::cout<<"ExtractORBFisheye "<<std::endl;
 	std::vector<cv::KeyPoint> mvKeys_current,mvfisheye_keys_current,mvundist_keys_current;

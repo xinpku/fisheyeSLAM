@@ -78,6 +78,10 @@ void FisheyeCorrector::generateMap()
 		rotation(1, 0), rotation(1, 1), rotation(1, 2), new_camera_plane_center(1),
 		rotation(2, 0), rotation(2, 1), rotation(2, 2), new_camera_plane_center(2),
 		0,0,0,1;
+
+	 T_camera_fisheye = Eigen::Matrix4f::Identity();
+	 T_camera_fisheye.block(0,0,3,3) = rotation.transpose();
+
 	//std::cout << "transform_camera_to_originalplane_" << std::endl << transform_camera_to_originalplane_ << std::endl;
 
 	map_to_original_plane = cv::Mat::ones(Height_, Width_, CV_32FC2)*(-1);
@@ -170,8 +174,10 @@ FisheyeCorrector::FisheyeCorrector(std::string correction_table_file, int input_
 		original_axis = Eigen::Vector3f(0,0,0);
 
 		transform_camera_to_originalplane_ = Eigen::Matrix4f();
+        T_camera_fisheye = Eigen::Matrix4f::Identity();
 
 	}
+
 
 
 
@@ -188,7 +194,7 @@ void FisheyeCorrector::mapToOriginalImage<cv::KeyPoint>(const std::vector<cv::Ke
 		float h = points[i].pt.y;
 		float w = points[i].pt.x;
 		//Transform the points in the corrected image to it's correct position
-		
+
 		if (h >= height || w >= width||h<0||w<0)
 		{
 			points_in_fisheye_temp[i] = points[i];

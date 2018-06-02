@@ -215,7 +215,7 @@ void LocalMapping::MapPointCulling()
 
 void LocalMapping::CreateNewMapPoints()
 {
-    // Retrieve neighbor keyframes in covisibility graph
+/*    // Retrieve neighbor keyframes in covisibility graph
     //std::cout<<"Mapping CreateNewMapPoints "<<std::endl;
     int nn = 10;
     if(mbMonocular)
@@ -435,8 +435,8 @@ void LocalMapping::CreateNewMapPoints()
             const float ratioDist = dist2/dist1;
             const float ratioOctave = mpCurrentKeyFrame->mvScaleFactors[kp1.octave]/pKF2->mvScaleFactors[kp2.octave];
 
-            /*if(fabs(ratioDist-ratioOctave)>ratioFactor)
-                continue;*/
+            *//*if(fabs(ratioDist-ratioOctave)>ratioFactor)
+                continue;*//*
             if(ratioDist*ratioFactor<ratioOctave || ratioDist>ratioOctave*ratioFactor)
                 continue;
 
@@ -476,7 +476,7 @@ void LocalMapping::CreateNewMapPoints()
             nnew++;
         }
     }
-    print_value(nnew);
+    print_value(nnew);*/
 }
 
 void LocalMapping::SearchInNeighbors()
@@ -561,7 +561,7 @@ void LocalMapping::SearchInNeighbors()
     mpCurrentKeyFrame->UpdateConnections();
 }
 
-cv::Mat LocalMapping::ComputeF12(KeyFrame *&pKF1, KeyFrame *&pKF2)
+/*cv::Mat LocalMapping::ComputeF12(KeyFrame *&pKF1, KeyFrame *&pKF2)
 {
     cv::Mat R1w = pKF1->GetRotation();
     cv::Mat t1w = pKF1->GetTranslation();
@@ -578,7 +578,7 @@ cv::Mat LocalMapping::ComputeF12(KeyFrame *&pKF1, KeyFrame *&pKF2)
 
 
     return K1.t().inv()*t12x*R12*K2.inv();
-}
+}*/
 
 void LocalMapping::RequestStop()
 {

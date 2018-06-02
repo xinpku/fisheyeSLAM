@@ -59,14 +59,14 @@ public:
     // Constructor for Monocular cameras.
     Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor,ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
 	
-	Frame(const std::vector<cv::Mat> &imGray,const cv::Mat& road_notation ,const double &timeStamp, std::vector<FisheyeCorrector> &correctors, std::vector<ORBextractor*>& extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
+	Frame(const std::vector<cv::Mat> &imGray,const cv::Mat& road_notation ,const double &timeStamp, std::vector<FisheyeCorrector,Eigen::aligned_allocator<FisheyeCorrector>> &correctors, std::vector<ORBextractor*>& extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
 
     Frame(const cv::Size& imgSize,const cv::Mat& Tcw,const std::vector<cv::KeyPoint> keypoint,const std::vector<cv::KeyPoint> keypoint_Un,const cv::Mat descriptor,const double &timeStamp, ORBextractor* extractor,ORBVocabulary* voc, cv::Mat &K, const float &bf, const float &thDepth);
 
 
     // Extract ORB on the image. 0 for left image and 1 for right image.
     void ExtractORB(int flag, const cv::Mat &im);
-	void ExtractORBFisheye(const std::vector<cv::Mat> &ims,const cv::Mat& road_notation ,std::vector<FisheyeCorrector> &correctors, std::vector<ORBextractor*>& ORBextractor);
+	void ExtractORBFisheye(const std::vector<cv::Mat> &ims,const cv::Mat& road_notation ,std::vector<FisheyeCorrector,Eigen::aligned_allocator<FisheyeCorrector>> &correctors, std::vector<ORBextractor*>& ORBextractor);
     // Compute Bag of Words representation.
     void ComputeBoW();
 
@@ -116,13 +116,7 @@ public:
     double mTimeStamp;
 
     // Calibration matrix and OpenCV distortion parameters.
-    cv::Mat mK;
-    static float fx;
-    static float fy;
-    static float cx;
-    static float cy;
-    static float invfx;
-    static float invfy;
+
     cv::Mat mDistCoef;
 
     // Stereo baseline multiplied by fx.
@@ -232,8 +226,8 @@ public:
     std::vector<cv::Mat> mvRcwSubcamera;
     std::vector<cv::Mat> mvtcwSubcamera;
     // Constructor for multiple Monocular cameras.
-    Frame(const std::vector<cv::Mat> &imGrays, std::vector<FisheyeCorrector> &correctors, const double &timeStamp, ORBextractor* extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth, std::vector<cv::Mat>& Tcm);
-    void ExtractORBGroupCamera(const std::vector<cv::Mat> &imGrays, std::vector<FisheyeCorrector> &correctors);
+    Frame(const std::vector<cv::Mat> &imGrays, std::vector<FisheyeCorrector,Eigen::aligned_allocator<FisheyeCorrector>> &correctors, const double &timeStamp, ORBextractor* extractor, ORBVocabulary* voc, std::vector<cv::Mat> &K, cv::Mat &distCoef, const float &bf, const float &thDepth, std::vector<cv::Mat>& Tcm);
+    void ExtractORBGroupCamera(const std::vector<cv::Mat> &imGrays, std::vector<FisheyeCorrector,Eigen::aligned_allocator<FisheyeCorrector>> &correctors);
     // Compute Bag of Words representation.
 
 
@@ -256,8 +250,10 @@ public:
     vector<size_t> GetFeaturesInAreaSubCamera(const float &x, const float  &y, const float  &r, const int minLevel, const int maxLevel,int cameraID) const;
 
 
-
-
+    std::vector<cv::Mat> mvK;
+    static std::vector<float> mvfx, mvfy, mvcx, mvcy, mvInvfx, mvInvfy;
+    cv::Mat mK;
+    static float fx, fy, cx, cy, invfx, invfy;
 };
 
 }// namespace ORB_SLAM

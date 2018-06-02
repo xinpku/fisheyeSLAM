@@ -66,27 +66,40 @@ Viewer.ViewpointF: 500
 #--------------------------------------------------------------------------------------------
 # MultiFrame Parameters
 #--------------------------------------------------------------------------------------------
-GroupCamera.n_frame: 2
+GroupCamera.n_frame: 3
 #front
 GroupCamera.VideoName.0: "front.avi"
-camera0.R: [ 0 ,     0.46436,      -3.1071 ]
-camera0.C: [ 0,         0.65,         1.45 ]
-#camera0.R: [ 0, 0, 0 ]
-#camera0.C: [ 0, 0, 0 ]
+#camera0.R: [ 0 ,     0.46436,      -3.1071 ]
+#camera0.C: [ 0,         0.65,         1.45 ]
+camera0.R: [ 0, 0, 0 ]
+camera0.C: [ 0, 0, 0 ]
+
+GroupCamera.VideoName.1: "front.avi"
+#camera0.R: [ 0 ,     0.46436,      -3.1071 ]
+#camera0.C: [ 0,         0.65,         1.45 ]
+camera1.R: [ 0, 0, 0 ]
+camera1.C: [ 0, 0, 0 ]
+
+
+GroupCamera.VideoName.2: "front.avi"
+#camera0.R: [ 0 ,     0.46436,      -3.1071 ]
+#camera0.C: [ 0,         0.65,         1.45 ]
+camera2.R: [ 0, 0, 0 ]
+camera2.C: [ 0, 0, 0 ]
 
 #rear
-GroupCamera.VideoName.1: "rear.avi"
-camera1.R: [ 2.4007,     0.031287,    0.0031779 ]
-camera1.C: [ -0.076303,      0.96447,      -2.8249]
+#GroupCamera.VideoName.1: "rear.avi"
+#camera1.R: [ 2.4007,     0.031287,    0.0031779 ]
+#camera1.C: [ -0.076303,      0.96447,      -2.8249]
 
 #left
-GroupCamera.VideoName.3: "left.avi"
-camera3.R: [ 1.9046,     -0.67445,       1.8433 ]
-camera3.C: [ 0.92499 ,      1.0444,     -0.13112 ]
+#GroupCamera.VideoName.3: "left.avi"
+#camera3.R: [ 1.9046,     -0.67445,       1.8433 ]
+#camera3.C: [ 0.92499 ,      1.0444,     -0.13112 ]
 #right
-GroupCamera.VideoName.2: "right.avi"
-camera2.R: [ 1.9706,      0.50994,      -1.9093 ]
-camera2.C: [ -0.99729,      0.99494,    -0.094336 ]
+#GroupCamera.VideoName.2: "right.avi"
+#camera2.R: [ 1.9706,      0.50994,      -1.9093 ]
+#camera2.C: [ -0.99729,      0.99494,    -0.094336 ]
 
 
 #camera3.R: [ 1.76027, 1.5948, -0.83195 ]

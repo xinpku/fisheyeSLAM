@@ -122,10 +122,10 @@ namespace ORB_SLAM2
                         rk->setDelta(thHuber2D);
                     }
 
-                    e->fx = pKF->fx;
-                    e->fy = pKF->fy;
-                    e->cx = pKF->cx;
-                    e->cy = pKF->cy;
+                    e->fx = pKF->mvfx[cameraID];
+                    e->fy = pKF->mvfy[cameraID];
+                    e->cx = pKF->mvcx[cameraID];
+                    e->cy = pKF->mvcy[cameraID];
                     e->Tcg_ = Converter::toSE3Quat(pKF->mvTcg[cameraID]);
                     optimizer.addEdge(e);
                 }
@@ -151,10 +151,10 @@ namespace ORB_SLAM2
                         rk->setDelta(thHuber3D);
                     }
 
-                    e->fx = pKF->fx;
-                    e->fy = pKF->fy;
-                    e->cx = pKF->cx;
-                    e->cy = pKF->cy;
+                    e->fx = pKF->mvfx[cameraID];
+                    e->fy = pKF->mvfy[cameraID];
+                    e->cx = pKF->mvcx[cameraID];
+                    e->cy = pKF->mvcy[cameraID];
                     e->bf = pKF->mbf;
 
                     optimizer.addEdge(e);
@@ -296,10 +296,10 @@ namespace ORB_SLAM2
                         e->setRobustKernel(rk);
                         rk->setDelta(deltaMono);
 
-                        e->fx = pFrame->fx;
-                        e->fy = pFrame->fy;
-                        e->cx = pFrame->cx;
-                        e->cy = pFrame->cy;
+                        e->fx = pFrame->mvfx[cameraID];
+                        e->fy = pFrame->mvfy[cameraID];
+                        e->cx = pFrame->mvcx[cameraID];
+                        e->cy = pFrame->mvcy[cameraID];
                         cv::Mat Xw = pMP->GetWorldPos();
                         e->Xw[0] = Xw.at<float>(0);
                         e->Xw[1] = Xw.at<float>(1);
@@ -334,10 +334,10 @@ namespace ORB_SLAM2
                         e->setRobustKernel(rk);
                         rk->setDelta(deltaStereo);
 
-                        e->fx = pFrame->fx;
-                        e->fy = pFrame->fy;
-                        e->cx = pFrame->cx;
-                        e->cy = pFrame->cy;
+                        e->fx = pFrame->mvfx[cameraID];
+                        e->fy = pFrame->mvfy[cameraID];
+                        e->cx = pFrame->mvcx[cameraID];
+                        e->cy = pFrame->mvcy[cameraID];
                         e->bf = pFrame->mbf;
                         cv::Mat Xw = pMP->GetWorldPos();
                         e->Xw[0] = Xw.at<float>(0);
@@ -611,10 +611,10 @@ namespace ORB_SLAM2
                         e->setRobustKernel(rk);
                         rk->setDelta(thHuberMono);
 
-                        e->fx = pKFi->fx;
-                        e->fy = pKFi->fy;
-                        e->cx = pKFi->cx;
-                        e->cy = pKFi->cy;
+                        e->fx = pKFi->mvfx[cameraID];
+                        e->fy = pKFi->mvfy[cameraID];
+                        e->cx = pKFi->mvcx[cameraID];
+                        e->cy = pKFi->mvcy[cameraID];
 
                         e->Tcg_ = Converter::toSE3Quat(pKFi->mvTcg[cameraID]);
 
@@ -642,10 +642,10 @@ namespace ORB_SLAM2
                         e->setRobustKernel(rk);
                         rk->setDelta(thHuberStereo);
 
-                        e->fx = pKFi->fx;
-                        e->fy = pKFi->fy;
-                        e->cx = pKFi->cx;
-                        e->cy = pKFi->cy;
+                        e->fx = pKFi->mvfx[cameraID];
+                        e->fy = pKFi->mvfy[cameraID];
+                        e->cx = pKFi->mvcx[cameraID];
+                        e->cy = pKFi->mvcy[cameraID];
                         e->bf = pKFi->mbf;
 
                         optimizer.addEdge(e);

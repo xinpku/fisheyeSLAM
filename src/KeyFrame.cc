@@ -33,17 +33,17 @@ KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
     mfGridElementWidthInv(F.mfGridElementWidthInv), mfGridElementHeightInv(F.mfGridElementHeightInv),
     mnTrackReferenceForFrame(0), mnFuseTargetForKF(0), mnBALocalForKF(0), mnBAFixedForKF(0),
     mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0), mnBAGlobalForKF(0),
-    fx(F.fx), fy(F.fy), cx(F.cx), cy(F.cy), invfx(F.invfx), invfy(F.invfy),
+    mvfx(F.mvfx), mvfy(F.mvfy), mvcx(F.mvcx), mvcy(F.mvcy), mvInvfx(F.mvInvfx), mvInvfy(F.mvInvfy),
     mbf(F.mbf), mb(F.mb), mThDepth(F.mThDepth), N(F.N), mvKeys(F.mvKeys), mvKeysUn(F.mvKeysUn),
     mvuRight(F.mvuRight), mvDepth(F.mvDepth), mDescriptors(F.mDescriptors.clone()),
     mBowVec(F.mBowVec), mFeatVec(F.mFeatVec), mnScaleLevels(F.mnScaleLevels), mfScaleFactor(F.mfScaleFactor),
     mfLogScaleFactor(F.mfLogScaleFactor), mvScaleFactors(F.mvScaleFactors), mvLevelSigma2(F.mvLevelSigma2),
     mvInvLevelSigma2(F.mvInvLevelSigma2), mnMinX(F.mnMinX), mnMinY(F.mnMinY), mnMaxX(F.mnMaxX),
-    mnMaxY(F.mnMaxY), mK(F.mK), mvpMapPoints(F.mvpMapPoints), mpKeyFrameDB(pKFDB),
+    mnMaxY(F.mnMaxY), mvpMapPoints(F.mvpMapPoints), mpKeyFrameDB(pKFDB),
     mpORBvocabulary(F.mpORBvocabulary), mbFirstConnection(true), mpParent(NULL), mbNotErase(false),
     mbToBeErased(false), mbBad(false), mHalfBaseline(F.mb/2), mpMap(pMap),mvSemanticClass(F.mvSemanticClass),mvSemanticProbability(F.mvSemanticProbability),
     Ncameras(F.Ncameras), kp_start_pos(F.kp_start_pos), mvCamera_Id_KeysUn(F.mvCamera_Id_KeysUn),
-    mvTcg(F.mvTcg), mvOwSubcamera(F.mvOwSubcamera), mvTcwSubcamera(F.mvTcwSubcamera)
+    mvTcg(F.mvTcg), mvOwSubcamera(F.mvOwSubcamera), mvTcwSubcamera(F.mvTcwSubcamera),mvK(F.mvK)
 
 {
     mnId=nNextId++;
@@ -54,6 +54,10 @@ KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
         mGrid[i].resize(mnGridRows);
         for(int j=0; j<mnGridRows; j++)
             mGrid[i][j] = F.mGrid[i][j];
+    }
+    for(int c= 0;c<Ncameras;c++)
+    {
+        mvK[c] = F.mvK[c].clone();
     }
 
     SetPose(F.mTcw);    
@@ -620,7 +624,7 @@ bool KeyFrame::IsInImage(const float &x, const float &y) const
 
 cv::Mat KeyFrame::UnprojectStereo(int i)
 {
-    const float z = mvDepth[i];
+/*    const float z = mvDepth[i];
     if(z>0)
     {
         const float u = mvKeys[i].pt.x;
@@ -633,7 +637,7 @@ cv::Mat KeyFrame::UnprojectStereo(int i)
         return Twc.rowRange(0,3).colRange(0,3)*x3Dc+Twc.rowRange(0,3).col(3);
     }
     else
-        return cv::Mat();
+        return cv::Mat();*/
 }
 
 float KeyFrame::ComputeSceneMedianDepth(const int q)
