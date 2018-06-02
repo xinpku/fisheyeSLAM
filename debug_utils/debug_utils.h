@@ -260,3 +260,23 @@ public:
 };
 
 extern DebugDrawer debugDrawer;
+
+
+class Statistic
+{
+public:
+    long count = 0;
+    double sum = 0;
+    std::vector<double> num;
+
+    double average()
+    {
+        return sum/count;
+    }
+    void push_back(double n)
+    {
+        num.push_back(n);
+        sum+=n;
+        count++;
+    }
+};

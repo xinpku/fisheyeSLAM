@@ -895,3 +895,7 @@ cv::Mat Frame::UnprojectStereo(const int &i)
 
 
 } //namespace ORB_SLAM
+
+
+//Debug utils
+Statistic keypoints_stat;

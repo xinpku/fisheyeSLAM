@@ -189,6 +189,7 @@ namespace ORB_SLAM2
             print_vector(crop_size,true);
             if(scale!=1)
             mvCorrectors[v].setSizeScale(scale);
+
         }
 
     }

@@ -7,6 +7,8 @@
 
 #include"System.h"
 #include <src/fisheye_corrector/fisheye_corrector.h>
+#include <debug_utils/debug_utils.h>
+
 using namespace std;
 
 #define usleep(x) Sleep((float)x/1000.0f)
@@ -117,8 +119,11 @@ int main(int argc, char **argv)
 
         if (SLAM.GetTrackingState() == 3 || (ni>=30&&ni%30==0))
         {
-            SLAM.SaveMapClouds("pointClouds.vtx");
-            SLAM.SaveTrajectoryVtx("CameraTrajectory.vtx");
+            /*SLAM.SaveMapClouds("pointClouds.vtx");
+            SLAM.SaveTrajectoryVtx("CameraTrajectory.vtx");*/
+            print_value(keypoints_stat.average());
+            print_value(keypoints_stat.sum);
+            print_value(keypoints_stat.count);
         }
         //std::cout<<"ni "<<ni<<std::endl;
         //cv::waitKey(0);

@@ -7,7 +7,6 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/features2d/features2d.hpp>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 const float kPI = 3.14159;
@@ -18,16 +17,11 @@ inline float radianToDegree(float r){ return (r / kPI)* 180.f; }
 
 class FisheyeCorrector
 {
-	std::vector<float> distortion_list_;
+	//std::vector<float> distortion_list_;
 	cv::Mat K_;
 
 	cv::Mat original_map_;
 	cv::Mat map_;
-	cv::Mat map_to_original_plane;
-	cv::Mat map_to_original_plane_clip;
-
-
-
 	float f_camera_;
 	float CenterX_fisheye_;
 	float CenterY_fisheye_;
@@ -55,26 +49,26 @@ class FisheyeCorrector
 	Eigen::Vector3f camera_center;
 	Eigen::Vector3f original_axis;
 private:
-	void readDistortionList(std::string file_name);
+	/*void readDistortionList(std::string file_name);*/
 
 	void generateMap();
 
 	bool map_need_update = true;
 
-	
 public:
 	//Correction table and pixelHeight should provided by camera manufactor. focal length will infuence the size of the result image.
 	FisheyeCorrector(std::string correction_table_file, int input_height, int input_width, float pixelHeight, float f = 306.605, float VerticalDegeree = 60, float HorizontalDegree = 70);
 	FisheyeCorrector()
-		:pixelHeight_(0), f_camera_(0), horizontal_range_radian_(degreeToRadian(0)), vertical_range_radian_(degreeToRadian(0))
+			:pixelHeight_(0), f_camera_(0), horizontal_range_radian_(degreeToRadian(0)), vertical_range_radian_(degreeToRadian(0))
 	{
 		size_scale_ = 1;
 		CenterX_fisheye_ = 0 / 2.0f;
 		CenterY_fisheye_ = 0 / 2.0f;
-	
+
 		axis_vertical_radian_ = 0;
 		axis_horizontal_radian_ = 0;
 		axis_rotation_radian_ = 0;
+
 		clip_region_ = cv::Rect(0, 0, 0, 0);
 		map_need_update = true;
 		new_camera_plane_center = Eigen::Vector3f(0, 0, 0);
@@ -83,7 +77,7 @@ public:
 	};
 	FisheyeCorrector(const FisheyeCorrector& f)
 	{
-		distortion_list_.assign(f.distortion_list_.begin(), f.distortion_list_.end());
+		//distortion_list_.assign(f.distortion_list_.begin(), f.distortion_list_.end());
 		f.K_.copyTo(K_);
 
 		f.original_map_.copyTo(original_map_);
@@ -123,7 +117,7 @@ public:
 	{
 		if (this == &f)
 			return *this;
-		distortion_list_.assign(f.distortion_list_.begin(), f.distortion_list_.end());
+		//distortion_list_.assign(f.distortion_list_.begin(), f.distortion_list_.end());
 		f.K_.copyTo(K_);
 
 		f.original_map_.copyTo(original_map_);
@@ -164,10 +158,10 @@ public:
 	cv::Mat& correct(const cv::Mat& src, cv::Mat& dst)
 	{
 		if (map_need_update)
-			updateMap(); 
-		cv::remap(src, dst, map_, cv::Mat(), cv::INTER_CUBIC); 
-/*		if (size_scale_!=1)
-			cv::resize(dst, dst, cv::Size(dst.cols*size_scale_, dst.rows*size_scale_), size_scale_, size_scale_, cv::INTER_CUBIC);*/
+			updateMap();
+		cv::remap(src, dst, map_, cv::Mat(), cv::INTER_CUBIC);
+		if (size_scale_!=1)
+			cv::resize(dst, dst, cv::Size(dst.cols*size_scale_, dst.rows*size_scale_), size_scale_, size_scale_, cv::INTER_CUBIC);
 		return dst;
 	}
 	template<class  pointType>
@@ -178,15 +172,14 @@ public:
 
 	cv::Size getCorrectedSize()
 	{
-		return cv::Size(map_.cols, map_.rows);
+		return cv::Size(map_.cols*size_scale_, map_.rows*size_scale_);
 	}
 
 	void setClipRegion(const cv::Rect& region)
 	{
-		std::cout<<region<<std::endl;
 		clip_region_ = region;
-/*		map_ = original_map_(region);
-		std::cout << "Size of corrected imageis  width:" << map_.cols << " height:" << map_.rows << std::endl;*/
+		map_ = original_map_(region);
+		std::cout << "Size of corrected imageis  width:" << map_.cols << " height:" << map_.rows << std::endl;
 	}
 
 	void setSizeScale(float scale)
@@ -197,10 +190,10 @@ public:
 	cv::Mat getIntrinsicMatrix()
 	{
 		K_ = (cv::Mat_<double>(3, 3) <<
-			f_image_, 0, CenterX_ - clip_region_.x,
-			0, f_image_, CenterY_ - clip_region_.y,
-			0, 0, 1
-			);
+									 f_image_, 0, CenterX_ - clip_region_.x,
+				0, f_image_, CenterY_ - clip_region_.y,
+				0, 0, 1
+		);
 		K_ *= size_scale_;
 		K_.at<double>(2, 2) /= size_scale_;
 		return K_;
@@ -210,15 +203,15 @@ public:
 	{
 		Eigen::Matrix4f image_to_imageplane, originalplane_to_camera;
 		image_to_imageplane <<
-			1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, -f_image_,
-			0, 0, 0, 1;
+							1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 1, -f_image_,
+				0, 0, 0, 1;
 		originalplane_to_camera<<
-			1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, f_camera_,
-			0, 0, 0, 1;
+							   1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 1, f_camera_,
+				0, 0, 0, 1;
 		return (originalplane_to_camera*transform_camera_to_originalplane_*image_to_imageplane).inverse();
 	}
 
@@ -228,24 +221,22 @@ public:
 		axis_horizontal_radian_ = degreeToRadian(axis_direction_horizontal);
 		axis_rotation_radian_ = degreeToRadian(axis_rotation);
 		map_need_update = true;
-        generateMap();
 	}
 	void updateMap()
 	{
-		if(original_map_.empty())
-			generateMap();
+		generateMap();
 
 		if (clip_region_.area() == 0)
 			clip_region_ = cv::Rect(0, 0, Width_, Height_);
-		std::cout<<clip_region_<<std::endl;
-		std::cout<<original_map_.size()<<std::endl;
-		original_map_(clip_region_).copyTo(map_);
-		map_to_original_plane(clip_region_).copyTo(map_to_original_plane_clip);
-		cv::resize(map_,map_,cv::Size(0,0), size_scale_, size_scale_, cv::INTER_NEAREST);
-		cv::resize(map_to_original_plane_clip,map_to_original_plane_clip,cv::Size(0,0), size_scale_, size_scale_, cv::INTER_NEAREST);
 
+		setClipRegion(clip_region_);
 		map_need_update = false;
 	}
+
+    float distortion_list(float theta_in);
+	float k1 = 0.23524002;
+	float k2 = -0.03691868;
+	float k3 = 0.00629559;
 
 };
 
@@ -259,74 +250,92 @@ public:
 template<class pointType>
 void FisheyeCorrector::mapToOriginalImage(const std::vector<pointType>& points, std::vector<pointType>& points_in_fisheye)
 {
-    std::vector<pointType> points_in_fisheye_temp;
-    points_in_fisheye_temp.resize(points.size());
-    int width = original_map_.cols;
-    int height = original_map_.rows;
-    for (int i = 0; i < points.size(); i++)
-    {
-        float h = points[i].y / size_scale_ + clip_region_.tl().y;
-        float w = points[i].x / size_scale_ + clip_region_.tl().x;
-        //Transform the points in the corrected image to it's correct position
+	points_in_fisheye.resize(points.size());
+	for (int i = 0; i < points.size(); i++)
+	{
+		float h = points[i].pt.y/size_scale_ + clip_region_.tl().y;
+		float w = points[i].pt.x/size_scale_ + clip_region_.tl().x;
+		//Transform the points in the corrected image to it's correct position
+		Eigen::Vector4f point_homo(w - CenterX_, -h + CenterY_, 0, 1);
 
-        if (h >= height || w >= width||h<0||w<0)
-        {
-            points_in_fisheye_temp[i] = points[i];
-            points_in_fisheye_temp[i].x = -1;
-            points_in_fisheye_temp[i].y = -1;
-            continue;
-        }
+		point_homo = transform_camera_to_originalplane_*point_homo;
+		Eigen::Vector3f  point(point_homo(0), point_homo(1), point_homo(2));
+		//std::cout << "point " << point.transpose() << std::endl;
+		//Eigen::Vector3f point_vector = (point - camera_center).normalized();
 
-        float x = original_map_.at<cv::Vec2f>(h, w)(0);
-        float y = original_map_.at<cv::Vec2f>(h, w)(1);
-        //std::cout << "x " << x << "   y " << y << std::endl;
-        //Add the map relationship of Point(h,w)
-        points_in_fisheye_temp[i] = points[i];
-        points_in_fisheye_temp[i].x = x;
-        points_in_fisheye_temp[i].y = y;
-    }
-    points_in_fisheye.clear();
-    points_in_fisheye.insert(points_in_fisheye.end(), points_in_fisheye_temp.begin(), points_in_fisheye_temp.end());
+		float cos_value = original_axis.dot((point - camera_center).normalized());
+		float degree = radianToDegree(acos(cos_value));
+		if (degree > 100)
+			continue;
+		float radius_in_project = sqrt(point(0)*point(0) + point(1)*point(1));
+
+		int position_floor = floor(degree * 10);
+		int position_ceil = ceil(degree * 10);
+		float  radius_in_fisheye_floor = distortion_list(degreeToRadian(degree));
+		//float  radius_in_fisheye_ceil = distortion_list_[position_ceil];
+		float radius_in_fisheye = distortion_list(degreeToRadian(degree));//radius_in_fisheye_floor + (radius_in_fisheye_ceil - radius_in_fisheye_floor)*((degree * 10 - position_floor) / (position_ceil - position_floor));
+		radius_in_fisheye = radius_in_fisheye / pixelHeight_;
+
+		float x = point(0) *(radius_in_fisheye / radius_in_project);
+		float y = point(1)*(radius_in_fisheye / radius_in_project);
+		//std::cout << "x " << x << "   y " << y << std::endl;
+		//Add the map relationship of Point(h,w)
+		points_in_fisheye[i] = points[i];
+		points_in_fisheye[i].pt.x = x + CenterX_fisheye_;
+		points_in_fisheye[i].pt.y = -y + CenterY_fisheye_;
+	}
 }
 
 
 template<class pointType>
 void FisheyeCorrector::mapFromCorrectedImageToCenterImagePlane(const std::vector<pointType>& points, std::vector<pointType>& points_in_pinhole, float cx, float cy, float f_center_image)
 {
-    std::vector<pointType> points_in_pinhole_temp;
-    points_in_pinhole_temp.resize(points.size());
-    double ratio = f_center_image / f_camera_;
-    int width = map_to_original_plane.cols;
-    int height = map_to_original_plane.rows;
-    //std::cout << "f_center_image " << f_center_image << " f_camera " << f_camera_ << std::endl;
-    //std::cout << "ratio " << ratio << std::endl;
-    for (int i = 0; i < points.size(); i++)
-    {
-        float h = points[i].y / size_scale_ + clip_region_.tl().y;
-        float w = points[i].x / size_scale_ + clip_region_.tl().x;
-        if (h >= height || w >= width || h<0 || w<0)
-        {
-            points_in_pinhole_temp[i] = points[i];
-            points_in_pinhole_temp[i].x = -1;
-            points_in_pinhole_temp[i].y = -1;
-            continue;
-        }
-        //Transform the points in the corrected image to it's correct position
-        float x = map_to_original_plane.at<cv::Vec2f>(h, w)(0);
-        float y = map_to_original_plane.at<cv::Vec2f>(h, w)(1);
-        //std::cout << "xo " << x << "   y " << y << std::endl;
-        //Add the map relationship of Point(h,w)
-        points_in_pinhole_temp[i] = points[i];
-        points_in_pinhole_temp[i].x = x*ratio + cx;
-        points_in_pinhole_temp[i].y = -y*ratio + cy;
-    }
-    points_in_pinhole.clear();
-    points_in_pinhole.insert(points_in_pinhole.end(), points_in_pinhole_temp.begin(), points_in_pinhole_temp.end());
+	const float max_project_angle_cos = 0.05;//about 87 degree
 
+
+	points_in_pinhole.resize(points.size());
+	double ratio = f_center_image / f_camera_;
+	for (int i = 0; i < points.size(); i++)
+	{
+		float h = points[i].pt.y / size_scale_ + clip_region_.tl().y;
+		float w = points[i].pt.x / size_scale_ + clip_region_.tl().x;
+		//Transform the points in the corrected image to it's correct position
+		Eigen::Vector4f point_homo(w - CenterX_, -h + CenterY_, 0, 1);
+
+		point_homo = transform_camera_to_originalplane_*point_homo;
+		Eigen::Vector3f  point(point_homo(0), point_homo(1), point_homo(2));
+		float radius_in_project = sqrt(point(0)*point(0) + point(1)*point(1));
+
+		float cos_value = original_axis.dot((point - camera_center).normalized());
+		float x, y;
+		if (point(2) < 0 && cos_value > max_project_angle_cos)
+		{
+			float radius_in_center_plane = (radius_in_project*point(2))/(-point(2)-f_camera_) + radius_in_project;
+
+			x = point(0) *(radius_in_center_plane / radius_in_project);
+			y = point(1)*(radius_in_center_plane / radius_in_project);
+		}
+		else if (point(2) > 0 && cos_value > max_project_angle_cos)
+		{
+			float radius_in_center_plane = radius_in_project / (point(2)/f_camera_ + 1);
+
+			x = point(0) *(radius_in_center_plane / radius_in_project);
+			y = point(1)*(radius_in_center_plane / radius_in_project);
+		}
+		else if (point(2) == 0)
+		{
+			x = point(0);
+			y = point(1);
+		}
+		else
+		{
+			points_in_pinhole[i] = points[i];
+			points_in_pinhole[i].pt.x = 0;
+			points_in_pinhole[i].pt.y = 0;
+			continue;
+		}
+		points_in_pinhole[i] = points[i];
+		points_in_pinhole[i].pt.x = x*ratio + cx;
+		points_in_pinhole[i].pt.y = -y*ratio + cy;
+	}
 }
-
-
-template<>
-void FisheyeCorrector::mapFromCorrectedImageToCenterImagePlane<cv::KeyPoint>(const std::vector<cv::KeyPoint>& points, std::vector<cv::KeyPoint>& points_in_pinhole, float cx, float cy, float f_center_image);
-template<>
-void FisheyeCorrector::mapToOriginalImage<cv::KeyPoint>(const std::vector<cv::KeyPoint>& points, std::vector<cv::KeyPoint>& points_in_fisheye);

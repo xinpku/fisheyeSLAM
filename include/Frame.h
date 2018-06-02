@@ -33,6 +33,7 @@
 #include <opencv2/opencv.hpp>
 #include <fisheye_corrector/fisheye_corrector.h>
 #include "SemanticClassMap/SemanticClass.h"
+#include "debug_utils/debug_utils.h"
 namespace ORB_SLAM2
 {
 #define FRAME_GRID_ROWS 48
@@ -255,8 +256,13 @@ public:
     vector<size_t> GetFeaturesInAreaSubCamera(const float &x, const float  &y, const float  &r, const int minLevel, const int maxLevel,int cameraID) const;
 
 
+
+
 };
 
 }// namespace ORB_SLAM
+
+//Debug utils
+extern Statistic keypoints_stat;
 
 #endif // FRAME_H

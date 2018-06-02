@@ -66,7 +66,7 @@ namespace ORB_SLAM2
 
 
         N = mvKeys.size();
-
+        keypoints_stat.push_back(N);
         if (mvKeys.empty())
             return;
 
@@ -114,14 +114,14 @@ namespace ORB_SLAM2
                 std::vector<int> camera_id(mvKeys_temp.size(),i);
                 mvCamera_Id_KeysUn.insert(mvCamera_Id_KeysUn.end(),camera_id.begin(),camera_id.end());
 
-/*                cv::Mat part;
+                cv::Mat part;
 		cv::drawKeypoints(im_view, mvKeys_temp, part);
 		std::stringstream sst;
 		sst << "part" << v;
 		cv::namedWindow(sst.str(), 0);
         std::cout<<sst.str()<<"  "<<im_view.size()<<std::endl;
 		cv::imshow(sst.str(),part);
-                cv::waitKey(10);*/
+                cv::waitKey(10);
             }
 
         }
