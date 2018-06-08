@@ -1,3 +1,9 @@
+Checkout whether all the mvK and mvfx are correct. Why the initialization always fail.
+
+The getFeaturesInAera is incorrect.
+The distribute features to grids is incorrect.
+
+
 Try to generate the stereo between cameras
 
 

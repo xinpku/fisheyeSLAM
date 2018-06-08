@@ -125,7 +125,7 @@ FisheyeCamera.correction_table: "calib_data/sw4066.txt"
 
 #View0
 FisheyeCamera.view0.yaw: 0
-FisheyeCamera.view0.pitch: 40
+FisheyeCamera.view0.pitch: 0
 FisheyeCamera.view0.raw: 0
 FisheyeCamera.view0.scale: 1
 FisheyeCamera.view0.vertical_range: 60
@@ -134,8 +134,8 @@ FisheyeCamera.view0.crop_size: [ 0, 475, 0, 500 ]
 
 #View1
 FisheyeCamera.view1.yaw: 80
-FisheyeCamera.view1.pitch: 40
-FisheyeCamera.view1.raw: -15
+FisheyeCamera.view1.pitch: 0
+FisheyeCamera.view1.raw: 0
 FisheyeCamera.view1.scale: 1
 FisheyeCamera.view1.vertical_range: 50
 FisheyeCamera.view1.horizontal_range: 30
@@ -143,8 +143,8 @@ FisheyeCamera.view1.crop_size: [ 0, 605, 0, 0 ]
 
 #View2
 FisheyeCamera.view2.yaw: -80
-FisheyeCamera.view2.pitch: 40
-FisheyeCamera.view2.raw: 15
+FisheyeCamera.view2.pitch: 0
+FisheyeCamera.view2.raw: 0
 FisheyeCamera.view2.scale: 1
 FisheyeCamera.view2.vertical_range: 50
 FisheyeCamera.view2.horizontal_range: 30

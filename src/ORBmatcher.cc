@@ -493,6 +493,7 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
 
     }
 
+    print_value(nmatches)
     if(mbCheckOrientation)
     {
         int ind1=-1;
@@ -518,6 +519,7 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
 
     }
 
+    print_value(nmatches)
     //Update prev matched
     for(size_t i1=0, iend1=vnMatches12.size(); i1<iend1; i1++)
         if(vnMatches12[i1]>=0)

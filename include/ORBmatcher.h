@@ -118,7 +118,7 @@ public:
     // Used in Relocalisation and Loop Detection
     int SearchByBoWGroupCamera(KeyFrame *pKF, Frame &F, std::vector<MapPoint*> &vpMapPointMatches);
 
-
+    int SearchForInitializationGroupCamera(Frame &F1, Frame &F2, vector<cv::Point2f> &vbPrevMatched, vector<int> &vnMatches12, int windowSize);
     int SearchForTriangulationGroupCamera(KeyFrame *pKF1, KeyFrame *pKF2, std::vector < std::vector<cv::Mat>> F12,
                                           vector<pair<size_t, size_t> > &vMatchedPairs, const bool bOnlyStereo);
     int SearchForTriangulationGroupCamera(KeyFrame *pKF1, KeyFrame *pKF2, int subCameraIDKF1,int subCameraIDKF2, cv::Mat vF12subcamera,

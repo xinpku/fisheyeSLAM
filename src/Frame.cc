@@ -34,6 +34,7 @@ float Frame::cx, Frame::cy, Frame::fx, Frame::fy, Frame::invfx, Frame::invfy;
 float Frame::mnMinX, Frame::mnMinY, Frame::mnMaxX, Frame::mnMaxY;
 float Frame::mfGridElementWidthInv, Frame::mfGridElementHeightInv;
 std::vector<float> Frame::mvfx, Frame::mvfy, Frame::mvcx, Frame::mvcy, Frame::mvInvfx, Frame::mvInvfy;
+std::vector<cv::Mat> Frame::mvK;
 Frame::Frame()
 {}
 
@@ -56,6 +57,12 @@ Frame::Frame(const Frame &frame)
     for(int i=0;i<FRAME_GRID_COLS;i++)
         for(int j=0; j<FRAME_GRID_ROWS; j++)
             mGrid[i][j]=frame.mGrid[i][j];
+
+/*    mvK.resize(Ncameras);
+    for(int c = 0;c<Ncameras;c++)
+    {
+        mvK[c] = frame.mvK[c].clone();
+    }*/
 
     if(!frame.mTcw.empty())
         SetPose(frame.mTcw);

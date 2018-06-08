@@ -18,7 +18,7 @@ namespace ORB_SLAM2
     bool InitializerGroupCamera::Initialize(const Frame& InitialFrame,const Frame &CurrentFrame, const vector<int> &vMatches12,
                     cv::Mat &R21, cv::Mat &t21, vector<cv::Point3f> &vP3D, vector<bool> &vbTriangulated,int& cameraID)
     {
-printOFF;
+printON;
         bool init_success = false;
         cv::Mat T21 = cv::Mat::eye(4,4,CV_32F);
 
@@ -30,15 +30,21 @@ printOFF;
 
             int start_pos2 = CurrentFrame.kp_start_pos[c];
             int end_pose2 = (c==mNcameras-1?CurrentFrame.mvKeysUn.size():CurrentFrame.kp_start_pos[c+1]);
-
+            print_value(vMatches12.size());
             std::vector<int> vMatches(vMatches12.size(),-1);
 
+            int feature_count = 0;
             for(int i = start_pos;i<end_pose;i++)
             {
                 if((vMatches12[i]>=start_pos2&&vMatches12[i]<end_pose2))
+                {
                     vMatches[i] = vMatches12[i];
+                    feature_count++;
+                }
             }
-
+            if(feature_count<10)
+                continue;
+            print_value(feature_count)
             if(mvInitializers[c].Initialize(CurrentFrame.mvKeysUn,vMatches,R21,t21,vP3D,vbTriangulated))
             {
                 cameraID =c;
@@ -86,12 +92,17 @@ printOFF;
 
             std::vector<int> vMatches(vMatches12.size(),-1);
 
+            int feature_count = 0;
             for(int i = start_pos;i<end_pose;i++)
             {
                 if((vMatches12[i]>=start_pos2&&vMatches12[i]<end_pose2))
+                {
                     vMatches[i] = vMatches12[i];
+                    feature_count++;
+                }
             }
-
+            if(feature_count<10)
+                continue;
             cv::Mat T21_c = CurrentFrame.mvTcg[c]*T21*CurrentFrame.mvTgc[c];
             cv::Mat R21_c = T21_c.rowRange(0,3).colRange(0,3);
             cv::Mat t21_c = T21_c.rowRange(0,3).col(3);
@@ -153,7 +164,7 @@ printOFF;
         }
 
         const int N = mvMatches12.size();
-
+        print_value(mvMatches12.size())
         // Indices for minimum set selection
         vector<size_t> vAllIndices;
         vAllIndices.reserve(N);

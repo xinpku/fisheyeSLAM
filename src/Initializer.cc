@@ -135,7 +135,7 @@ void Initializer::FindHomography(vector<bool> &vbMatchesInliers, float &score, c
 {
     // Number of putative matches
     const int N = mvMatches12.size();
-
+    print_value(mvMatches12.size())
     // Normalize coordinates
     vector<cv::Point2f> vPn1, vPn2;
     cv::Mat T1, T2;

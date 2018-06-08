@@ -138,6 +138,7 @@ printON;
             mvTgc[i] = mvTgc[i]*(eigenMatrixToCvMat(mvCorrectors[i].TransformToCamera().cast<double>()));
             mvTcg[i] = mvTgc[i].inv();
             mvK[i] = mvCorrectors[i].getIntrinsicMatrix();
+            print_mat(mvK[i])
         }
 
 
@@ -146,7 +147,7 @@ printON;
             int cam1 = mvRelatedCamera[i].first;
             int cam2 = mvRelatedCamera[i].second;
             cv::Mat T12 = mvTcg[cam1]*mvTgc[cam2];
-            mvF_relatedCameras[i] = ComputeF12(T12.colRange(0,3).rowRange(0,3),T12.rowRange(0,3).col(3),mK,mK);
+            mvF_relatedCameras[i] = ComputeF12(T12.colRange(0,3).rowRange(0,3),T12.rowRange(0,3).col(3),mvK[cam1],mvK[cam2]);
         }
 
 

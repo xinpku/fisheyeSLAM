@@ -250,7 +250,7 @@ public:
     vector<size_t> GetFeaturesInAreaSubCamera(const float &x, const float  &y, const float  &r, const int minLevel, const int maxLevel,int cameraID) const;
 
 
-    std::vector<cv::Mat> mvK;
+    static std::vector<cv::Mat> mvK;
     static std::vector<float> mvfx, mvfy, mvcx, mvcy, mvInvfx, mvInvfy;
     cv::Mat mK;
     static float fx, fy, cx, cy, invfx, invfy;

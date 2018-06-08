@@ -39,6 +39,7 @@ namespace ORB_SLAM2
             for(int c =0;c<Ncameras;c++)
             {
                 mvK[c] = K[c].clone();
+                print_mat(mvK[c])
                 mvfx[c] = K[c].at<float>(0,0);
                 mvfy[c] = K[c].at<float>(1,1);
                 mvcx[c] = K[c].at<float>(0,2);
@@ -49,9 +50,13 @@ namespace ORB_SLAM2
 
 
             mnMinX = 0.0f;
+            print_vector(mvcx)
             mnMaxX = *(std::max_element(mvcx.begin(),mvcx.end()))*2;
+            print_value(mnMaxX)
             mnMinY = 0.0f;
             mnMaxY = *(std::max_element(mvcy.begin(),mvcy.end()))*2;
+            print_value(mnMaxY)
+
 
             mfGridElementWidthInv = static_cast<float>(FRAME_GRID_COLS) / static_cast<float>(mnMaxX - mnMinX);
             mfGridElementHeightInv = static_cast<float>(FRAME_GRID_ROWS) / static_cast<float>(mnMaxY - mnMinY);
@@ -68,16 +73,13 @@ namespace ORB_SLAM2
         mvOwSubcamera.resize(Tcg.size());
         mvRcwSubcamera.resize(Tcg.size());
         mvtcwSubcamera.resize(Tcg.size());
-        mvK.resize(Ncameras);
         for (int i = 0; i < Tcg.size(); i++)
         {
             Tcg[i].copyTo(mvTcg[i]);
             mvTgc[i] = Tcg[i].inv();
-            mvK[i] = K[i].clone();
         }
         // ORB extraction
         ExtractORBGroupCamera(imGrays, correctors);
-
 
 
         N = mvKeys.size();
@@ -96,7 +98,7 @@ namespace ORB_SLAM2
 
 
 
-        //mb = mbf / fx;
+        mb = mbf / fx;
 
         AssignFeaturesToGrid();
     }

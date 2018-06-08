@@ -183,10 +183,11 @@ namespace ORB_SLAM2
 
             mvCorrectors[v] = FisheyeCorrector(correction_table_name, image_height, image_width, pixel_height, f_image_,vertical_range , horizontal_range);
             mvCorrectors[v].setAxisDirection(yaw, pitch, raw);//30,35,-7
-            mvCorrectors[v].setClipRegion(cv::Rect(cv::Point(crop_size[0], crop_size[1]), cv::Point(mvCorrectors[v].getCorrectedSize().width-crop_size[2], mvCorrectors[v].getCorrectedSize().height -crop_size[3])));
+            mvCorrectors[v].updateMap();
+            //mvCorrectors[v].setClipRegion(cv::Rect(cv::Point(crop_size[0], crop_size[1]), cv::Point(mvCorrectors[v].getCorrectedSize().width-crop_size[2], mvCorrectors[v].getCorrectedSize().height -crop_size[3])));
             if(scale!=1)
                 mvCorrectors[v].setSizeScale(scale);
-            mvCorrectors[v].updateMap();
+            //mvCorrectors[v].updateMap();
             print_vector(crop_size,true);
 
 
@@ -640,7 +641,7 @@ namespace ORB_SLAM2
     // Map initialization for monocular
     void Tracking::MonocularInitializationGroupCamera()
     {
-        printOFF
+        printON
         print_value(mCurrentFrame.mvKeys.size());
         if(!mpInitializerGroupCamera)
         {
@@ -678,7 +679,7 @@ namespace ORB_SLAM2
 
             // Find correspondences
             ORBmatcher matcher(0.9,true);
-            int nmatches = matcher.SearchForInitialization(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,100);
+            int nmatches = matcher.SearchForInitializationGroupCamera(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,100);
 
             // Check if there are enough correspondences
             print_value(nmatches)
