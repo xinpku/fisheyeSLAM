@@ -225,7 +225,7 @@ public:
 
 	void setAxisDirection(float axis_direction_horizontal, float axis_direction_vertical, float axis_rotation)
 	{
-		axis_vertical_radian_ = kPI/2-degreeToRadian(axis_direction_vertical);
+		axis_vertical_radian_ = degreeToRadian(axis_direction_vertical);
 		axis_horizontal_radian_ = degreeToRadian(axis_direction_horizontal);
 		axis_rotation_radian_ = degreeToRadian(axis_rotation);
 		map_need_update = true;

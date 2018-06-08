@@ -27,8 +27,8 @@ void FisheyeCorrector::readDistortionList(std::string file_name)
 void FisheyeCorrector::generateMap()
 {
     printON
-	//float angle_between_original_axis = (asin(sqrt(pow(sin(axis_vertical_radian_), 2) + pow(sin(axis_horizontal_radian_)*cos(axis_vertical_radian_), 2))));
-	float angle_between_original_axis = radianToDegree(asin(sqrt(sin(axis_vertical_radian_)*sin(axis_vertical_radian_) / (1 - sin(axis_horizontal_radian_)*sin(axis_horizontal_radian_)*cos(axis_vertical_radian_)*cos(axis_vertical_radian_)))));
+	float angle_between_original_axis = (asin(sqrt(pow(sin(axis_vertical_radian_), 2) + pow(sin(axis_horizontal_radian_)*cos(axis_vertical_radian_), 2))));
+	//float angle_between_original_axis = radianToDegree(asin(sqrt(sin(axis_vertical_radian_)*sin(axis_vertical_radian_) / (1 - sin(axis_horizontal_radian_)*sin(axis_horizontal_radian_)*cos(axis_vertical_radian_)*cos(axis_vertical_radian_)))));
 	float  radius_in_fisheye = distortion_list_[angle_between_original_axis * 10] / pixelHeight_;
 	f_image_ = angle_between_original_axis<0.01 ? f_camera_ : radius_in_fisheye / sin(degreeToRadian(angle_between_original_axis));
 	print_value(angle_between_original_axis)
@@ -39,15 +39,15 @@ void FisheyeCorrector::generateMap()
 	CenterY_ = (float)Height_ / 2.0f;
 	map_ = cv::Mat::ones(Height_, Width_, CV_32FC2)*(-1);
 	
-	/*float trans_y = sin(axis_vertical_radian_)*f_image_;
+	float trans_y = sin(axis_vertical_radian_)*f_image_;
 	float trans_x = cos(axis_vertical_radian_)*f_image_*sin(axis_horizontal_radian_);
-	float trans_z = -f_camera_ + f_image_ * cos(degreeToRadian(angle_between_original_axis));*/
+	float trans_z = -f_camera_ + f_image_ * cos(degreeToRadian(angle_between_original_axis));
 
 
-	float radian_between_original_axis = degreeToRadian(angle_between_original_axis);
-	float trans_x = sin(radian_between_original_axis)*sin(axis_horizontal_radian_)*f_image_;
-	float trans_y = sin(radian_between_original_axis)*cos(axis_horizontal_radian_)*f_image_;
-	float trans_z = -f_camera_ + f_image_ * cos(radian_between_original_axis);
+    /*float radian_between_original_axis = degreeToRadian(angle_between_original_axis);
+    float trans_x = sin(radian_between_original_axis)*sin(axis_horizontal_radian_)*f_image_;
+    float trans_y = sin(radian_between_original_axis)*cos(axis_horizontal_radian_)*f_image_;
+    float trans_z = -f_camera_ + f_image_ * cos(radian_between_original_axis);*/
 	new_camera_plane_center = Eigen::Vector3f(trans_x, trans_y, trans_z);
 	print_vect_eigen(new_camera_plane_center)
 	Eigen::Vector3f  original_camera_plane_center(0, 0, 0);
@@ -64,7 +64,7 @@ void FisheyeCorrector::generateMap()
 	Eigen::Quaternion<float> quaternion_axis(cos(axis_rotation_radian_/2), 0, 0, sin(axis_rotation_radian_/2));
 	quaternion_axis.normalize();
 	Eigen::Matrix3f rotation = quaternion_axis.toRotationMatrix()*quaternion.toRotationMatrix();
-	std::cout<<"rotation*rotation"<<std::endl<<rotation*rotation<<std::endl;
+	std::cout<<"rotation*rotation.t"<<std::endl<<rotation*rotation.transpose()<<std::endl;
 	transform_camera_to_originalplane_ = Eigen::Matrix4f();
 	transform_camera_to_originalplane_ <<
 		rotation(0, 0), rotation(0, 1), rotation(0, 2), new_camera_plane_center(0),
@@ -92,11 +92,12 @@ void FisheyeCorrector::generateMap()
 		//Eigen::Vector3f point_vector = (point - camera_center).normalized();
 
 		float cos_value = original_axis.dot((point-camera_center).normalized());
+
 		float degree = radianToDegree(acos(cos_value));
 		if (degree > 120)
 			continue;
 
-		float x1 = point(0), x2 = 0, y1 = point(1), y2 = 0, z1 = point(2), z2 = -f_camera_;
+		/*float x1 = point(0), x2 = 0, y1 = point(1), y2 = 0, z1 = point(2), z2 = -f_camera_;
 		Eigen::Vector2f point_in_original_plane;
 		//point_in_original_plane(0) = (x2* z1 - x1* z2) / (z1 - z2);
 		//point_in_original_plane(1) = (y2* z1 - y1* z2) / (z1 - z2);
@@ -104,18 +105,23 @@ void FisheyeCorrector::generateMap()
 			point_in_original_plane(1) = y1*f_camera_/(z1+f_camera_);
 		//   	point_in_original_plane(0) = x1;
 		//	point_in_original_plane(1) = y1;
-		map_to_original_plane.at<cv::Vec2f>(h, w) = cv::Vec2f(point_in_original_plane(0), point_in_original_plane(1));
+		        print_value((point_in_original_plane(0)-x2)/(x1-x2));
+			print_value((point_in_original_plane(1)-y2)/(y1-y2))
+			print_value((0-z2)/(z1-z2))
+
+		//map_to_original_plane.at<cv::Vec2f>(h, w) = cv::Vec2f(point_in_original_plane(0), point_in_original_plane(1));
 		//std::cout << "cosvalue  " << cos_value << "   " << original_axis.dot((Eigen::Vector3f(point_in_original_plane(0), point_in_original_plane(1), 0) - camera_center).normalized()) << std::endl ;
 
-		float radius_in_project = sqrt(point_in_original_plane(0)*point_in_original_plane(0) + point_in_original_plane(1)*point_in_original_plane(1));
+		//float radius_in_project = sqrt(point_in_original_plane(0)*point_in_original_plane(0) + point_in_original_plane(1)*point_in_original_plane(1));
 
             if (radius_in_project == 0)
 		{
 			map_.at<cv::Vec2f>(h, w) = cv::Vec2f(CenterX_fisheye_, CenterY_fisheye_);
 			continue;
 		}
-			
+			*/
 
+		//Intepolation for more acurate radius in correction table.
 		int position_floor = floor(degree * 10);
 		int position_ceil = ceil(degree * 10);
 		float  radius_in_fisheye_floor = distortion_list_[position_floor];
@@ -125,25 +131,30 @@ void FisheyeCorrector::generateMap()
 			radius_in_fisheye = radius_in_fisheye_ceil;
 		else
 			radius_in_fisheye = radius_in_fisheye_floor + (radius_in_fisheye_ceil - radius_in_fisheye_floor)*((degree * 10 - position_floor) / (position_ceil - position_floor));;
-			radius_in_fisheye =radius_in_fisheye_ceil;
-			radius_in_fisheye = radius_in_fisheye / pixelHeight_;
+		radius_in_fisheye = radius_in_fisheye / pixelHeight_;
 
-		float x = point_in_original_plane(0) *(radius_in_fisheye / radius_in_project);
-		float y = point_in_original_plane(1)*(radius_in_fisheye / radius_in_project);
+		float distance_to_original_axies = sqrt(point(0)*point(0)+point(1)*point(1));
+		float x = point(0) *(radius_in_fisheye / distance_to_original_axies);
+		float y = point(1)*(radius_in_fisheye / distance_to_original_axies);
+            //print_value(degree)
 
-		if (degree > 90)
+		/*if (degree > 90)
         {
 			print_value(degree)
             print_value(radianToDegree(atan(radius_in_project / f_camera_)))
-            print_value(w)
+            print_value(radianToDegree(acos(f_camera_/sqrt(radius_in_project*radius_in_project+ f_camera_*f_camera_))))
+            print_value(radius_in_project*radius_in_project+ f_camera_*f_camera_)
+            print_value(point_in_original_plane(0)*point_in_original_plane(0)+point_in_original_plane(1)*point_in_original_plane(1)+f_camera_*f_camera_)
+
+            *//*print_value(w)
             print_value(h)
 			print_value(x)
 			print_value(y)
 			print_value(point_in_original_plane[0])
-			print_value(point_in_original_plane[1])
+			print_value(point_in_original_plane[1])*//*
 
 
-		}
+		}*/
 		//Add the map relationship of Point(h,w)
 		//log_file << "pixel in fisheye coordinate  x " << x << "   y " << y << std::endl;
 		map_.at<cv::Vec2f>(h, w) = cv::Vec2f(x + CenterX_fisheye_, -y + CenterY_fisheye_);
