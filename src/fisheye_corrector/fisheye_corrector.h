@@ -225,7 +225,7 @@ public:
 
 	void setAxisDirection(float axis_direction_horizontal, float axis_direction_vertical, float axis_rotation)
 	{
-		axis_vertical_radian_ = degreeToRadian(axis_direction_vertical);
+		axis_vertical_radian_ = -degreeToRadian(axis_direction_vertical);
 		axis_horizontal_radian_ = degreeToRadian(axis_direction_horizontal);
 		axis_rotation_radian_ = degreeToRadian(axis_rotation);
 		map_need_update = true;
@@ -241,9 +241,9 @@ public:
 		std::cout<<clip_region_<<std::endl;
 		std::cout<<original_map_.size()<<std::endl;
 		original_map_(clip_region_).copyTo(map_);
-		map_to_original_plane(clip_region_).copyTo(map_to_original_plane_clip);
+		//map_to_original_plane(clip_region_).copyTo(map_to_original_plane_clip);
 		cv::resize(map_,map_,cv::Size(0,0), size_scale_, size_scale_, cv::INTER_NEAREST);
-		cv::resize(map_to_original_plane_clip,map_to_original_plane_clip,cv::Size(0,0), size_scale_, size_scale_, cv::INTER_NEAREST);
+		//cv::resize(map_to_original_plane_clip,map_to_original_plane_clip,cv::Size(0,0), size_scale_, size_scale_, cv::INTER_NEAREST);
 
 		map_need_update = false;
 	}
