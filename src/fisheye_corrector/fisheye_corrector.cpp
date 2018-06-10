@@ -27,9 +27,14 @@ void FisheyeCorrector::readDistortionList(std::string file_name)
 void FisheyeCorrector::generateMap()
 {
     printON
-	float angle_between_original_axis = (asin(sqrt(pow(sin(axis_vertical_radian_), 2) + pow(sin(axis_horizontal_radian_)*cos(axis_vertical_radian_), 2))));
-	//float angle_between_original_axis = radianToDegree(asin(sqrt(sin(axis_vertical_radian_)*sin(axis_vertical_radian_) / (1 - sin(axis_horizontal_radian_)*sin(axis_horizontal_radian_)*cos(axis_vertical_radian_)*cos(axis_vertical_radian_)))));
-	float  radius_in_fisheye = distortion_list_[angle_between_original_axis * 10] / pixelHeight_;
+	//float axis_horizontalXY_radian = atan(sin(axis_horizontal_radian_)/(tan(axis_vertical_radian_)*cos(axis_horizontal_radian_)));
+	//float angle_between_original_axis = (asin(sqrt(pow(sin(axis_vertical_radian_), 2) + pow(sin(axis_horizontal_radian_)*cos(axis_vertical_radian_), 2))));
+	//float angle_between_original_axis = radianToDegree(asin(sqrt(sin(axis_vertical_radian_)*sin(axis_vertical_radian_) / (1 - sin(axis_horizontalXY_radian)*sin(axis_horizontalXY_radian)*cos(axis_vertical_radian_)*cos(axis_vertical_radian_)))));
+	//float angle_between_original_axis = radianToDegree(axis_vertical_radian_);
+	float angle_between_original_axis =
+            radianToDegree(atan( (sin(axis_horizontal_radian_)*sin(axis_horizontal_radian_)+(tan(axis_vertical_radian_)*cos(axis_horizontal_radian_))*(tan(axis_vertical_radian_)*cos(axis_horizontal_radian_)))/cos(axis_horizontal_radian_)));
+
+    float  radius_in_fisheye = distortion_list_[angle_between_original_axis * 10] / pixelHeight_;
 	f_image_ = angle_between_original_axis<0.01 ? f_camera_ : radius_in_fisheye / sin(degreeToRadian(angle_between_original_axis));
 	print_value(angle_between_original_axis)
 	Width_ = tan(horizontal_range_radian_)*f_image_ * 2;
@@ -39,15 +44,16 @@ void FisheyeCorrector::generateMap()
 	CenterY_ = (float)Height_ / 2.0f;
 	map_ = cv::Mat::ones(Height_, Width_, CV_32FC2)*(-1);
 	
-	float trans_y = sin(axis_vertical_radian_)*f_image_;
+	/*float trans_y = sin(axis_vertical_radian_)*f_image_;
 	float trans_x = cos(axis_vertical_radian_)*f_image_*sin(axis_horizontal_radian_);
-	float trans_z = -f_camera_ + f_image_ * cos(degreeToRadian(angle_between_original_axis));
+	float trans_z = -f_camera_ + f_image_ * cos(degreeToRadian(angle_between_original_axis));*/
 
 
-    /*float radian_between_original_axis = degreeToRadian(angle_between_original_axis);
-    float trans_x = sin(radian_between_original_axis)*sin(axis_horizontal_radian_)*f_image_;
-    float trans_y = sin(radian_between_original_axis)*cos(axis_horizontal_radian_)*f_image_;
-    float trans_z = -f_camera_ + f_image_ * cos(radian_between_original_axis);*/
+    float radian_between_original_axis = degreeToRadian(angle_between_original_axis);
+    float height = cos(radian_between_original_axis)*f_image_;
+    float trans_x = tan(axis_horizontal_radian_)*height;
+    float trans_y = tan(axis_vertical_radian_)*height;
+    float trans_z = -f_camera_ + height;
 	new_camera_plane_center = Eigen::Vector3f(trans_x, trans_y, trans_z);
 	print_vect_eigen(new_camera_plane_center)
 	Eigen::Vector3f  original_camera_plane_center(0, 0, 0);
@@ -63,8 +69,8 @@ void FisheyeCorrector::generateMap()
 	
 	Eigen::Quaternion<float> quaternion_axis(cos(axis_rotation_radian_/2), 0, 0, sin(axis_rotation_radian_/2));
 	quaternion_axis.normalize();
-	Eigen::Matrix3f rotation = quaternion_axis.toRotationMatrix()*quaternion.toRotationMatrix();
-	std::cout<<"rotation*rotation.t"<<std::endl<<rotation*rotation.transpose()<<std::endl;
+	Eigen::Matrix3f rotation = quaternion.toRotationMatrix()*quaternion_axis.toRotationMatrix();
+	//std::cout<<"rotation*rotation.t"<<std::endl<<rotation*rotation.transpose()<<std::endl;
 	transform_camera_to_originalplane_ = Eigen::Matrix4f();
 	transform_camera_to_originalplane_ <<
 		rotation(0, 0), rotation(0, 1), rotation(0, 2), new_camera_plane_center(0),
@@ -94,7 +100,7 @@ void FisheyeCorrector::generateMap()
 		float cos_value = original_axis.dot((point-camera_center).normalized());
 
 		float degree = radianToDegree(acos(cos_value));
-		if (degree > 120)
+		if (degree > 100)
 			continue;
 
 		/*float x1 = point(0), x2 = 0, y1 = point(1), y2 = 0, z1 = point(2), z2 = -f_camera_;
