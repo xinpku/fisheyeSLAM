@@ -154,9 +154,9 @@ add_executable(fisheye_video
 target_link_libraries(fisheye_video ${PROJECT_NAME}  debug_utils)
 
 
-add_executable(load_map
-        mono_video/loadMap.cpp)
-target_link_libraries(load_map ${PROJECT_NAME}  debug_utils)
+#add_executable(load_map
+#        mono_video/loadMap.cpp)
+#target_link_libraries(load_map ${PROJECT_NAME}  debug_utils)
 
 
 add_executable(mono_video
